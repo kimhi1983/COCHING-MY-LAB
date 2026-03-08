@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.member.mapper.AdminMemberDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.MEMB_SEQ			AS SEQ
+		, AA.MEMB_ID			AS MEMB_ID
+
+		, AA.MEMB_NAME		AS MEMB_NAME
+		, AA.MEMB_PHONE		AS PHONE
+		, AA.MEMB_EMAIL		AS EMAIL
+		, AA.USE_YN				AS USE_YN
+
+		, AA.PSWD_CHNG_DTTM	AS PWD_CHNG_DATE
+		, AA.PSWD_ERR_CNT	AS PWD_ERR_COUNT
+		, AA.PSWD_INIT_YN		AS PWD_INIT_YN
+		, AA.PSWD_EXP_DTTM	AS PWD_EXPIRED_DATE
+
+		, AA.RCT_ACS_DTTM		AS LAST_ACCESS_DATE
+		, AA.RCT_ACS_IP		AS LAST_ACCESS_IP
+		, AA.RGTR				AS RGTR_SEQ
+		, AA.RGT_DTTM			AS RGT_DATE
+		, AA.CHNR				AS CHNR_SEQ
+		, AA.CHNG_DTTM			AS CHNG_DATE
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='userSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{userSeq}
+		</if>
+
+		<if test='userSeqs != null'>
+    		<foreach item="item" index="index" collection="userSeqs"
+    			open="AND AA.MEMB_SEQ in (" separator="," close=")">#{item}</foreach>
+    	</if>
+
+    	<if test='userId != null and userId != ""'>
+			AND AA.MEMB_ID = #{userId}
+		</if>
+
+		<if test='userIdL != null and userIdL != ""'>
+			AND UPPER(AA.MEMB_ID) LIKE UPPER('%' || #{userIdL} ||'%')
+		</if>
+
+		<if test='userNameL != null and userNameL != ""'>
+			AND UPPER(AA.MEMB_NAME) LIKE UPPER('%' || #{userNameL} ||'%')
+		</if>
+
+		<if test='phoneL != null and phoneL != ""'>
+			AND UPPER(AA.MEMB_PHONE) LIKE UPPER('%' || #{phoneL} ||'%')
+		</if>
+
+		<if test='emailL != null and emailL != ""'>
+			AND UPPER(AA.MEMB_EMAIL) LIKE UPPER('%' || #{emailL} ||'%')
+		</if>
+
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn}
+		</if>
+
+		<if test='searchField == "all" 		and searchText != null and searchText != ""'>
+			AND (  AA.MEMB_ID		LIKE ('%' || #{searchText} || '%')
+				OR AA.MEMB_PHONE 	LIKE ('%' || #{searchText} || '%')
+				OR AA.MEMB_EMAIL 	LIKE ('%' || #{searchText} || '%'))
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType	="com.erns.coching.member.domain.AdminMemberSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.getList */
+
+		SELECT * FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM t_memb_admin_inf AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				<!--
+				<if test='sortColumn != null and sortColumn != ""'>
+					ORDER BY ${sortColumn} <if test='sortType != "DESC"'>DESC</if>
+				</if>
+				 -->
+			) A
+		)
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType	="com.erns.coching.member.domain.AdminMemberSearchDTO"
+		resultType		="int">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.getListCount */
+
+		SELECT count(*) AS CNT
+		FROM t_memb_admin_inf AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+
+	<select id="load"
+		parameterType	="com.erns.coching.member.domain.AdminMemberSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM t_memb_admin_inf AA
+
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.member.domain.AdminMemberVO">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.insert */
+
+ 		<selectKey order="BEFORE" resultType="com.erns.coching.member.domain.AdminMemberVO"
+			keyProperty="seq,salt" keyColumn="seq,salt">
+			SELECT
+				SQ_QP_MEMB_ADMIN_INF.NEXTVAL AS seq
+				, DBMS_RANDOM.STRING('X',  24) AS salt
+			FROM DUAL
+		</selectKey>
+
+		INSERT INTO t_memb_admin_inf (
+			  MEMB_SEQ
+			, MEMB_ID
+			, PSWD
+			, MEMB_SALT
+			, MEMB_NAME
+			, MEMB_PHONE
+			, MEMB_EMAIL
+			, PSWD_CHNG_DTTM
+			, PSWD_ERR_CNT
+			, USE_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+		) VALUES (
+			  #{seq		, jdbcType=INTEGER}
+			, #{userId	, jdbcType=VARCHAR}
+			, SF_QP_FN_PASSWD(#{password, jdbcType=VARCHAR}, #{salt,jdbcType=VARCHAR})
+			, #{salt	, jdbcType=VARCHAR}
+			, #{userName, jdbcType=VARCHAR}
+			, #{phone	, jdbcType=VARCHAR}
+			, #{email	, jdbcType=VARCHAR}
+			, now()	/* 비밀번호 변경일 */
+			, 0			/* 비밀번호 오류 횟수 */
+			, COALESCE(#{useYn	 , jdbcType=CHAR}, 'Y')
+
+			, #{rgtrSeq	, jdbcType=INTEGER}
+			, now()
+			, #{chnrSeq	, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<select id="loadWithCheckingPasswd"
+		parameterType="com.erns.coching.member.domain.AdminMemberVO"
+		resultType="com.erns.coching.member.domain.AdminMemberVO">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.loadWithCheckingPasswd */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM t_memb_admin_inf AA
+		<where>
+			AND AA.MEMB_SEQ  = #{seq, jdbcType=INTEGER}
+			AND AA.PSWD = ENCODE(DIGEST(#{pswd, jdbcType=VARCHAR} || SALT, 'sha512'), 'hex')
+		</where>
+	</select>
+
+	<update id="update"
+		parameterType="com.erns.coching.member.domain.AdminMemberVO">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.update */
+		UPDATE t_memb_admin_inf SET
+			  MEMB_NAME 	= #{userName	, jdbcType=VARCHAR}
+		    , MEMB_PHONE 	= #{phone		, jdbcType=VARCHAR}
+		    , MEMB_EMAIL 	= #{email		, jdbcType=VARCHAR}
+
+		    , CHNR 			= #{chnrSeq	, jdbcType=INTEGER}
+		    , CHNG_DTTM 	= now()
+		<where>
+			AND MEMB_SEQ 	= #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<!-- Note: select key 사용을 위해 update Tag 대신 insert Tag를 사용 -->
+	<insert id="updatePwd"
+		parameterType="com.erns.coching.member.domain.AdminMemberVO">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.updatePwd */
+
+		<selectKey order="BEFORE" resultType="String"
+			keyColumn="salt" keyProperty="salt">
+			SELECT DBMS_RANDOM.STRING('X',  24) AS SALT FROM DUAL
+		</selectKey>
+
+		UPDATE t_memb_admin_inf SET
+		 	  PSWD 		= ENCODE(DIGEST(#{pswd, jdbcType=VARCHAR} || SALT, 'sha512'), 'hex')
+			, MEMB_SALT		= #{salt, jdbcType=VARCHAR}
+	    	, PSWD_CHNG_DTTM 	= now()
+	    	, PSWD_ERR_CNT	= 0
+	    	, PSWD_INIT_YN	= 'N'
+
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</insert>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.delete */
+
+		DELETE FROM t_memb_admin_inf
+		<where>
+			AND MEMB_SEQ = #{seq , jdbcType=INTEGER}
+		</where>
+	</delete>
+
+
+	<update id="updateUseYn"
+		parameterType="com.erns.coching.member.domain.AdminMemberVO">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.updateUseYn */
+
+		UPDATE t_memb_admin_inf SET
+		      USE_YN		= #{useYn		, jdbcType=CHAR}
+		    , UDT_ID 		= #{udtId		, jdbcType=INTEGER}
+		    , UDT_DATE 		= now()
+		<where>
+			AND MEMB_SEQ = #{userSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+
+	<!-- BackOffice 사용자 -->
+	<select id="selectBackOfficeUserList"
+		parameterType	="com.erns.coching.member.domain.AdminMemberSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.selectBackOfficeUserList */
+		SELECT
+			  AA.MEMB_SEQ
+			, AA.MEMB_ID
+		    , AA.MEMB_NAME
+		    , AA.PHONE
+		    , AA.EMAIL
+		    , AA.ZIPCODE
+		    , AA.USE_YN
+		    , TO_CHAR(AA.PWD_CHNG_DATE, 'YYYY-MM-DD HH24:mi:SS') AS PWD_CHNG_DATE
+		    , AA.PWD_ERR_COUNT
+		    , AA.PLATFORM_TYPE
+		    , AA.REG_ID
+			, TO_CHAR(AA.REG_DATE, 'YYYY-MM-DD HH24:mi:SS') AS REG_DATE
+			, AA.UDT_ID
+			, TO_CHAR(AA.UDT_DATE, 'YYYY-MM-DD HH24:mi:SS') AS UDT_DATE
+
+			, BB.DEPT
+			, BB.RANK
+
+		FROM t_memb_admin_inf AA
+			JOIN t_memb_admin_inf_BACKOFFICE_INFO BB ON AA.MEMB_SEQ = BB.MEMB_ID
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		<if test='sortColumn != null and sortColumn != ""'>
+			ORDER BY ${sortColumn} <if test='sortType != "DESC"'>DESC</if>
+		</if>
+		<if test='rowSize &gt; 0'>
+			LIMIT #{rowSize} OFFSET #{offset}
+		</if>
+	</select>
+
+	<select id="selectBackOfficeUserListCount"
+		parameterType	="com.erns.coching.member.domain.AdminMemberSearchDTO"
+		resultType="int">
+		/* com.erns.coching.member.mapper.AdminMemberDAO.selectBackOfficeUserListCount */
+		SELECT count(*) AS CNT
+		FROM t_memb_admin_inf AA
+			JOIN t_memb_admin_inf_BACKOFFICE_INFO BB ON AA.MEMB_SEQ = BB.MEMB_ID
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.common.file.mapper.PdfInfoDAO">
+
+    <sql id="baseFieldsAA">
+				AA.FILE_ID
+			, AA.FILE_NAME
+			, AA.FILE_EXT
+			, AA.FILE_NAME_DEST
+			, AA.FILE_PATH
+			, AA.FILE_SIZE
+			, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+			, AA.PAGE_COUNT
+			, AA.PAGE_IMG_PATH
+			<!-- , AA.CONTENT -->
+			, TO_CHAR(AA.CONTENT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CONTENT_DTTM			
+    </sql>
+
+    <sql id="baseSearchConditionAA">
+			<if test='fileId != null and fileId != ""'>
+				AND AA.FILE_ID = #{fileId, jdbcType=VARCHAR}
+			</if>
+
+			<if test='fileIds != null'>
+				<foreach item="item" index="index" collection="fileIds"
+					open="AND AA.FILE_ID in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+			</if>
+
+			<if test='fileExt != null and fileExt != ""'>
+				AND AA.FILE_EXT = #{fileExt, jdbcType=VARCHAR}
+			</if>
+
+			<if test='fileExts != null'>
+				<foreach item="item" index="index" collection="fileExts"
+					open="AND AA.FILE_EXT in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+			</if>
+
+    </sql>
+
+    <select id="getList"
+    		parameterType="com.erns.coching.common.file.domain.PdfInfoSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.common.file.mapper.PdfInfoDAO.getList */
+
+			SELECT
+				<include refid="baseFieldsAA"/>
+			FROM T_PDF_INFO AA
+			<where>
+				<include refid="baseSearchConditionAA"/>				
+			</where>
+
+			<if test='rowSize &gt; 0'>
+				OFFSET #{offset} LIMIT #{rowSize} 
+			</if>
+
+    </select>
+
+    <select id="getListCount"
+				parameterType="com.erns.coching.common.file.domain.PdfInfoSearchDTO"
+				resultType="int">
+			/* com.erns.coching.common.file.mapper.PdfInfoDAO.getListCount */
+
+			SELECT
+				COUNT(*)
+			FROM T_PDF_INFO AA
+			<where>
+				<include refid="baseSearchConditionAA"/>
+				AND AA.DEL_YN = 'N'
+			</where>
+
+		</select>
+
+    <select id="load"
+				parameterType="com.erns.coching.common.file.domain.PdfInfoSearchDTO"
+				resultType="camelMap">
+    	/* com.erns.coching.common.file.mapper.PdfInfoDAO.load */
+
+			SELECT
+				<include refid="baseFieldsAA"/>
+			FROM T_PDF_INFO AA
+			<where>
+				AND AA.FILE_ID = #{fileId , jdbcType=VARCHAR}
+			</where>
+			LIMIT 1
+
+		</select>
+
+		<select id="loadVo"
+				parameterType="com.erns.coching.common.file.domain.PdfInfoSearchDTO"
+				resultType="com.erns.coching.common.file.domain.PdfInfoVO">
+    	/* com.erns.coching.common.file.mapper.PdfInfoDAO.loadVo */
+
+			SELECT
+				<include refid="baseFieldsAA"/>
+			FROM T_PDF_INFO AA
+			<where>
+				AND AA.FILE_ID = #{fileId , jdbcType=VARCHAR}
+			</where>
+			LIMIT 1
+		</select>
+
+		<insert id="insert"
+				parameterType="com.erns.coching.common.file.domain.PdfInfoVO">
+    	/* com.erns.coching.common.file.mapper.PdfInfoDAO.insert */
+
+    	INSERT INTO T_PDF_INFO (
+						FILE_ID
+					, FILE_NAME
+					, FILE_EXT
+					, FILE_NAME_DEST
+					, FILE_PATH
+					, FILE_SIZE
+					, RGT_DTTM
+
+					, PAGE_COUNT
+					, PAGE_IMG_PATH
+					, CONTENT	
+					, CONTENT_DTTM					
+				) VALUES (
+						#{fileId		, jdbcType=VARCHAR}
+					, #{fileName	, jdbcType=VARCHAR}
+					, #{fileExt		, jdbcType=VARCHAR}
+					, #{fileNameDest, jdbcType=VARCHAR}
+					, #{filePath	, jdbcType=VARCHAR}
+					, #{fileSize	, jdbcType=INTEGER}
+					, now()
+
+					, #{pageCount	, jdbcType=INTEGER}
+					, #{pageImgPath, jdbcType=VARCHAR}
+					, #{content	, jdbcType=VARCHAR}
+					, (CASE 
+							WHEN #{content	, jdbcType=VARCHAR} IS NOT NULL THEN now()
+							ELSE NULL
+						END ) 
+				)
+    </insert>
+
+    <delete id="delete"
+				parameterType="String">
+			/* com.erns.coching.common.file.mapper.PdfInfoDAO.delete */
+
+			DELETE FROM T_PDF_INFO
+        WHERE FILE_ID = #{value,jdbcType=VARCHAR}
+		</delete>
+
+		<select id="getBatchConvertList"
+    		resultType="String">
+    	/* com.erns.coching.common.file.mapper.PdfInfoDAO.getBatchConvertList */
+
+			SELECT 
+				FF.file_id
+			FROM t_file_inf FF
+				LEFT OUTER JOIN t_pdf_info PI ON
+					FF.file_id = PI.file_id
+			WHERE 
+				FF.ref_code = 'FT_RAW'
+				AND lower(FF.file_ext) in ('pdf', 'ppt', 'pptx', 'doc', 'docx')
+				AND PI.file_id is NULL	
+			LIMIT 5;	
+
+    </select>
+
+
+</mapper>

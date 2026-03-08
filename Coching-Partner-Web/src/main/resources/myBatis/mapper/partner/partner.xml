@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.partner.mapper.PartnerDAO">
+
+	<!-- T_PARTNER -->
+	<sql id="basePtnFieldsAA">
+		  AA.PTN_SEQ
+		, AA.PTN_NAME
+		, AA.NATION
+		, AA.PTN_LIC
+
+		, AA.PAGE_URL
+		, AA.LOGO_FILE_ID
+		, AA.DEL_YN
+		, AA.RGTR			AS RGTR_SEQ
+		, AA.RGT_DTTM		AS RGT_DATE
+		, AA.CHNR			AS CHNR_SEQ
+		, AA.CHNG_DTTM		AS CHNG_DATE
+	</sql>
+
+	<sql id="basePtnSearchConditionAA">
+		<if test='allSrch != null and allSrch != ""'>
+    		AND
+    		(
+    			REPLACE(UPPER(AA.PTN_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.PTN_LIC), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    		)
+    	</if>
+		<if test='ptnSeq != null and ptnSeq &gt; 0'>
+			AND AA.PTN_SEQ = #{ptnSeq ,jdbcType=INTEGER}
+		</if>
+    	<if test='ptnName != null and ptnName != ""'>
+    		AND UPPER(AA.PTN_NAME) LIKE UPPER('%' || #{ptnName, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='nation != null and nation != ""'>
+    		AND UPPER(AA.NATION) LIKE UPPER('%' || #{nation, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='ptnLic != null and ptnLic != ""'>
+    		AND UPPER(AA.PTN_LIC) LIKE UPPER('%' || #{ptnLic, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='pageUrl != null and pageUrl != ""'>
+    		AND UPPER(AA.PAGE_URL) LIKE UPPER('%' || #{pageUrl, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='delYn != null and delYn != ""'>
+    		AND AA.DEL_YN = #{delYn, jdbcType=CHAR}
+    	</if>
+    </sql>
+
+
+	<select id="getList"
+    		parameterType="com.erns.coching.partner.domain.PartnerSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+					SELECT
+						<include refid="basePtnFieldsAA"/>
+				    FROM  T_PARTNER_INF AA
+				 <where>
+					<include refid="basePtnSearchConditionAA"/>
+				</where>
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.partner.domain.PartnerSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_PARTNER_INF AA
+		<where>
+			<include refid="basePtnSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="load"
+    	parameterType="com.erns.coching.partner.domain.PartnerSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.load */
+
+    	SELECT
+			<include refid="basePtnFieldsAA"/>
+		FROM T_PARTNER_INF AA
+		<where>
+			<include refid="basePtnSearchConditionAA"/>
+		</where>
+    </select>
+    
+    <select id="loadNextSeq"
+    	resultType="long">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.loadNextSeq */
+
+		SELECT seq_t_partner_inf.NEXTVAL AS PTN_SEQ FROM DUAL
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.partner.domain.PartnerVO">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.insert */
+    	
+    	<selectKey resultType="long" keyProperty="ptnSeq" order="BEFORE">
+			SELECT nextval('seq_t_partner_inf')
+		</selectKey>
+
+    	INSERT INTO T_PARTNER_INF (
+    		  PTN_SEQ
+			, PTN_NAME
+			, NATION
+			, PTN_LIC
+			, PAGE_URL
+			, LOGO_FILE_ID
+			, DEL_YN
+			, RGTR
+			, RGT_DTTM
+    	) VALUES (
+			  #{ptnSeq		, jdbcType=INTEGER}
+			, #{ptnName		, jdbcType=VARCHAR}
+			, #{nation		, jdbcType=VARCHAR}
+			, #{ptnLic	, jdbcType=VARCHAR}
+			, #{pageUrl	, jdbcType=VARCHAR}
+			, #{logoFileId	, jdbcType=VARCHAR}
+			, COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+    
+    <update id="update"
+    	parameterType="com.erns.coching.partner.domain.PartnerVO">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.update */
+
+    	UPDATE T_PARTNER_INF SET
+			  PTN_NAME       	= #{ptnName	, jdbcType=VARCHAR}
+			, NATION        	= #{nation	, jdbcType=VARCHAR}
+			, PTN_LIC        	= #{ptnLic	, jdbcType=VARCHAR}
+			, PAGE_URL          = #{pageUrl		, jdbcType=VARCHAR}
+			, LOGO_FILE_ID      = #{logoFileId	, jdbcType=VARCHAR}
+			, DEL_YN        	= #{delYn	, jdbcType=VARCHAR}
+
+			, CHNR 		 		= #{chnr, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND PTN_SEQ 		= #{ptnSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+    
+    <update id="updateDelYn"
+    	parameterType="com.erns.coching.partner.domain.PartnerVO">
+    	/* com.erns.coching.partner.mapper.PartnerDAO.updateDelYn */
+
+    	UPDATE T_PARTNER_INF SET
+			  DEL_YN        = COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 	= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  	= now()
+		<where>
+			AND PTN_SEQ 	= #{ptnSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+    
+    <delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.partner.mapper.PartnerDAO.delete */
+
+		DELETE FROM T_PARTNER_INF
+		<where>
+			AND PTN_SEQ 	= #{ptnSeq	, jdbcType=INTEGER}
+		</where>
+	</delete>
+    
+</mapper>

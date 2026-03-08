@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>COCHING</title>
+
+    <style>
+      /* common */
+      @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        width: 100%;
+        font-family: "Pretendard", serif;
+        font-weight: normal;
+        line-height: 1.4;
+        color: #222;
+        background: #fff;
+        -webkit-overflow-scrolling: touch;
+        word-wrap: break-word;
+        word-break: keep-all;
+        white-space: normal;
+        position: relative;
+        overflow-y: auto;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        min-width: auto;
+      }
+
+      button,
+      input {
+        font-family: "Pretendard", serif;
+        line-height: 1;
+      }
+
+      .link {
+        display: flex;
+        flex-wrap: wrap;
+        overflow: auto;
+        overflow-x: hidden;
+        padding-bottom: 2rem;
+      }
+
+      .client {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .client .date {
+        white-space: nowrap;
+        font-size: 0.875rem;
+      }
+
+      .client .date ul {
+        display: flex;
+        align-items: center;
+      }
+
+      .client .date ul li:nth-child(n + 2) {
+        padding-left: 1rem;
+      }
+
+      .link ul {
+        width: 16.6666%;
+        padding: 2rem;
+      }
+
+      .link ul:nth-child(6n) {
+        border-right: 0;
+      }
+
+      .link .cate {
+        font-size: 1.125rem;
+        font-weight: 700;
+        padding-bottom: 0.25rem;
+      }
+
+      .link a {
+        display: inline-block;
+        color: #222;
+        padding: 0.25rem 0;
+      }
+
+      .link a:hover {
+        text-decoration: underline !important;
+      }
+
+      .link .disabled a {
+        cursor: default;
+        opacity: 0.5;
+      }
+
+      .link .disabled a:hover {
+        text-decoration: initial !important;
+      }
+
+      .client .gray {
+        color: #999;
+        padding: 0.25rem 0;
+      }
+
+      .client .logo {
+        width: 150px;
+      }
+
+      .client .logo img {
+        width: 100%;
+      }
+
+      .client .date {
+        color: #222;
+      }
+      .blue {
+        color: #3857be;
+      }
+      @media (max-width: 1200px) {
+        .link ul {
+          width: 33.3333%;
+        }
+      }
+      @media (max-width: 768px) {
+        .link ul {
+          width: 50%;
+          padding: 1.25rem;
+        }
+
+        .client {
+          padding: 1.25rem;
+          flex-wrap: wrap;
+        }
+
+        .logo {
+          font-size: 1.5rem;
+        }
+
+        .date {
+          /* padding-top: 0.5rem;
+        font-size: 0.75rem; */
+          display: none;
+        }
+
+        .link ul {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="client">
+      <div class="logo">
+        <img src="images/logo.svg" alt="COCHING" />
+      </div>
+      <div class="date">
+        <ul>
+          <li><span class="gray">Client : </span>이알앤에스</li>
+          <li><span class="gray">Work : </span>25.05.12~25.05.30</li>
+          <li><span class="gray">Last Update : </span>25.06.10</li>
+        </ul>
+      </div>
+    </div>
+    <div class="link">
+      <ul>
+        <li class="cate">UI</li>
+        <li><a href="input.html">input</a></li>
+        <li><a href="modal.html">modal</a></li>
+        <li><a href="error.html">404</a></li>
+        <li><a href="check.html">점검중</a></li>
+        <li><a href="loader.html">loader</a></li>
+      </ul>
+      <ul>
+        <li class="cate">로그인</li>
+        <li>
+          <a href="login.html">로그인 <span class="blue">(로그인 전 / 검색기능)</span> </a>
+        </li>
+        <li>
+          <a href="join.html">회원가입 <span class="blue">(로그인 후)</span></a>
+        </li>
+        <li><a href="join-user.html">일반 회원가입</a></li>
+        <li><a href="join-business.html">원료사 회원가입</a></li>
+        <li><a href="join-sales.html">영업사원 회원가입</a></li>
+      </ul>
+      <ul>
+        <li class="cate">메인</li>
+        <li>
+          <a href="index.html">메인 <span class="blue">(AI bot floating, 공지사항)</span></a>
+        </li>
+      </ul>
+      <ul>
+        <li class="cate">검색</li>
+        <li><a href="ingredient-view-01.html">성분상세-01</a></li>
+        <li><a href="ingredient-view-02.html">성분상세-02</a></li>
+        <li><a href="search-base.html">원료검색</a></li>
+        <li><a href="base-view.html">원료상세</a></li>
+        <li><a href="search-product.html">제품검색</a></li>
+        <li><a href="search-tv.html">코칭 TV</a></li>
+      </ul>
+      <ul>
+        <li class="cate">원료요청</li>
+        <li><a href="material-request.html">원료요청</a></li>
+        <li><a href="material-request-view.html">원료요청 상세</a></li>
+      </ul>
+      <ul>
+        <li class="cate">쪽지함</li>
+        <li><a href="note.html">쪽지함</a></li>
+        <li><a href="note-view-01.html">쪽지함 상세-01</a></li>
+        <li><a href="note-view-02.html">쪽지함 상세-02</a></li>
+      </ul>
+      <ul>
+        <li class="cate">원료소싱</li>
+        <li><a href="material-sourcing.html">원료소싱</a></li>
+        <li><a href="material-sourcing-view.html">원료소싱 상세</a></li>
+        <li><a href="material-sourcing-write.html">원료소싱 글쓰기</a></li>
+      </ul>
+      <ul>
+        <li class="cate">그 외</li>
+        <li><a href="notice.html">공지사항</a></li>
+        <li><a href="manual.html">사용자 매뉴얼</a></li>
+        <li><a href="inquiry.html">1:1 문의하기</a></li>
+        <li><a href="inquiry-write.html">1:1 문의하기 글쓰기</a></li>
+        <li><a href="inquiry-view.html">1:1 문의하기 상세</a></li>
+        <li><a href="fav.html">찜한 원료 / 최근 본 원료</a></li>
+      </ul>
+      <ul>
+        <li class="cate">마이페이지</li>
+        <li><a href="my-edit.html">내가 쓴 글</a></li>
+        <li><a href="my-info.html">개인정보</a></li>
+      </ul>
+      <ul>
+        <li class="cate">빈페이지</li>
+        <li><a href="search-base-empty.html">원료검색</a></li>
+        <li><a href="search-product-empty.html">제품검색</a></li>
+        <li><a href="search-tv-empty.html">코칭 TV</a></li>
+        <li>
+          <a href="material-request-empty.html">원료요청 <span class="blue">(게시판 공통)</span></a>
+        </li>
+        <li><a href="ingredient-view-empty.html">성분상세</a></li>
+      </ul>
+      <ul>
+        <li class="cate">메일</li>
+        <li><a href="mail-01.html">type-01</a></li>
+        <li><a href="mail-02.html">type-02</a></li>
+      </ul>
+    </div>
+  </body>
+</html>

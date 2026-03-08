@@ -1,0 +1,13 @@
+{
+  "header" : {
+    "menu1" : "Create Contract",
+    "menu2" : "Progressing Contract",
+    "menu3" : "Completion Contract",
+    "menu4" : "Customer Service",
+    "menu5" : "menu5"
+  },
+  "button": {
+    "add": "Add",
+    "delete": "Delete"
+  }
+}

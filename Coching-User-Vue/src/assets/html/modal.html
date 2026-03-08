@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!--tippy-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.7/animations/shift-toward.min.css" />
+    <!-- datepicker css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/jquery-ui.min.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <div class="ui-wrap">
+      <div class="container">
+        <div class="ui">
+          <div class="item">
+            <div class="title">Modal</div>
+            <div class="btn-area p-t-0">
+              <button type="button" class="btn btn-sm btn-primary modal-open default-modal">기본모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open double-modal">버튼두개모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open basic-modal">타이틀없음</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open check-modal">확인모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open error-modal">오류모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open info-modal">안내모달</button>
+            </div>
+            <div class="btn-area">
+              <button type="button" class="btn btn-sm btn-gray modal-open agree-modal">이용약관</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open id-pw-find-modal">아이디/비번찾기</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open send-modal">쪽지 보내기</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open-full filter-modal">모바일 필터</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open-full card-modal">원료 간략히</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open-full card-product-modal">제품 간략히</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open-full vs-detail-modal">제품 비교</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open send-input-modal">쪽지 보내기 input</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open-full request-data-modal">요청자료 전달</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--모달 사이즈는 lg,md,sm이 있음-->
+    <!--기본모달-->
+    <div class="modal for-default">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">타이틀</div>
+              </div>
+              <div class="modal-body">
+                <p class="text-gray">모달 내용 text...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--버튼두개모달-->
+    <div class="modal for-double">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">타이틀</div>
+              </div>
+              <div class="modal-body">
+                <p class="text-gray">모달 내용 text...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray bottom-modal-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--타이틀없음-->
+    <div class="modal for-basic">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body only">
+                <p class="text-center">타이틀 없음 텍스트만 블라블라...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--확인모달-->
+    <div class="modal for-check">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal success"></div>
+                <p class="text-center">성공 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--오류모달-->
+    <div class="modal for-error">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal error"></div>
+                <p class="text-center">실패 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--안내모달-->
+    <div class="modal for-info">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal info"></div>
+                <p class="text-center">인포, 경고 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--이용약관-->
+    <div class="modal for-agree">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">이용약관</div>
+              </div>
+              <div class="modal-body">
+                <div class="agree-box scroller">
+                  <div class="article">
+                    <div class="article-wrap">
+                      <div class="article-h1">제 1 장. 총칙</div>
+                      <div class="article-h2">제 1 조 (약관의 목적)</div>
+                      <div class="article-p">
+                        <li>이 약관은 코칭(이하 회사)가 온라인으로 제공하는 디지털콘텐츠(이하 "콘텐츠"라고 한다) 및 제반서비스의 이용과 관련하여 회사와 이용자와의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.</li>
+                      </div>
+                      <div class="article-h2">제 2 조 (약관의 효력 및 변경)</div>
+                      <div class="article-p">
+                        <li>1. "회사"라 함은 "콘텐츠" 산업과 관련된 경제활동을 영위하는 자로서 콘텐츠 및 제반서비스를 제공하는 자를 말합니다.</li>
+                        <li>2. "이용자"라 함은 "회사"의 사이트에 접속하여 이 약관에 따라 "회사"가 제공하는 "콘텐츠" 및 제반서비스를 이용하는 회원 및 비회원을 말합니다.</li>
+                        <li>3. "회원"이라 함은 "회사"와 이용계약을 체결하고 "이용자" 아이디(ID)를 부여받은 "이용자"로서 "회사"의 정보를 지속적으로 제공받으며 "회사"가 제공하는 서비스를 지속적으로 이용할 수 있는 자를 말합니다.</li>
+                        <li>4. "비회원"이라 함은 "회원"이 아니면서 "회사"가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+                        <li>5. "콘텐츠"라 함은 정보통신망이용촉진 및 정보보호 등에 관한 법률 제2조 제1항 제1호의 규정에 의한 정보통신망에서 사용되는 부호·문자·음성·음향·이미지 또는 영상 등으로 표현된 자료 또는 정보로서, 그 보존 및 이용에 있어서 효용을 높일 수 있도록 전자적 형태로 제작 또는 처리된 것을 말합니다.</li>
+                      </div>
+                    </div>
+                    <div class="article-wrap">
+                      <div class="article-h1">제 1 장. 총칙</div>
+                      <div class="article-h2">제 1 조 (약관의 목적)</div>
+                      <div class="article-p">
+                        <li>이 약관은 코칭(이하 회사)가 온라인으로 제공하는 디지털콘텐츠(이하 "콘텐츠"라고 한다) 및 제반서비스의 이용과 관련하여 회사와 이용자와의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.</li>
+                      </div>
+                      <div class="article-h2">제 2 조 (약관의 효력 및 변경)</div>
+                      <div class="article-p">
+                        <li>1. "회사"라 함은 "콘텐츠" 산업과 관련된 경제활동을 영위하는 자로서 콘텐츠 및 제반서비스를 제공하는 자를 말합니다.</li>
+                        <li>2. "이용자"라 함은 "회사"의 사이트에 접속하여 이 약관에 따라 "회사"가 제공하는 "콘텐츠" 및 제반서비스를 이용하는 회원 및 비회원을 말합니다.</li>
+                        <li>3. "회원"이라 함은 "회사"와 이용계약을 체결하고 "이용자" 아이디(ID)를 부여받은 "이용자"로서 "회사"의 정보를 지속적으로 제공받으며 "회사"가 제공하는 서비스를 지속적으로 이용할 수 있는 자를 말합니다.</li>
+                        <li>4. "비회원"이라 함은 "회원"이 아니면서 "회사"가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+                        <li>5. "콘텐츠"라 함은 정보통신망이용촉진 및 정보보호 등에 관한 법률 제2조 제1항 제1호의 규정에 의한 정보통신망에서 사용되는 부호·문자·음성·음향·이미지 또는 영상 등으로 표현된 자료 또는 정보로서, 그 보존 및 이용에 있어서 효용을 높일 수 있도록 전자적 형태로 제작 또는 처리된 것을 말합니다.</li>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--id-pw-find-->
+    <div class="modal for-id-pw-find">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+              </div>
+              <div class="modal-body p-t-0">
+                <div class="tabs style-line">
+                  <!--탭네비-->
+                  <div class="tabs-nav">
+                    <ul>
+                      <li class="active"><a href="#id-find">아이디 찾기</a></li>
+                      <li><a href="#pw-find">비밀번호 찾기</a></li>
+                    </ul>
+                  </div>
+                  <!--컨텐츠-->
+                  <div class="tabs-content id-pw-find-content">
+                    <!--id-->
+
+                    <div id="id-find" class="tabs-panel active">
+                      <!--title-->
+                      <div class="title">
+                        가입 시 등록된<br />
+                        이메일 주소를 입력하세요.
+                      </div>
+                      <form>
+                        <!--input-->
+                        <div class="input-wrap input-line">
+                          <div class="label-set">
+                            <div class="input-set">
+                              <input type="email" placeholder="가입된 이메일 입력" />
+                            </div>
+                          </div>
+                        </div>
+                        <!--button-->
+                        <div class="btn-area">
+                          <button type="button" class="btn btn-md btn-primary w-100">확인</button>
+                        </div>
+                      </form>
+                    </div>
+
+                    <!--pw-->
+                    <div id="pw-find" class="tabs-panel">
+                      <!--title-->
+                      <div class="title">
+                        가입 시 등록된<br />
+                        이메일 주소를 입력하세요.
+                      </div>
+                      <form>
+                        <!--input-->
+                        <div class="input-wrap input-line only">
+                          <div class="label-set">
+                            <div class="input-set">
+                              <input type="email" placeholder="가입된 이메일 입력" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <div class="input-set">
+                              <input type="text" placeholder="아이디 입력" />
+                            </div>
+                          </div>
+                        </div>
+                        <!--button-->
+                        <div class="btn-area">
+                          <button type="button" class="btn btn-md btn-primary w-100">비밀번호 초기화</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--쪽지보내기 modal-->
+    <div class="modal for-send m-modal-full">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">원료 자료 및 샘플요청<span class="m-none">쪽지 및 메일 발송</span></div>
+              </div>
+              <form class="modal-content-inner">
+                <div class="modal-body">
+                  <!--send-->
+                  <div class="send-wrap">
+                    <!--section-->
+                    <div class="send-section">
+                      <!--title-->
+                      <div class="title">요청원료<span class="total">6</span></div>
+                      <!--card-->
+                      <div class="card-wrap send-card scroller-x t-scroll-hidden">
+                        <div class="item">
+                          <!--header-->
+                          <div class="header">
+                            <div class="title">Glycerin 99.5%</div>
+                          </div>
+                          <!--body-->
+                          <div class="body">
+                            <div class="card-table">
+                              <table>
+                                <colgroup>
+                                  <col width="50" />
+                                </colgroup>
+                                <tbody>
+                                  <tr>
+                                    <th>제조사</th>
+                                    <td>Mibelle Biochemistry</td>
+                                  </tr>
+                                  <tr>
+                                    <th>유통사</th>
+                                    <td>K-pros</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item">
+                          <!--header-->
+                          <div class="header">
+                            <div class="title">Glycerin 99.5%</div>
+                          </div>
+                          <!--body-->
+                          <div class="body">
+                            <div class="card-table">
+                              <table>
+                                <colgroup>
+                                  <col width="50" />
+                                </colgroup>
+                                <tbody>
+                                  <tr>
+                                    <th>제조사</th>
+                                    <td>Mibelle Biochemistry</td>
+                                  </tr>
+                                  <tr>
+                                    <th>유통사</th>
+                                    <td>K-pros</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item">
+                          <!--header-->
+                          <div class="header">
+                            <div class="title">Glycerin 99.5%</div>
+                          </div>
+                          <!--body-->
+                          <div class="body">
+                            <div class="card-table">
+                              <table>
+                                <colgroup>
+                                  <col width="50" />
+                                </colgroup>
+                                <tbody>
+                                  <tr>
+                                    <th>제조사</th>
+                                    <td>Mibelle Biochemistry</td>
+                                  </tr>
+                                  <tr>
+                                    <th>유통사</th>
+                                    <td>K-pros</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--section-->
+                    <div class="send-section">
+                      <!--title-->
+                      <div class="title">요청자료<span class="info">중복 선택 가능 </span></div>
+                      <!--data choice-->
+                      <div class="data-choice">
+                        <div class="item">MSDS, SPEC, 조성비 자료</div>
+                        <div class="item">견적서</div>
+                        <div class="item">샘플</div>
+                      </div>
+                    </div>
+                    <!--section-->
+                    <div class="send-section">
+                      <!--title-->
+                      <div class="title">발주처</div>
+                      <!--input-->
+                      <div class="input-wrap">
+                        <div class="input-half">
+                          <div class="label-set">
+                            <label>회사명<span class="text-primary">*</span></label>
+                            <div class="input-set">
+                              <input type="text" value="(주)이알앤에스" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>담당자<span class="text-primary">*</span></label>
+                            <div class="input-set">
+                              <input type="text" value="이써니" />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input-half">
+                          <div class="label-set">
+                            <label>연락처<span class="text-primary">*</span></label>
+                            <div class="input-set">
+                              <input type="tel" value="01037406225" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>이메일<span class="text-primary">*</span></label>
+                            <div class="input-set">
+                              <input type="email" value="sunnydyd@erns.co.kr" />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="label-set">
+                          <label>샘플 받을 주소<span class="text-primary">*</span></label>
+                          <div class="input-set">
+                            <input type="text" value="서울시 금천구 벚꽃로 254 월드메르디앙1차 2층 213호" />
+                          </div>
+                        </div>
+                        <div class="label-set">
+                          <label>요청사항<span class="text-primary">*</span></label>
+                          <div class="input-set">
+                            <input type="text" placeholder="키인으로 입력해주세요" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-lg btn-gray bottom-modal-close">취소</button>
+                  <button type="button" class="btn btn-lg btn-primary">전송하기</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--mobile filter-->
+    <div class="modal-full modal-md for-filter btn-fixed-modal">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--left-->
+          <div class="title">원료 필터</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <!--filter-common-->
+          <div class="filter-common">
+            <div class="title-wrap">
+              <div class="input-set">
+                <div class="input-ic-set">
+                  <input type="text" placeholder="결과 내 재검색" />
+                  <button type="button" class="input-ic ic-md ic-search-md"></button>
+                </div>
+              </div>
+              <button type="button" class="deselect"></button>
+            </div>
+            <!--filter-box-->
+            <!--디폴트는 노출안함, 필터 선택 하나라도 있으면 노출하고, 하나라도 없으면 삭제-->
+            <div class="filter-box">
+              <div class="item">단일원료<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+              <div class="item">복합원료<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+              <div class="item">효능1<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+              <div class="item">효능2<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+              <div class="item">기능2<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+              <div class="item">제품3<button type="button" class="ic-xsm ic-close-xsm"></button></div>
+            </div>
+            <div class="filter-check scroller">
+              <!--checkbox id값 변경하세요-->
+              <div class="item">
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">단일원료</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">복합원료</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--첫번째는 펼쳐주세요 block-->
+              <div class="item filter-acd block">
+                <div class="title">효능<span>2</span></div>
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">효능 1</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">효능 2</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="item filter-acd">
+                <div class="title">기능</div>
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">기능 1</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">기능 2</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">기능 3</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="item filter-acd">
+                <div class="title">제품</div>
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">제품 1</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">제품 2</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">제품 3</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="item filter-acd">
+                <div class="title">원물</div>
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">원물 1</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">원물 2</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">원물 3</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="item filter-acd">
+                <div class="title">성상</div>
+                <div class="check-wrap">
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-01" type="checkbox" />
+                      <label for="checkbox-01" class="checkbox-label">성상 1</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">성상 2</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="checkbox">
+                      <input id="checkbox-02" type="checkbox" />
+                      <label for="checkbox-02" class="checkbox-label">성상 3</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--footer-->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-primary w-100">적용하기</button>
+        </div>
+      </div>
+    </div>
+
+    <!--card modal-->
+    <div class="modal-full modal-md for-card">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <div class="title">RoyalEpigen P5</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <!--card simple-->
+          <div class="card-simple">
+            <!--register-wrap-->
+            <div class="register-wrap">
+              <!--item-->
+              <div class="item">
+                <div class="content">
+                  <div class="title">RoyalEpigen P5 영업사원 1 자료 RoyalEpigen P5 영업사원 1 자료>RoyalEpigen P5 영업사원 1 자료 RoyalEpigen P5 영업사원 1 자료>RoyalEpigen P5 영업사원 1 자료 RoyalEpigen P5 영업사원 1 자료>RoyalEpigen P5 영업사원 1 자료 RoyalEpigen P5 영업사원 1 자료</div>
+                  <div class="info">
+                    <div class="button-wrap">
+                      <button type="button" class="ic-md ic-folded-note"></button>
+                      <button type="button" class="ic-md ic-message modal-open send-modal"></button>
+                      <div class="heart-wrap">
+                        <button type="button" class="ic-md ic-heart"></button>
+                      </div>
+                    </div>
+                    <div class="date-wrap">
+                      <div>김상식</div>
+                      <div>24.11.27</div>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-xsm btn-gray-outline">상세보기</button>
+              </div>
+              <!--item-->
+              <div class="item">
+                <div class="content">
+                  <div class="title">RoyalEpigen P5 영업사원 1 자료</div>
+                  <div class="info">
+                    <div class="button-wrap">
+                      <button type="button" class="ic-md ic-folded-note"></button>
+                      <button type="button" class="ic-md ic-message modal-open send-modal"></button>
+                      <div class="heart-wrap">
+                        <button type="button" class="ic-md ic-heart"></button>
+                      </div>
+                    </div>
+                    <div class="date-wrap">
+                      <div>김상식</div>
+                      <div>24.11.27</div>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-xsm btn-gray-outline">상세보기</button>
+              </div>
+            </div>
+
+            <!--ewg table-->
+            <div class="ewg-table">
+              <table>
+                <colgroup>
+                  <col width="80" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>EWG</th>
+                    <th>성분명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg green">1</div></td>
+                    <td>
+                      글리세린
+                      <div class="eng">Glycerin</div>
+                    </td>
+                  </tr>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg yellow">3-1</div></td>
+                    <td>
+                      물
+                      <div class="eng">Water</div>
+                    </td>
+                  </tr>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg red">7</div></td>
+                    <td>
+                      부틸렌글라이드
+                      <div class="eng">Butylene Glycol</div>
+                    </td>
+                  </tr>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg green">1-2</div></td>
+                    <td>
+                      소듐하이알루로네이트
+                      <div class="eng">Sodium Hyaluronate</div>
+                    </td>
+                  </tr>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg green">2</div></td>
+                    <td>
+                      판테놀
+                      <div class="eng">Panthenol</div>
+                    </td>
+                  </tr>
+                  <tr OnClick="location.href ='javascript:;'" class="link">
+                    <td><div class="ewg green">2-1</div></td>
+                    <td>
+                      아세틸글루코사민
+                      <div class="eng">Acetyl Glucosamine</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!--info box-->
+            <div class="info-box">
+              <div class="info-table">
+                <table>
+                  <colgroup>
+                    <col width="60" />
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <th>효능</th>
+                      <td>각질제거, 건성두피, 기미제거</td>
+                    </tr>
+                    <tr>
+                      <th>기능</th>
+                      <td>가소제, 각질제거제</td>
+                    </tr>
+                    <tr>
+                      <th>제품</th>
+                      <td>스킨/토너, 로션/에멀젼</td>
+                    </tr>
+                    <tr>
+                      <th>성상</th>
+                      <td>오일</td>
+                    </tr>
+                    <tr>
+                      <th>원물</th>
+                      <td>식물추출물</td>
+                    </tr>
+                    <tr>
+                      <th>제조사</th>
+                      <td>K-pros</td>
+                    </tr>
+                    <tr>
+                      <th>제조국</th>
+                      <td>인도네시아</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--card-product modal-->
+    <div class="modal-full modal-md for-card-product">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--left-->
+          <div class="title">제품</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <div class="modal-pr-wrap">
+            <div class="item">
+              <!--pr-info-->
+              <div class="pr-info">
+                <!--img-->
+                <div class="pr-img no-img"></div>
+                <!--body-->
+                <div class="pr-body">
+                  <div class="title">올리고 히알룰론산 딥 토너</div>
+                  <div class="co">Mibelle Biochemistry</div>
+                  <div class="price">23,000원</div>
+                </div>
+              </div>
+              <!--ewg table-->
+              <div class="ewg-table">
+                <div class="total-num">전성분<span>10</span></div>
+                <table>
+                  <colgroup>
+                    <col width="80" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>EWG</th>
+                      <th>성분명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1</div></td>
+                      <td>
+                        글리세린
+                        <div class="eng">Glycerin</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg yellow">3-1</div></td>
+                      <td>
+                        물
+                        <div class="eng">Water</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg red">7</div></td>
+                      <td>
+                        부틸렌글라이드
+                        <div class="eng">Butylene Glycol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1-2</div></td>
+                      <td>
+                        소듐하이알루로네이트
+                        <div class="eng">Sodium Hyaluronate</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2</div></td>
+                      <td>
+                        판테놀
+                        <div class="eng">Panthenol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2-1</div></td>
+                      <td>
+                        아세틸글루코사민
+                        <div class="eng">Acetyl Glucosamine</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--vs-detail modal-->
+    <div class="modal-full modal-lg for-vs-detail">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--left-->
+          <div class="title">선택한 제품 비교하기</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <div class="modal-pr-wrap">
+            <div class="item">
+              <!--pr-info-->
+              <div class="pr-info">
+                <!--img-->
+                <div class="pr-img">
+                  <img src="images/img-product.png" alt="" />
+                </div>
+                <!--body-->
+                <div class="pr-body">
+                  <div class="title">올리고 히알룰론산 딥 토너</div>
+                  <div class="co">Mibelle Biochemistry</div>
+                  <div class="price">23,000원</div>
+                </div>
+              </div>
+              <!--ewg table-->
+              <div class="ewg-table">
+                <div class="total-num">전성분<span>10</span></div>
+                <table>
+                  <colgroup>
+                    <col width="80" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>EWG</th>
+                      <th>성분명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1</div></td>
+                      <td>
+                        글리세린
+                        <div class="eng">Glycerin</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td class="ewg-empty">-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg red">7</div></td>
+                      <td>
+                        부틸렌글라이드
+                        <div class="eng">Butylene Glycol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1-2</div></td>
+                      <td>
+                        소듐하이알루로네이트
+                        <div class="eng">Sodium Hyaluronate</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2</div></td>
+                      <td>
+                        판테놀
+                        <div class="eng">Panthenol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2-1</div></td>
+                      <td>
+                        아세틸글루코사민
+                        <div class="eng">Acetyl Glucosamine</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="item">
+              <!--pr-info-->
+              <div class="pr-info">
+                <!--img-->
+                <div class="pr-img">
+                  <img src="images/img-product.png" alt="" />
+                </div>
+                <!--body-->
+                <div class="pr-body">
+                  <div class="title">올리고 히알룰론산 딥 토너</div>
+                  <div class="co">Mibelle Biochemistry</div>
+                  <div class="price">23,000원</div>
+                </div>
+              </div>
+              <!--ewg table-->
+              <div class="ewg-table">
+                <div class="total-num">전성분<span>10</span></div>
+                <table>
+                  <colgroup>
+                    <col width="80" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>EWG</th>
+                      <th>성분명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1</div></td>
+                      <td>
+                        글리세린
+                        <div class="eng">Glycerin</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td class="ewg-empty">-</td>
+                      <td>-</td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg red">7</div></td>
+                      <td>
+                        부틸렌글라이드
+                        <div class="eng">Butylene Glycol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">1-2</div></td>
+                      <td>
+                        소듐하이알루로네이트
+                        <div class="eng">Sodium Hyaluronate</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2</div></td>
+                      <td>
+                        판테놀
+                        <div class="eng">Panthenol</div>
+                      </td>
+                    </tr>
+                    <tr OnClick="location.href ='javascript:;'" class="link">
+                      <td><div class="ewg green">2-1</div></td>
+                      <td>
+                        아세틸글루코사민
+                        <div class="eng">Acetyl Glucosamine</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--쪽지보내기 input-->
+    <div class="modal for-send-input">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">쪽지 보내기</div>
+              </div>
+              <div class="modal-body">
+                <textarea rows="5" placeholder="내용을 입력해 주세요"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--request-data modal-->
+    <div class="modal-full modal-md for-request-data">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--left-->
+          <div class="title">요청자료 전달</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <!--input-->
+          <form class="request-form">
+            <div class="inner">
+              <div class="label-set">
+                <label>첨부파일</label>
+                <!--upload-->
+                <div class="upload-wrap">
+                  <div class="upload-area">
+                    <input type="file" class="file-input" multiple />
+                    <div class="file-list"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>샘플 발송 예정일</label>
+                <div class="radio-wrap">
+                  <div>
+                    <div class="radiobox">
+                      <input id="day" type="radio" name="request-date" />
+                      <label for="day" class="radiobox-label">하루 이내</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="radiobox">
+                      <input id="3-days" type="radio" name="request-date" />
+                      <label for="3-days" class="radiobox-label">3일 이내</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="radiobox">
+                      <input id="week" type="radio" name="request-date" />
+                      <label for="week" class="radiobox-label">일주일 이내</label>
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <div class="radiobox">
+                      <input id="calendar" type="radio" name="request-date" />
+                      <label for="calendar" class="radiobox-label">달력에서 선택</label>
+                    </div>
+                    <div class="datepicker-wrap">
+                      <input type="text" name="dateBox" class="datepicker" />
+                      <span class="to">까지</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>메세지 작성</label>
+                <div class="textarea-wrap">
+                  <textarea placeholder="내용을 입력해 주세요"></textarea>
+                </div>
+              </div>
+            </div>
+            <!--button-->
+            <div class="btn-area">
+              <button type="button" class="btn btn-lg btn-gray bottom-modal-full-close">취소</button>
+              <button type="button" class="btn btn-lg btn-primary">전송하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- scroller-x -->
+    <script src="js/scroller-x.js"></script>
+
+    <!-- datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>
+    <script>
+      $(function () {
+        $(".datepicker").datepicker({
+          dateFormat: "yy-mm-dd",
+          buttonText: "날짜 선택",
+          showMonthAfterYear: true,
+          // yearSuffix: "년",
+          changeMonth: true,
+          changeYear: true,
+          showButtonPanel: true,
+          monthNames: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          monthNamesShort: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          dayNames: ["(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)"],
+          dayNamesMin: ["일", "월", "화", "수", "목", "금", "토"],
+        });
+
+        // 오늘 날짜로 설정
+        $(".datepicker").datepicker("setDate", "today");
+
+        // 드롭다운 월 이름을 강제로 한글로 설정
+        $(".ui-datepicker-month option").each(function (index) {
+          var monthsInKorean = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+          $(this).text(monthsInKorean[index]);
+        });
+      });
+    </script>
+  </body>
+</html>

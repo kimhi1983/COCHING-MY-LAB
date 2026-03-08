@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- datepicker css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/jquery-ui.min.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <!--header-->
+    <header>
+      <div class="inner">
+        <div class="container">
+          <!--left-->
+          <div class="left flex">
+            <div class="ic-wrap menu-wrap m-none">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+            <!--logo-->
+            <a href="index.html" class="logo">
+              <img src="images/logo.svg" alt="COCHING" />
+            </a>
+          </div>
+          <!--right-->
+          <div class="right">
+            <!--login-->
+            <div class="login flex m-none">
+              <button type="button" class="btn btn-sm btn-primary">로그인</button>
+              <button type="button" class="btn btn-sm btn-primary-outline">회원가입</button>
+            </div>
+            <!--mobile menu-->
+            <div class="ic-wrap menu-wrap pc-none">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+          </div>
+        </div>
+        <!--search-->
+        <div class="main-search">
+          <form>
+            <!--search-wrap-->
+            <div class="search-wrap">
+              <button type="button" class="ic-lg ic-arrow-left-long"></button>
+              <!--input-->
+              <div class="search-input-wrap">
+                <input type="search" placeholder="글리세린(glycerin)" id="searchInput" />
+              </div>
+              <!--btn-->
+              <div class="btn-wrap">
+                <button type="submit" class="ic-lg ic-search"></button>
+                <button type="button" class="ic-lg ic-hash"></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+    <!--wrap-->
+    <div class="wrap">
+      <!--nav-->
+      <nav class="scroller m-none">
+        <!--lg-->
+        <div class="lg">
+          <!--gnb-->
+          <div class="gnb">
+            <!--group-->
+            <div class="group">
+              <!--해당 페이지 active-->
+              <a href="javascript:;" class="ic-home-lg">홈</a>
+              <a href="javascript:;" class="ic-tv-lg">코칭 TV</a>
+            </div>
+            <!--group-->
+            <div class="group gnb-acd block">
+              <div class="title">알림함</div>
+              <div class="gnb-wrap">
+                <a href="javascript:;" class="ic-noti-lg">알림함</a>
+                <a href="javascript:;" class="ic-list-lg">원료요청</a>
+                <a href="javascript:;" class="ic-message-lg active">쪽지함</a>
+              </div>
+            </div>
+
+            <!--group-->
+            <div class="group">
+              <a href="javascript:;" class="ic-drop-lg">원료소싱</a>
+              <a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+              <a href="javascript:;" class="ic-book-lg">사용자 매뉴얼</a>
+              <a href="javascript:;" class="ic-chats-lg">1:1 문의하기</a>
+            </div>
+          </div>
+          <!--footer-->
+          <div class="footer">
+            <div class="top">
+              <div>이용약관</div>
+              <div>개인정보처리방침</div>
+            </div>
+            <div class="info">
+              <ul>
+                <li>경기도 광명시 일직로 43, GIDC A2 602호</li>
+                <li>대표 : 오원석</li>
+                <li>사업자등록번호 : 316-81-29819</li>
+                <li>통신판매업 신고번호 : 2000-광명일직A-0000호</li>
+              </ul>
+            </div>
+            <div class="info">© COCHING All rights reserved.</div>
+          </div>
+        </div>
+        <!--sm-->
+        <div class="sm">
+          <!--해당 페이지 active-->
+          <a href="javascript:;" class="ic-home-lg">홈</a>
+          <a href="javascript:;" class="ic-tv-lg">코칭 TV</a> <a href="javascript:;" class="ic-noti-lg">알림함</a> <a href="javascript:;" class="ic-drop-lg">원료소싱</a><a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+          <a href="javascript:;" class="ic-chats-lg">문의하기</a>
+        </div>
+      </nav>
+      <!--section은 3가지 타입 full, main-->
+      <section>
+        <div class="container h-100">
+          <!--content-->
+          <div class="content">
+            <!--common-content-->
+            <div class="common-content">
+              <!--title-wrap-->
+              <div class="title-wrap m-none">
+                <div class="h1 text-center">쪽지함</div>
+                <!--link-box-wrap-->
+                <div class="link-box-wrap m-none">
+                  <!--해당 페이지 btn-gray->btn-bk-->
+                  <button type="button" class="btn btn-sm btn-gray">원료요청</button>
+                  <button type="button" class="btn btn-sm btn-bk">쪽지함</button>
+                </div>
+              </div>
+              <!--board-view-->
+              <div class="board-view">
+                <!--title-wrap-->
+                <div class="title-wrap">
+                  <div class="left">
+                    <div class="title">글리세린 취급하는 업체 있으시면 연락바랍니다.</div>
+                    <div class="info">
+                      <div>받은쪽지함</div>
+                      <div><span>Kpros</span><span>16:24</span></div>
+                    </div>
+                  </div>
+                  <div class="right">
+                    <!--button-->
+                    <button type="button" class="btn btn-sm btn-primary m-w-100 modal-open-full request-data-modal">요청자료 전달</button>
+                    <button type="button" class="btn btn-sm btn-primary-outline m-w-100">이메일로 전달</button>
+                  </div>
+                </div>
+                <!--board-view-content-->
+                <div class="board-view-content">
+                  <!--발주처-->
+                  <div class="order-wrap">
+                    <div class="total-wrap">
+                      <div class="total-num">발주처</div>
+                    </div>
+                    <div class="order-info-wrap">
+                      <div class="title">(주)이알앤에스</div>
+                      <div class="order-info">
+                        <div class="item">
+                          <div class="title-wrap">
+                            <div class="ic-md ic-user-md"></div>
+                            <div class="label">담당자</div>
+                          </div>
+                          <div class="data">이써니</div>
+                        </div>
+                        <div class="item">
+                          <div class="title-wrap">
+                            <div class="ic-md ic-mail-md"></div>
+                            <div class="label">이메일</div>
+                          </div>
+                          <div class="data">sunnydyd@naver.com</div>
+                        </div>
+                        <div class="item">
+                          <div class="title-wrap">
+                            <div class="ic-md ic-tel-md"></div>
+                            <div class="label">연락처</div>
+                          </div>
+                          <div class="data">010.1234.5678</div>
+                        </div>
+                        <div class="item">
+                          <div class="title-wrap">
+                            <div class="ic-md ic-pin-md"></div>
+                            <div class="label">샘플받을 주소</div>
+                          </div>
+                          <div class="data">서울시 금천구 벚꽃로 254 월드메르디앙1차 2층 213호</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--요청원료-->
+                  <div class="order-wrap">
+                    <div class="total-wrap">
+                      <div class="total-num">요청원료</div>
+                    </div>
+                    <!--card-->
+                    <div class="card-wrap send-card">
+                      <div class="item">
+                        <!--header-->
+                        <div class="header">
+                          <div class="title">Glycerin 99.5%</div>
+                        </div>
+                        <!--body-->
+                        <div class="body">
+                          <div class="card-table">
+                            <table>
+                              <colgroup>
+                                <col width="50" />
+                              </colgroup>
+                              <tbody>
+                                <tr>
+                                  <th>제조사</th>
+                                  <td>Mibelle Biochemistry</td>
+                                </tr>
+                                <tr>
+                                  <th>유통사</th>
+                                  <td>K-pros</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--요청자료-->
+                  <div class="order-wrap">
+                    <div class="total-wrap">
+                      <div class="total-num">요청자료</div>
+                    </div>
+                    <div class="data-choice">
+                      <div class="item active">MSDS, SPEC, 조성비 자료</div>
+                      <div class="item active">견적서</div>
+                      <div class="item">샘플</div>
+                    </div>
+                  </div>
+                  <!--요청사항-->
+                  <div class="order-wrap">
+                    <div class="total-wrap">
+                      <div class="total-num">요청사항</div>
+                    </div>
+                    <div class="order-request">요청드린 원료에 대한 자세한 스펙 및 기타 구비서류들 첨부파일로 보내주세요.<br />요청드린 원료에 대한 자세한 스펙 및 기타 구비서류들 첨부파일로 보내주세요.블라블라블라...블라블라블라...<br />요청드린 원료에 대한 자세한 스펙 및 기타 구비서류들 첨부파일로 보내주세요. 블라블라블라...</div>
+                  </div>
+
+                  <!--요청 자료 전달 내역-->
+                  <div class="order-wrap">
+                    <div class="total-wrap">
+                      <div class="total-num">요청 자료 전달 내역</div>
+                    </div>
+
+                    <!--comment-wrap-->
+                    <div class="comment-wrap">
+                      <!--comment-list-->
+                      <div class="comment-list sample-list">
+                        <!--item-->
+                        <div class="item">
+                          <!--inner-->
+                          <div class="inner">
+                            <div class="header">
+                              <div class="left">
+                                <div class="user">sunny</div>
+                                <div class="date">2025.02.09 16:24</div>
+                              </div>
+                              <a href="javascript:;" class="btn-send-cancel">전송취소</a>
+                            </div>
+                            <div class="body">
+                              댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용
+                              블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..
+                            </div>
+                            <div class="sample-date">샘플발송 예정일 : 2025.04.05</div>
+                            <div class="btn-comment-wrap">
+                              <a href="javascript:;" class="btn-comment">답글달기</a>
+                            </div>
+                            <!--reply-box-->
+                            <div class="reply reply-box">
+                              <form class="sample-editor">
+                                <div class="comment-box">
+                                  <textarea rows="3" placeholder="댓글을 입력해 주세요"></textarea>
+                                  <!--upload-->
+                                  <div class="upload-wrap">
+                                    <div class="upload-area">
+                                      <input type="file" class="file-input" multiple />
+                                      <div class="file-list"></div>
+                                    </div>
+                                  </div>
+                                  <div class="bottom">
+                                    <div class="datepicker-wrap">
+                                      <span class="to">샘플발송 예정일</span>
+                                      <input type="text" name="dateBox" class="datepicker" />
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-disabled">등록</button>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        <!--item-->
+                        <div class="item">
+                          <!--inner-->
+                          <div class="inner">
+                            <div class="header">
+                              <div class="left">
+                                <div class="user">sunny</div>
+                                <div class="date">16:24</div>
+                              </div>
+                            </div>
+                            <div class="body">댓글내용 블라블라블라..</div>
+                            <div class="btn-comment-wrap">
+                              <a href="javascript:;" class="btn-comment">답글달기</a>
+                            </div>
+
+                            <!--reply-box-->
+                            <div class="reply reply-box">
+                              <form class="sample-editor">
+                                <div class="comment-box">
+                                  <textarea rows="3" placeholder="댓글을 입력해 주세요"></textarea>
+                                  <!--upload-->
+                                  <div class="upload-wrap">
+                                    <div class="upload-area">
+                                      <input type="file" class="file-input" multiple />
+                                      <div class="file-list"></div>
+                                    </div>
+                                  </div>
+                                  <div class="bottom">
+                                    <div class="datepicker-wrap">
+                                      <span class="to">샘플발송 예정일</span>
+                                      <input type="text" name="dateBox" class="datepicker" />
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-disabled">등록</button>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <!--reply-list-->
+                          <div class="reply-list">
+                            <div class="item">
+                              <!--inner-->
+                              <div class="inner">
+                                <div class="header">
+                                  <div class="left">
+                                    <div class="user">sunny</div>
+                                    <div class="date">16:24</div>
+                                  </div>
+                                  <a href="javascript:;" class="btn-send-cancel">전송취소</a>
+                                </div>
+                                <div class="body">댓글내용 블라블라블라..</div>
+                                <!--file-wrap-->
+                                <div class="file-wrap">
+                                  <div class="total-wrap">
+                                    <div class="total-num">첨부파일<span>3</span></div>
+                                    <a href="javascript:;" class="btn-save">모두저장</a>
+                                  </div>
+                                  <div class="file-list">
+                                    <a href="javascript:;">
+                                      <div class="title-wrap"><span class="title">코칭 이용안내 가이드.pdf</span><span class="date">186KB</span></div>
+                                      <span class="ic-md ic-download"></span>
+                                    </a>
+                                    <a href="javascript:;">
+                                      <div class="title-wrap"><span class="title">코칭 파트너 제휴 안내.pdf</span><span class="date">186KB</span></div>
+                                      <span class="ic-md ic-download"></span>
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="item">
+                              <!--inner-->
+                              <div class="inner">
+                                <div class="header">
+                                  <div class="left">
+                                    <div class="user">jinjin</div>
+                                    <div class="date">16:24</div>
+                                  </div>
+                                </div>
+                                <div class="body">댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..댓글내용 블라블라블라..</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!--comment-editor-->
+                      <div class="comment-editor">
+                        <form class="sample-editor">
+                          <div class="comment-box">
+                            <textarea rows="3" placeholder="댓글을 입력해 주세요"></textarea>
+                            <!--upload-->
+                            <div class="upload-wrap">
+                              <div class="upload-area">
+                                <input type="file" class="file-input" multiple />
+                                <div class="file-list"></div>
+                              </div>
+                            </div>
+                            <div class="bottom">
+                              <div class="datepicker-wrap">
+                                <span class="to">샘플발송 예정일</span>
+                                <input type="text" name="dateBox" class="datepicker" />
+                              </div>
+                              <button type="button" class="btn btn-sm btn-disabled">등록</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--board-view-bottom-->
+                <div class="board-view-bottom">
+                  <button type="button" class="btn-left"></button>
+                  <button type="button" class="btn-list">목록</button>
+                  <button type="button" class="btn-right"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!--back-to-top-->
+    <div id="back-to-top"></div>
+
+    <!--request-data modal-->
+    <div class="modal-full modal-md for-request-data">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--left-->
+          <div class="title">요청자료 전달</div>
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body scroller">
+          <!--input-->
+          <form class="request-form">
+            <div class="inner">
+              <div class="label-set">
+                <label>첨부파일</label>
+                <!--upload-->
+                <div class="upload-wrap">
+                  <div class="upload-area">
+                    <input type="file" class="file-input" multiple />
+                    <div class="file-list"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>샘플 발송 예정일</label>
+                <div class="radio-wrap">
+                  <div>
+                    <div class="radiobox">
+                      <input id="day" type="radio" name="request-date" />
+                      <label for="day" class="radiobox-label">하루 이내</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="radiobox">
+                      <input id="3-days" type="radio" name="request-date" />
+                      <label for="3-days" class="radiobox-label">3일 이내</label>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="radiobox">
+                      <input id="week" type="radio" name="request-date" />
+                      <label for="week" class="radiobox-label">일주일 이내</label>
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <div class="radiobox">
+                      <input id="calendar" type="radio" name="request-date" />
+                      <label for="calendar" class="radiobox-label">달력에서 선택</label>
+                    </div>
+                    <div class="datepicker-wrap">
+                      <input type="text" name="dateBox" class="datepicker" />
+                      <span class="to">까지</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>메세지 작성</label>
+                <div class="textarea-wrap">
+                  <textarea placeholder="내용을 입력해 주세요"></textarea>
+                </div>
+              </div>
+            </div>
+            <!--button-->
+            <div class="btn-area">
+              <button type="button" class="btn btn-lg btn-gray bottom-modal-full-close">취소</button>
+              <button type="button" class="btn btn-lg btn-primary">전송하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- scroller-x -->
+    <script src="js/scroller-x.js"></script>
+
+    <!-- datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>
+    <script>
+      $(function () {
+        $(".datepicker").datepicker({
+          dateFormat: "yy-mm-dd",
+          buttonText: "날짜 선택",
+          showMonthAfterYear: true,
+          // yearSuffix: "년",
+          changeMonth: true,
+          changeYear: true,
+          showButtonPanel: true,
+          monthNames: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          monthNamesShort: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          dayNames: ["(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)"],
+          dayNamesMin: ["일", "월", "화", "수", "목", "금", "토"],
+        });
+
+        // 오늘 날짜로 설정
+        $(".datepicker").datepicker("setDate", "today");
+
+        // 드롭다운 월 이름을 강제로 한글로 설정
+        $(".ui-datepicker-month option").each(function (index) {
+          var monthsInKorean = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+          $(this).text(monthsInKorean[index]);
+        });
+      });
+    </script>
+  </body>
+</html>

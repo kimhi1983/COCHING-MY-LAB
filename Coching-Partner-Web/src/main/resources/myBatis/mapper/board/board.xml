@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.board.mapper.BoardDAO">
+
+
+	<sql id="baseFieldsAA">
+		AA.BOARD_SEQ
+		, AA.BOARD_MST_ID
+		, AA.CATE_CD
+		, AA.TITLE
+		, AA.WRITER
+		, AA.SORT_ORD
+		, AA.DEL_YN
+		, AA.ADMIN_DEL_CD
+		, AA.ADMIN_DEL_RSN
+		, AA.VIEWS
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.FIX_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		AND AA.DEL_YN = 'N'	
+		/* 사용자는 무조건 삭제된 게시물 못보게 함*/
+
+		<if test='boardMstId != null and boardMstId != ""'>
+			AND AA.BOARD_MST_ID = #{boardMstId, jdbcType=VARCHAR}
+		</if>
+
+		<if test='titleL != null and titleL != ""'>
+			AND UPPER(AA.TITLE) LIKE UPPER('%' || #{titleL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='cateCd != null and cateCd != ""'>
+			AND AA.CATE_CD = #{cateCd, jdbcType=VARCHAR}
+		</if>
+
+		<if test='fixYn != null and fixYn != ""'>
+			<choose>
+				<when test='fixYn == "Y"'>
+					/* 공지글 */
+					AND AA.FIX_YN = 'Y'
+					AND NOW()::DATE BETWEEN 
+						COALESCE(NULLIF(TRIM(AA.FROM_DATE), ''), '2000-01-01')::DATE AND 
+						COALESCE(NULLIF(TRIM(AA.TO_DATE)	, ''), '3000-12-31')::DATE
+				</when>
+				<otherwise>
+					AND AA.FIX_YN = 'N'
+				</otherwise>				
+			</choose>			
+		</if>
+		
+	</sql>
+	
+	<select id="getList"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.board.mapper.BoardDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, MEMB.MEMB_NAME AS REG_NAME
+					, COALESCE(
+							(SELECT COUNT(*) FROM T_BOARD_CMT BC WHERE AA.BOARD_SEQ = BC.BOARD_SEQ AND BC.DEL_YN = 'N')
+						, 0
+					) AS CMT_CNT /* 코멘트 갯수 */
+				FROM T_BOARD_INF AA
+				LEFT JOIN T_MEMB_INF MEMB
+					ON AA.RGTR = MEMB.MEMB_SEQ
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<!-- <when test='sortColumn != null and sortColumn != ""'>
+						ORDER BY ${sortColumn} <if test='sortType != "DESC"'>DESC</if>
+					</when> -->
+					<otherwise>
+						ORDER BY AA.BOARD_SEQ DESC	
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="int">
+		/* com.erns.coching.board.mapper.BoardDAO.getListCount */
+
+		SELECT
+			COUNT(*) AS CNT
+		FROM T_BOARD_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="com.erns.coching.board.domain.BoardVO">
+		/* com.erns.coching.board.mapper.BoardDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, AA.CONTENT
+		FROM T_BOARD_INF AA			
+		<where>
+			AND AA.BOARD_SEQ = #{boardSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="loadDetail"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.board.mapper.BoardDAO.loadDetail */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, AA.CONTENT
+			, BB.BOARD_NAME
+			, MEMB.MEMB_NAME AS REG_NAME
+			, (SELECT COUNT(*) 
+				 FROM T_BOARD_CMT 
+				 WHERE BOARD_SEQ = #{boardSeq, jdbcType=INTEGER} 
+				 AND DEL_YN = 'N'
+				) AS CMT_CNT
+			, (
+					SELECT MIN(AA.BOARD_SEQ)
+					FROM T_BOARD_INF AA
+					WHERE AA.BOARD_MST_ID = #{boardMstId, jdbcType=VARCHAR}
+						AND AA.BOARD_SEQ <![CDATA[>]]> #{boardSeq, jdbcType=INTEGER}
+						AND AA.DEL_YN = 'N'
+				) AS NEXT
+			, (	
+					SELECT MAX(AA.BOARD_SEQ)
+					FROM T_BOARD_INF AA
+					WHERE  AA.BOARD_MST_ID = #{boardMstId, jdbcType=VARCHAR} 
+						AND AA.BOARD_SEQ <![CDATA[<]]> #{boardSeq, jdbcType=INTEGER}
+						AND AA.DEL_YN = 'N'
+				) AS PREV
+			, CC.CMT_USE_YN
+		FROM T_BOARD_INF AA
+			LEFT JOIN T_BOARD_MST BB	ON AA.BOARD_MST_ID = BB.BOARD_MST_ID
+			LEFT JOIN T_MEMB_INF MEMB	ON AA.RGTR = MEMB.MEMB_SEQ
+			LEFT JOIN T_BOARD_OPT CC	ON AA.BOARD_MST_ID = CC.BOARD_MST_ID
+		<where>
+			AND AA.BOARD_MST_ID = #{boardMstId, jdbcType=VARCHAR} 
+			AND AA.BOARD_SEQ = #{boardSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<insert id="insert"
+		parameterType="com.erns.coching.board.domain.BoardVO">
+		/* com.erns.coching.board.mapper.BoardDAO.insert */
+
+		<selectKey resultType="long" keyProperty="boardSeq" order="BEFORE">
+			SELECT nextval('seq_t_board_inf')
+		</selectKey>
+
+		INSERT INTO T_BOARD_INF (
+				BOARD_SEQ
+			, BOARD_MST_ID
+			, CATE_CD
+			, TITLE
+			, CONTENT
+			, WRITER
+			, SORT_ORD
+			, DEL_YN
+			, VIEWS
+			, FROM_DATE
+			, TO_DATE
+			, FIX_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+		) VALUES (
+				#{boardSeq		, jdbcType=INTEGER}
+			, #{boardMstId	, jdbcType=VARCHAR}
+			, #{cateCd			, jdbcType=VARCHAR}
+			, #{title				, jdbcType=VARCHAR}
+			, #{content			, jdbcType=VARCHAR}
+			, #{writer			, jdbcType=VARCHAR}
+			, #{sortOrd			, jdbcType=INTEGER}
+			, COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+			, COALESCE(#{views	, jdbcType=INTEGER}, 0)
+			, #{fromDate		, jdbcType=VARCHAR}
+			, #{toDate			, jdbcType=VARCHAR}
+			, COALESCE(#{fixYn	, jdbcType=CHAR}, 'N')
+
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+			, #{chnr		, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.board.domain.BoardVO">
+		/* com.erns.coching.board.mapper.BoardDAO.update */
+
+		UPDATE T_BOARD_INF SET
+				CATE_CD       = #{cateCd		, jdbcType=VARCHAR}
+			, TITLE         = #{title		, jdbcType=VARCHAR}
+			, CONTENT       = #{content		, jdbcType=VARCHAR}
+			, WRITER        = #{writer		, jdbcType=VARCHAR}
+
+			, CHNR 					= #{chnr		, jdbcType=INTEGER}
+			, CHNG_DTTM			= now()
+		<where>
+			AND BOARD_SEQ 	= #{boardSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateViewCnt"
+		parameterType="com.erns.coching.board.domain.BoardVO">
+		/* com.erns.coching.board.mapper.BoardDAO.updateViewCnt */
+
+		UPDATE T_BOARD_INF SET
+			VIEWS 		= VIEWS + 1
+		<where>
+			AND BOARD_SEQ 	= #{boardSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+	
+	<update id="updateDelYn"
+		parameterType="com.erns.coching.board.domain.BoardVO">
+		/* com.erns.coching.board.mapper.BoardDAO.updateDelYn */
+
+		UPDATE T_BOARD_INF SET
+    	  DEL_YN 			= #{delYn	, jdbcType=CHAR}
+			, CHNR 				= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM		= now()
+		<where>
+			AND BOARD_SEQ 	= #{boardSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+    
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.board.mapper.BoardDAO.delete */
+
+		DELETE FROM T_BOARD_INF
+		<where>
+			AND BOARD_SEQ 	= #{boardSeq, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+	<sql id="baseFieldsBB">
+		BB.BOARD_CMT_SEQ
+		, BB.BOARD_SEQ
+		, BB.CONTENT
+		, BB.DEL_YN
+		, BB.ADMIN_DEL_CD
+		, BB.ADMIN_DEL_RSN
+		, BB.REF_ID
+		, BB.CMT_ORD
+		, BB.SORT_ORD
+		, BB.SECRET_YN
+		, BB.RGTR
+		, TO_CHAR(BB.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, BB.CHNR
+		, TO_CHAR(BB.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionBB">
+		<if test='boardSeq != null and boardSeq != ""'>
+			AND BB.BOARD_SEQ = #{boardSeq, jdbcType=VARCHAR}
+		</if>
+		<if test='delYn != null and delYn != ""'>
+			AND BB.DEL_YN = #{delYn, jdbcType=CHAR}
+		</if>
+	</sql>
+
+	<select id="getCmt"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.board.mapper.BoardDAO.getCmt */
+
+		SELECT
+			<include refid="baseFieldsBB"/>
+			, MEMB.MEMB_NAME AS REG_NAME
+		FROM T_BOARD_CMT BB
+			LEFT JOIN T_MEMB_INF MEMB 
+				ON BB.RGTR = MEMB.MEMB_SEQ
+		<where>
+			<include refid="baseSearchConditionBB"/>
+		</where>
+		ORDER BY BB.BOARD_CMT_SEQ ASC, BB.REF_ID ASC, BB.CMT_ORD ASC
+	</select>
+    
+</mapper>

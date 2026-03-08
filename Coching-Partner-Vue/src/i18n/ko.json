@@ -1,0 +1,13 @@
+{
+  "header" : {
+    "menu1" : "계약 생성",
+    "menu2" : "진행 계약",
+    "menu3" : "완료 계약",
+    "menu4" : "고객센터222",
+    "menu5" : "메뉴5"
+  },  
+  "button": {
+    "add": "Add",
+    "delete": "Delete"
+  }
+}

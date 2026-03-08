@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.raw.mapper.RawDAO">
+
+	<!-- T_RAW_MST -->
+	<sql id="baseFieldsAA">
+		  AA.RAW_SEQ
+		, AA.RAW_NAME
+		, AA.PROD_COMPANY
+		, AA.PROD_COUNTRY
+		, AA.SUPPLIER
+		, AA.WEIGHT
+		, AA.USE_YN
+		, AA.RGTR
+		, AA.RGT_DTTM
+		, AA.CHNR
+		, AA.CHNG_DTTM
+	</sql>
+
+	<sql id="baseFieldsFF">
+		FF.RAW_DETAIL_SEQ
+		, FF.RAW_SEQ
+		, FF.MEMB_SEQ
+		, FF.TITLE
+		, FF.HASHTAG
+		, FF.FILE_ID
+		, FF.RAW_DESC
+		, FF.RAW_DETAIL
+		, FF.VIEW_CNT
+		, FF.REQUEST_CNT
+		, FF.RGTR
+		, FF.RGT_DTTM
+		, FF.CHNR
+		, FF.CHNG_DTTM
+		, FF.DLTR
+		, FF.DLT_DTTM
+	</sql>
+
+	<sql id="baseFieldsRR">
+		RR.RAW_REQUEST_SEQ
+		, RR.RAW_DETAIL_SEQ
+		, RR.PTN_SEQ
+		, RR.PTN_NAME
+		, RR.PHONE
+		, RR.EMAIL
+		, RR.ADDRESS
+		, RR.REQ_DETAIL
+		, RR.STATUS
+		, RR.MESSAGE_TYPE
+		, RR.RGTR AS REQUEST_RGTR
+		, TO_CHAR(RR.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') as REQUEST_DATE
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='allSrch != null and allSrch != ""'>
+    		AND
+    		(
+    			REPLACE(UPPER(AA.RAW_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.PROD_COMPANY), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.PROD_COUNTRY), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    		)
+    	</if>
+		<if test='rawSeq != null and rawSeq &gt; 0'>
+			AND AA.RAW_SEQ = #{rawSeq, jdbcType=INTEGER}
+		</if>
+    	<if test='rawName != null and rawName != ""'>
+    		AND UPPER(AA.RAW_NAME) LIKE UPPER('%' || #{rawName, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='rawMemb != null and rawMemb != ""'>
+    		AND AA.RAW_MEMB = #{rawMemb, jdbcType=INTEGER}
+    	</if>
+    	<if test='prodCompany != null and prodCompany != ""'>
+    		AND UPPER(AA.PROD_COMPANY) LIKE UPPER('%' || #{prodCompany, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='prodCountry != null and prodCountry != ""'>
+    		AND UPPER(AA.PROD_COUNTRY) LIKE UPPER('%' || #{prodCountry, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='supplier != null and supplier != ""'>
+    		AND UPPER(AA.SUPPLIER) LIKE UPPER('%' || #{supplier, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='requestCnt != null and requestCnt &gt; ""'>
+    		AND AA.REQUEST_CNT = #{requestCnt, jdbcType=INTEGER}
+    	</if>
+    	<if test='useYn != null and useYn != ""'>
+    		AND AA.USE_YN = #{useYn, jdbcType=VARCHAR}
+    	</if>
+    	<if test='delYn != null and delYn != ""'>
+    		AND AA.DEL_YN = #{delYn, jdbcType=VARCHAR}
+    	</if>
+    	<if test='permitYn != null and permitYn != ""'>
+    		AND AA.PERMIT_YN = #{permitYn, jdbcType=VARCHAR}
+    	</if>
+    </sql>
+
+	<select id="getList"
+    		parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.raw.mapper.RawDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+					SELECT
+						<include refid="baseFieldsAA"/>
+				    FROM  T_RAW_MST AA
+				 <where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.raw.mapper.RawDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_RAW_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="load"
+    	parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.raw.mapper.RawDAO.load */
+
+    	SELECT
+			<include refid="baseFieldsAA"/>
+			, FI.FILE_ID
+			, RSUB.RAW_SUB_SEQ
+			, RSUB.RAW_SUB_NAME_KO
+			, RSUB.RAW_SUB_INCI
+			, RSUB.CAS_NO
+			, RCOD.DOC_CODE
+			, RCOD.DOC_FILE_ID
+			, RTYPE.GRP_CODE
+			, RTYPE.CODE
+		FROM T_RAW_MST AA
+		LEFT JOIN T_FILE_INF FI ON AA.FILE_ID = FI.FILE_ID
+		LEFT JOIN T_RAW_SUB_INF RSUB ON AA.RAW_SEQ = RSUB.RAW_SEQ
+		LEFT JOIN T_RAW_DOC RCOD ON AA.RAW_SEQ = RCOD.RAW_SEQ
+		LEFT JOIN T_RAW_TYPE_INF RTYPE ON AA.RAW_SEQ = RTYPE.RAW_SEQ
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.raw.domain.RawMasterVO">
+    	/* com.erns.coching.raw.mapper.RawDAO.insert */
+
+    	<selectKey resultType="long" keyProperty="rawSeq" order="BEFORE">
+			SELECT nextval('seq_t_raw_mst')
+		</selectKey>
+
+    	INSERT INTO T_RAW_MST (
+    		  RAW_SEQ
+			, RAW_NAME
+			, RAW_MEMB
+			, PROD_COMPANY
+			, PROD_COUNTRY
+			, SUPPLIER
+			, FILE_ID
+			, RAW_DESC
+			, REQUEST_CNT
+			, USE_YN
+			, DEL_YN
+			, PERMIT_YN
+			, RGTR
+			, RGT_DTTM
+    	) VALUES (
+			  #{rawSeq		, jdbcType=INTEGER}
+			, #{rawName		, jdbcType=VARCHAR}
+			, #{rawMemb		, jdbcType=INTEGER}
+			, #{prodCompany	, jdbcType=VARCHAR}
+			, #{prodCountry	, jdbcType=VARCHAR}
+			, #{supplier	, jdbcType=VARCHAR}
+			, #{fileId		, jdbcType=VARCHAR}
+			, #{rawDesc		, jdbcType=VARCHAR}
+			, #{requestCnt	, jdbcType=INTEGER}
+			, COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+			, COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+			, #{permitYn	, jdbcType=CHAR}
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    <update id="update"
+    	parameterType="com.erns.coching.raw.domain.RawMasterVO">
+    	/* com.erns.coching.raw.mapper.RawDAO.update */
+
+    	UPDATE T_RAW_MST SET
+			  RAW_NAME       		= #{rawName		, jdbcType=VARCHAR}
+			, RAW_MEMB       		= #{rawMemb		, jdbcType=INTEGER}
+			, PROD_COMPANY        	= #{prodCompany	, jdbcType=VARCHAR}
+			, PROD_COUNTRY        	= #{prodCountry	, jdbcType=VARCHAR}
+			, SUPPLIER        		= #{supplier	, jdbcType=VARCHAR}
+			, RAW_DESC        		= #{rawDesc	, jdbcType=VARCHAR}
+			, USE_YN            	= COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+			, DEL_YN            	= COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+			, PERMIT_YN            	= #{permitYn	, jdbcType=CHAR}
+
+			, CHNR 		 		= #{chnr, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_SEQ 		= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+    <update id="updateUseYn"
+    	parameterType="com.erns.coching.raw.domain.RawMasterVO">
+    	/* com.erns.coching.raw.mapper.RawDAO.updateUseYn */
+
+    	UPDATE T_RAW_MST SET
+			  USE_YN            = COALESCE(#{useYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_SEQ 		= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+    <update id="updateDelYn"
+    	parameterType="com.erns.coching.raw.domain.RawMasterVO">
+    	/* com.erns.coching.raw.mapper.RawDAO.updateDelYn */
+
+    	UPDATE T_RAW_MST SET
+			  DEL_YN            = COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_SEQ 		= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+		<update id="updateDetailViewCnt"
+				parameterType="long">
+			/* com.erns.coching.raw.mapper.RawDAO.updateDetailViewCnt */
+
+			UPDATE T_RAW_DETAIL SET
+				VIEW_CNT      			= VIEW_CNT + 1
+			<where>
+				AND RAW_DETAIL_SEQ = #{value, jdbcType=INTEGER}
+			</where>
+		</update>
+
+    <update id="updateRequestCnt"
+    	parameterType="com.erns.coching.raw.domain.RawDetailVO">
+    	/* com.erns.coching.raw.mapper.RawDAO.updateRequestCnt */
+
+    	UPDATE T_RAW_DETAIL SET
+    		  REQUEST_CNT 		= REQUEST_CNT + 1
+		<where>
+			AND RAW_SEQ 		= #{rawSeq	, jdbcType=INTEGER}
+			AND MEMB_SEQ		= #{membSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+    <delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.raw.mapper.RawDAO.delete */
+
+		DELETE FROM T_RAW_MST
+		<where>
+			AND RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+	<select id="loadDetail"
+	        parameterType="com.erns.coching.raw.domain.RawDetailSearchDTO"
+	        resultType="com.erns.coching.raw.domain.RawDetailVO">
+		/* com.erns.coching.raw.mapper.RawDAO.getDetail */
+		SELECT
+		<include refid="baseFieldsFF"/>
+		FROM  T_RAW_DETAIL FF
+			INNER JOIN T_RAW_MANAGER EE
+				ON EE.RAW_SEQ = FF.RAW_SEQ AND EE.MEMB_SEQ = FF.MEMB_SEQ
+			INNER JOIN T_RAW_MST AA
+				ON AA.RAW_SEQ = FF.RAW_SEQ
+		<where>
+			AND FF.RAW_DETAIL_SEQ = #{rawDetailSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getRequestList"
+		parameterType="com.erns.coching.raw.domain.RawRequestSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getRequestList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, <include refid="baseFieldsFF"/>
+					, <include refid="baseFieldsRR"/>
+					, PP.PTN_NAME
+					, MI.MEMB_NAME AS MANAGER_NAME
+				FROM T_RAW_REQUEST RR
+				INNER JOIN T_RAW_DETAIL FF
+					ON FF.RAW_DETAIL_SEQ = RR.RAW_DETAIL_SEQ
+				INNER JOIN T_RAW_MST AA
+					ON AA.RAW_SEQ = FF.RAW_SEQ
+				INNER JOIN T_PARTNER_INF PP
+					ON AA.PTN_SEQ = PP.PTN_SEQ
+				INNER JOIN T_MEMB_INF MI
+					ON FF.MEMB_SEQ = MI.MEMB_SEQ
+				<where>
+					<if test='membSeq != null and membSeq &gt; 0'>
+						AND RR.RGTR = #{membSeq	, jdbcType=INTEGER}
+					</if>
+					<if test='managerSeq != null and managerSeq &gt; 0'>
+						AND FF.MEMB_SEQ = #{managerSeq	, jdbcType=INTEGER}
+					</if>
+					<if test='ptnSeq != null and ptnSeq &gt; 0'>
+						AND PP.PTN_SEQ = #{ptnSeq	, jdbcType=INTEGER}
+					</if>
+				</where>
+				ORDER BY RR.RGT_DTTM DESC
+			) A
+		) B
+		<if test='rowSize &gt; 0'>
+			WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getRequestListCount"
+			parameterType="com.erns.coching.raw.domain.RawRequestSearchDTO"
+			resultType="int">
+		/* com.erns.coching.raw.mapper.RawDAO.getRequestListCount */
+
+		SELECT COUNT(*)
+		FROM T_RAW_REQUEST RR
+		INNER JOIN T_RAW_DETAIL FF
+		ON FF.RAW_DETAIL_SEQ = RR.RAW_DETAIL_SEQ
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = FF.RAW_SEQ
+		INNER JOIN T_PARTNER_INF PP
+		ON AA.PTN_SEQ = PP.PTN_SEQ
+		INNER JOIN T_MEMB_INF MI
+		ON FF.MEMB_SEQ = MI.MEMB_SEQ
+		<where>
+			<if test='membSeq != null and membSeq &gt; 0'>
+				AND RR.RGTR = #{membSeq	, jdbcType=INTEGER}
+			</if>
+			<if test='managerSeq != null and managerSeq &gt; 0'>
+				AND FF.MEMB_SEQ = #{managerSeq	, jdbcType=INTEGER}
+			</if>
+			<if test='ptnSeq != null and ptnSeq &gt; 0'>
+				AND PP.PTN_SEQ = #{ptnSeq	, jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+
+	<select id="loadRequest"
+			parameterType="com.erns.coching.raw.domain.RawRequestSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.loadRequest */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		    , <include refid="baseFieldsFF"/>
+			, <include refid="baseFieldsRR"/>
+		    , MI.MEMB_NAME AS MEMB_NAME
+		    , MI.PTN_SEQ AS PTN_SEQ
+		    , MI2.MEMB_NAME AS MANAGER_NAME
+			, MI2.PTN_SEQ AS MANAGER_PTN_SEQ
+		FROM T_RAW_REQUEST RR
+		INNER JOIN T_RAW_DETAIL FF ON FF.RAW_DETAIL_SEQ = RR.RAW_DETAIL_SEQ
+		INNER JOIN T_RAW_MST AA ON AA.RAW_SEQ = FF.RAW_SEQ
+		INNER JOIN T_PARTNER_INF PP
+		ON AA.PTN_SEQ = PP.PTN_SEQ
+		INNER JOIN T_MEMB_INF MI ON MI.MEMB_SEQ = RR.RGTR
+		INNER JOIN T_MEMB_INF MI2 ON MI2.MEMB_SEQ = FF.MEMB_SEQ
+		<where>
+			RR.RAW_REQUEST_SEQ = #{rawRequestSeq	, jdbcType=INTEGER}
+			<if test='membSeq != null and membSeq &gt; 0'>
+				AND RR.RGTR = #{membSeq	, jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+
+	<select id="getRequestTypeList"
+			parameterType="com.erns.coching.raw.domain.RawRequestSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getRequestTypeList */
+
+		SELECT
+			RT.CODE
+		FROM T_RAW_REQUEST_TYPE RT
+		INNER JOIN T_RAW_REQUEST RR
+		ON RT.RAW_REQUEST_SEQ = RR.RAW_REQUEST_SEQ
+		<where>
+			RT.RAW_REQUEST_SEQ = #{rawRequestSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getRequestReplyList"
+			parameterType="com.erns.coching.raw.domain.RawRequestSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getRequestTypeList */
+
+		SELECT
+			RP.RAW_REPLY_SEQ
+		    , RP.DISPATCH_CODE
+		    , RP.DISPATCH_DATE
+		    , RP.REF_SEQ
+		    , RP.REPLY_CMT_ORD
+			, RP.CONTENTS
+			, RP.RGT_DTTM
+			, MI.MEMB_NAME
+			, MI.PTN_SEQ
+			, PP.PTN_NAME
+		FROM T_RAW_REQUEST_REPLY RP
+		INNER JOIN T_RAW_REQUEST RR
+			ON RP.RAW_REQUEST_SEQ = RR.RAW_REQUEST_SEQ
+		LEFT OUTER JOIN T_MEMB_INF MI
+			ON RP.RGTR = MI.MEMB_SEQ
+		LEFT OUTER JOIN T_PARTNER_INF PP
+			ON MI.PTN_SEQ = PP.PTN_SEQ
+		<where>
+			RP.RAW_REQUEST_SEQ = #{rawRequestSeq	, jdbcType=INTEGER}
+			AND RP.DEL_YN = 'N'
+		</where>
+		ORDER BY RP.RAW_REPLY_SEQ ASC, RP.REF_SEQ ASC, RP.REPLY_CMT_ORD ASC
+	</select>
+
+	<insert id="insertRequest"
+		parameterType="com.erns.coching.raw.domain.RawRequestVO">
+		/* com.erns.coching.raw.mapper.RawDAO.insertRequest */
+
+		<selectKey resultType="long" keyProperty="rawRequestSeq" order="BEFORE">
+			SELECT nextval('seq_t_raw_request')
+		</selectKey>
+
+		INSERT INTO T_RAW_REQUEST (
+		    RAW_REQUEST_SEQ
+			, RAW_DETAIL_SEQ
+			, PTN_SEQ
+			, PTN_NAME
+			, PHONE
+			, EMAIL
+			, ADDRESS
+			, REQ_DETAIL
+			, MESSAGE_TYPE
+			, RGTR
+			, RGT_DTTM
+		) VALUES (
+			#{rawRequestSeq		, jdbcType=INTEGER}
+			, #{rawDetailSeq	, jdbcType=INTEGER}
+			, #{ptnSeq			, jdbcType=INTEGER}
+			, #{ptnName			, jdbcType=VARCHAR}
+			, #{phone			, jdbcType=VARCHAR}
+			, #{email			, jdbcType=VARCHAR}
+			, #{address			, jdbcType=VARCHAR}
+			, #{reqDetail		, jdbcType=VARCHAR}
+			, #{messageType		, jdbcType=VARCHAR}
+			, #{rgtr			, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<insert id="insertRequestType"
+			parameterType="com.erns.coching.raw.domain.RawRequestTypeVO">
+		/* com.erns.coching.raw.mapper.RawDAO.insertRequestType */
+
+		INSERT INTO T_RAW_REQUEST_TYPE (
+			RAW_REQUEST_SEQ
+			, CODE
+			, RGTR
+			, RGT_DTTM
+		) VALUES (
+			#{rawRequestSeq	, jdbcType=INTEGER}
+			, #{code	, jdbcType=VARCHAR}
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+	<update id="updateStatus"
+			parameterType="com.erns.coching.raw.domain.RawRequestSetDTO">
+		/* com.erns.coching.raw.mapper.RawDAO.updateStatus */
+
+		UPDATE T_RAW_REQUEST SET
+		status            = #{status	, jdbcType=CHAR}
+
+		, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+		, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_REQUEST_SEQ 		= #{rawRequestSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<insert id="insertRequestReply"
+			parameterType="com.erns.coching.raw.domain.RawRequestReplyVO">
+		/* com.erns.coching.raw.mapper.RawDAO.insertRequestReply */
+
+		<selectKey resultType="com.erns.coching.raw.domain.RawRequestReplyVO"
+				   keyProperty="rawReplySeq,replyCmtOrd"
+				   keyColumn="rawReplySeq,replyCmtOrd"
+				   order="BEFORE">
+			SELECT
+			nextval('seq_t_raw_request_reply') AS rawReplySeq,
+			COALESCE(
+			(SELECT COUNT(*)
+			FROM T_RAW_REQUEST_REPLY
+			WHERE RAW_REQUEST_SEQ = #{rawRequestSeq}
+			AND REF_SEQ = #{refSeq}), 1) AS replyCmtOrd
+		</selectKey>
+
+		INSERT INTO T_RAW_REQUEST_REPLY (
+			 RAW_REPLY_SEQ
+			, RAW_REQUEST_SEQ
+		   	, DISPATCH_CODE
+		   	, DISPATCH_DATE
+		   	, CONTENTS
+		   	, REF_SEQ
+		   	, REPLY_CMT_ORD
+		   	, RGTR
+		   	, RGT_DTTM
+		) VALUES (
+			#{rawReplySeq		, jdbcType=INTEGER}
+			, #{rawRequestSeq	, jdbcType=INTEGER}
+			, #{dispatchCode	, jdbcType=VARCHAR}
+			, #{dispatchDate	, jdbcType=VARCHAR}
+			, #{contents		, jdbcType=VARCHAR}
+			, #{refSeq			, jdbcType=INTEGER}
+			, #{replyCmtOrd		, jdbcType=INTEGER}
+			, #{rgtr			, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="updateReply"
+			parameterType="com.erns.coching.raw.domain.RawRequestReplySetDTO">
+		/* com.erns.coching.raw.mapper.RawDAO.updateReply */
+
+		UPDATE T_RAW_REQUEST_REPLY SET
+		content 			= #{contents		, jdbcType=VARCHAR}
+	 	, dispatch_date		= #{dispatchDate	, jdbcType=VARCHAR}
+
+		, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+		, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_REPLY_SEQ 		= #{rawReplySeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateReplyDelYn"
+			parameterType="com.erns.coching.raw.domain.RawRequestReplySetDTO">
+		/* com.erns.coching.raw.mapper.RawDAO.updateReplyDelYn */
+
+		UPDATE T_RAW_REQUEST_REPLY SET
+			del_yn            = #{delYn		, jdbcType=CHAR}
+
+			, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_REPLY_SEQ 		= #{rawReplySeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+    <select id="getCmTypeList"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getCmTypeList */
+		SELECT
+		GRP_CODE,
+		CODE,
+		CODE_NM_KO,
+		CODE_NM_EN,
+		INPT_TYPE,
+		SORT_ORD
+		FROM  T_CM_RAW_TYPE
+		<where>
+			AND  USE_YN	= 'Y'
+		</where>
+		ORDER BY GRP_CODE, CODE, SORT_ORD ASC
+	</select>
+</mapper>

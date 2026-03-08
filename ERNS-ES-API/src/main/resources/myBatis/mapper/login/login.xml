@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.es.login.mapper.LoginDAO">
+
+	<select id="checkPasswd"
+		parameterType="com.erns.es.login.domain.LoginUserDTO"
+		resultType="com.erns.es.login.domain.LoginUserDTO">
+		/* com.erns.es.login.mapper.LoginDAO.checkPasswd */
+		SELECT
+			AA.MEMB_SEQ 			AS SEQ
+			, AA.MEMB_ID	 		AS USER_ID
+			, AA.PSWD_ERR_CNT 	AS PSWD_ERR_CNT
+
+			, AA.PSWD_INIT_YN		AS PSWD_INIT_YN
+
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.USE_YN = 'Y'
+			AND AA.MEMB_ID 	= #{userId, jdbcType=VARCHAR}
+			AND AA.PSWD = ENCODE(DIGEST(#{password, jdbcType=VARCHAR} || AA.SALT, 'sha512'), 'hex')
+		</where>
+
+	</select>
+
+
+	<update id="updatePswdErrorCnt"
+		parameterType="com.erns.es.login.domain.LoginUserDTO">
+		/* com.erns.es.login.mapper.LoginDAO.updatePswdErrorCnt */
+		UPDATE T_MEMB_INF SET
+			  PSWD_ERR_CNT   = PSWD_ERR_CNT +1
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+
+	<update id="updateResetPswdErrorCnt"
+		parameterType="com.erns.es.login.domain.LoginUserDTO">
+		/* com.erns.es.login.mapper.LoginDAO.updateResetPswdErrorCnt */
+		UPDATE T_MEMB_INF SET
+			  PSWD_ERR_CNT   = 0
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+
+	<update id="updateLoingInfo"
+		parameterType="com.erns.es.login.domain.LoginUserDTO">
+		/* com.erns.es.login.mapper.LoginDAO.updateLoingInfo */
+		UPDATE T_MEMB_INF SET
+			  RCT_ACS_DTTM = now()
+			, RCT_ACS_IP = #{lastAccessIp, jdbcType=VARCHAR}
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<select id="loadUser"
+		parameterType="String"
+		resultType="com.erns.es.login.domain.LoginUserDTO">
+		/* com.erns.es.login.mapper.LoginDAO.loadUser */
+		SELECT
+			AA.MEMB_SEQ 			AS SEQ
+			, AA.MEMB_ID	 		AS USER_ID
+			, AA.MEMB_NAME 		AS USER_NAME
+			, AA.PSWD 		AS PASSWORD
+			, AA.PHONE 		AS PHONE
+			, AA.EMAIL 		AS EMAIL
+
+			, AA.USE_YN		 		AS USE_YN
+			, AA.PSWD_CHNG_DTTM		AS PSWD_CHNG_DATE
+			, AA.PSWD_ERR_CNT 	AS PSWD_ERR_CNT
+			, AA.PSWD_INIT_YN 		AS PSWD_INIT_YN
+
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.MEMB_ID 	= #{value, jdbcType=VARCHAR}
+		</where>
+
+	</select>
+
+
+
+</mapper>

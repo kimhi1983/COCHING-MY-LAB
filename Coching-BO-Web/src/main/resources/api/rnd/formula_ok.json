@@ -1,0 +1,499 @@
+{
+    "resultCode": "0000",
+    "resultFailMessage": "처방이 성공적으로 생성되었습니다.",
+    "resultData": {
+        "overview": "집중 미백 및 피부톤 개선용 수분감 있는 에센스/앰플(세럼) 처방입니다. 다수의 저농도 AHA(글라이콜릭/락틱/말릭/타타릭)를 포함하여 각종 항산화제(레스베라트롤, 글루타티온), 나이아신아마이드의 미백 및 톤 개선 시너지를 노린 수상중심의 오일 소량 분산형 세럼입니다. 피부 안전을 위해 총 AHA 함량을 낮게 설계하고, pH는 피부 친화 범위(5.0-6.0)로 조정합니다.",
+        "total_percentage": 100.0,
+        "phases": [
+            {
+                "phase_name": "A상_수상층",
+                "temperature": "75°C",
+                "ingredients": [
+                    {
+                        "name": "정제수",
+                        "percentage": 74.3,
+                        "function": "피부컨디셔닝제, 용제",
+                        "es_id": 2700
+                    },
+                    {
+                        "name": "다이프로필렌글라이콜 (Dipropylene Glycol)",
+                        "percentage": 4.0,
+                        "function": "용제, 착향 보조, 점도감소제",
+                        "es_id": 5259
+                    },
+                    {
+                        "name": "부틸렌글라이콜 (Butylene Glycol)",
+                        "percentage": 3.0,
+                        "function": "용제, 피부컨디셔닝제, 보습",
+                        "es_id": 586
+                    },
+                    {
+                        "name": "다이글리세린 (Diglycerin)",
+                        "percentage": 3.0,
+                        "function": "보습제, 피부컨디셔닝제",
+                        "es_id": 4445
+                    },
+                    {
+                        "name": "나이아신아마이드 (Niacinamide)",
+                        "percentage": 5.0,
+                        "function": "미백/톤 개선 활성성분(피부컨디셔닝제)",
+                        "es_id": 1941
+                    },
+                    {
+                        "name": "피씨에이 (PCA)",
+                        "percentage": 0.5,
+                        "function": "보습제, 피부컨디셔닝제",
+                        "es_id": 4073
+                    },
+                    {
+                        "name": "글라이콜릭애씨드 (Glycolic Acid)",
+                        "percentage": 2.0,
+                        "function": "각질연화/피부표면 각화 조절(AHA)",
+                        "es_id": 5215
+                    },
+                    {
+                        "name": "락틱애씨드 (Lactic Acid)",
+                        "percentage": 1.0,
+                        "function": "각질연화/피부pH조정(AHA)",
+                        "es_id": 902
+                    },
+                    {
+                        "name": "말릭애씨드 (Malic Acid)",
+                        "percentage": 0.5,
+                        "function": "각질연화/결합효과 보조(AHA)",
+                        "es_id": 123
+                    },
+                    {
+                        "name": "타타릭애씨드 (Tartaric Acid)",
+                        "percentage": 0.2,
+                        "function": "pH 조정 보조제(AHA 보조)",
+                        "es_id": 3234
+                    }
+                ]
+            },
+            {
+                "phase_name": "B상_유상층",
+                "temperature": "75°C",
+                "ingredients": [
+                    {
+                        "name": "폴리글리세릴-4카프레이트 (Polyglyceryl-4 Caprate)",
+                        "percentage": 2.0,
+                        "function": "유화제/가용화제(오일의 수상분산 보조)",
+                        "es_id": 5981
+                    },
+                    {
+                        "name": "로즈우드오일 (Aniba Rosodora Wood Oil)",
+                        "percentage": 0.1,
+                        "function": "향료, 피부컨디셔닝제",
+                        "es_id": 5516
+                    },
+                    {
+                        "name": "스피어민트잎오일 (Mentha Viridis Leaf Oil)",
+                        "percentage": 0.1,
+                        "function": "향료, 수렴제",
+                        "es_id": 1493
+                    },
+                    {
+                        "name": "오렌지껍질오일 (Citrus Nobilis Peel Oil)",
+                        "percentage": 0.12,
+                        "function": "향료, 피부컨디셔닝제",
+                        "es_id": 101
+                    },
+                    {
+                        "name": "오렌지꽃오일 (Orange Flower Oil)",
+                        "percentage": 0.1,
+                        "function": "향료, 피부컨디셔닝제",
+                        "es_id": 2150
+                    },
+                    {
+                        "name": "만다린껍질오일 (Citrus Reticulata Peel Oil)",
+                        "percentage": 0.06,
+                        "function": "향료, 피부컨디셔닝제",
+                        "es_id": 7582
+                    },
+                    {
+                        "name": "베르가모트오일 (Bergamot Fruit Oil)",
+                        "percentage": 0.1,
+                        "function": "향료",
+                        "es_id": 459
+                    }
+                ]
+            },
+            {
+                "phase_name": "C상_첨가/보습 (열에 민감한 일부 성분, 25-40°C)",
+                "temperature": "40°C",
+                "ingredients": [
+                    {
+                        "name": "아데노신 (Adenosine Triphosphate)",
+                        "percentage": 0.1,
+                        "function": "피부컨디셔닝제(주름 개선 보조)",
+                        "es_id": 1616
+                    },
+                    {
+                        "name": "비사보롤 (Bisabolol)",
+                        "percentage": 0.2,
+                        "function": "진정, 피부컨디셔닝제",
+                        "es_id": 678
+                    }
+                ]
+            },
+            {
+                "phase_name": "D상_특수성분 (30°C 이하)",
+                "temperature": "30°C 이하",
+                "ingredients": [
+                    {
+                        "name": "레스베라트롤 (Resveratrol)",
+                        "percentage": 0.5,
+                        "function": "항산화제, 피부보호제(미백 보조)",
+                        "es_id": 5483
+                    },
+                    {
+                        "name": "글루타티온 (Glutathione)",
+                        "percentage": 0.5,
+                        "function": "환원제, 항산화(미백 보조)",
+                        "es_id": 935
+                    }
+                ]
+            },
+            {
+                "phase_name": "E상_보존/완료 (상온-40°C)",
+                "temperature": "상온-40°C",
+                "ingredients": [
+                    {
+                        "name": "트로메타민 (Tromethamine)",
+                        "percentage": 0.8,
+                        "function": "pH 조정제",
+                        "es_id": 3317
+                    },
+                    {
+                        "name": "에틸헥실글리세린 (Ethylhexylglycerin)",
+                        "percentage": 0.8,
+                        "function": "보존 보조제, 피부컨디셔닝제",
+                        "es_id": 2075
+                    },
+                    {
+                        "name": "벤질글라이콜 (Benzyl Glycol)",
+                        "percentage": 1.0,
+                        "function": "용제, 보존보조",
+                        "es_id": 9117
+                    },
+                    {
+                        "name": "다이소듐이디티에이-카퍼 (Disodium EDTA-Copper)",
+                        "percentage": 0.02,
+                        "function": "착색제/금속이온 조절(안정화 보조)",
+                        "es_id": 5121
+                    }
+                ]
+            }
+        ],
+        "detailed_process": [
+            {
+                "step_number": 1,
+                "phase": "A상 준비",
+                "description": "A상 원료(정제수, 다이프로필렌글라이콜, 부틸렌글라이콜, 다이글리세린, 나이아신아마이드, PCA, AHA류)를 계량하여 반응탱크에 투입.",
+                "temperature": "75°C",
+                "time": "15분",
+                "notes": "처음 저속 교반(300-500rpm)으로 용해 시작 후 1,500rpm으로 올려 15분간 균일하게 용해. 고체성분(나이아신아마이드, AHA류)이 완전 용해되었는지 확인."
+            },
+            {
+                "step_number": 2,
+                "phase": "B상 준비",
+                "description": "B상 원료(폴리글리세릴-4카프레이트 및 에센셜 오일)를 별도의 용기에 계량하여 가열 용해.",
+                "temperature": "75°C",
+                "time": "10분",
+                "notes": "1,500rpm 교반으로 폴리글리세릴-4카프레이트가 완전 용해되고 오일이 균일해질 때까지 혼합. 오일 총량이 낮아 과열주의."
+            },
+            {
+                "step_number": 3,
+                "phase": "유화공정",
+                "description": "B상을 A상에 천천히 적가하여 유화 시작.",
+                "temperature": "75°C",
+                "time": "5분",
+                "notes": "수상·유상 온도차 5°C 이내 유지(온도차 0–5°C 권장). 고속교반기 6,000rpm(권장 범위 5,000-10,000rpm)으로 3–5분간 유화. 급격한 적가 금지."
+            },
+            {
+                "step_number": 4,
+                "phase": "분산공정",
+                "description": "유화 후 혼합물을 중속으로 전환하여 균질화 및 분산 안정화.",
+                "temperature": "75°C",
+                "time": "15분",
+                "notes": "고속교반기 2,000rpm(권장 1,500-3,000rpm)으로 10-20분간 분산. 입도 균일성 및 초미립자 분산 확인."
+            },
+            {
+                "step_number": 5,
+                "phase": "1차 냉각",
+                "description": "혼합물을 제어냉각하여 50°C까지 서서히 하강.",
+                "temperature": "50°C",
+                "time": "10분",
+                "notes": "급냉각 금지. 냉각은 단계적으로 진행(예: 75→60→50°C). 교반 500rpm 유지, 온도 감시."
+            },
+            {
+                "step_number": 6,
+                "phase": "C상 첨가",
+                "description": "혼합물이 40°C 근처에 도달하면 C상(아데노신, 비사보롤)을 투입하여 혼합.",
+                "temperature": "40°C",
+                "time": "10분",
+                "notes": "열에 민감한 성분은 40°C 이하에서 투입. 교반 1,000rpm으로 균일 혼합. 온도차 5°C 이내 유지."
+            },
+            {
+                "step_number": 7,
+                "phase": "냉각공정",
+                "description": "제품을 서서히 30°C까지 냉각.",
+                "temperature": "30°C",
+                "time": "20분",
+                "notes": "50°C에서 30°C로 천천히 냉각(급냉각 금지). 교반속도 점차 감소. 냉각 중 pH 변화 관찰."
+            },
+            {
+                "step_number": 8,
+                "phase": "D상 첨가",
+                "description": "30°C 이하에서 특수성분(레스베라트롤, 글루타티온)을 첨가 후 저속 혼합.",
+                "temperature": "30°C",
+                "time": "10분",
+                "notes": "민감 활성성분은 30°C 이하에서 투입. 교반 500rpm으로 10분간 혼합하여 분산·용해. 자외선 차단된 용기에서 작업 권장."
+            },
+            {
+                "step_number": 9,
+                "phase": "E상(보존제/pH 조정) 및 pH조정공정",
+                "description": "상온(또는 25-30°C)에서 보존제(에틸헥실글리세린, 벤질글라이콜, EDTA-Cu)와 트로메타민을 이용해 pH를 목표치로 조정.",
+                "temperature": "25°C",
+                "time": "10분",
+                "notes": "pH를 목표 5.5로 설정(피부용 5.0-6.0 범위). 트로메타민을 소량씩(10-30% 용액 권장) 첨가하며 pH 미터로 측정. 온도 40°C 초과 금지. 트로메타민 과다 사용 주의(점진적 첨가)."
+            },
+            {
+                "step_number": 10,
+                "phase": "여과공정",
+                "description": "완제는 5-50μm 필터(권장 20μm)로 여과하여 불용성 물질 제거.",
+                "temperature": "상온",
+                "time": "10분",
+                "notes": "멸균 여과가 아닌 불용성 제거용. 필터 막힘 확인 및 교체. 오일류로 인한 유막 형성 주의."
+            },
+            {
+                "step_number": 11,
+                "phase": "탈포공정",
+                "description": "진공교반기로 제품 내부의 기포를 제거.",
+                "temperature": "상온",
+                "time": "10분",
+                "notes": "진공교반기 사용, 탈포시간 5-15분 권장(권상 10분 적용). 교반속도 저속 유지. 외기 오염 주의."
+            },
+            {
+                "step_number": 12,
+                "phase": "충진 및 안정화",
+                "description": "무균 작업대에서 앰플/병에 충진 후 밀봉하고 상온에서 숙성(안정화).",
+                "temperature": "상온",
+                "time": "24시간",
+                "notes": "충진 전 용기 및 캡의 청결 확인. 충진 후 24-48시간 상온 숙성(안정화공정). 초기 24시간 내 외관·pH 점검."
+            },
+            {
+                "step_number": 13,
+                "phase": "품질검사(출고 전)",
+                "description": "외관, pH, 점도, 미생물시험, 안정성 항목 확인 후 출고.",
+                "temperature": "상온",
+                "time": "각 시험별 상이(예: 30분~수일)",
+                "notes": "pH측정(목표 5.0-6.0), 외관(색상/투명도/입자), 점도 측정, 멸균배양(미생물 시험) 등 시행. 비정상 시 재처리."
+            }
+        ],
+        "quality_control": {
+            "ph_range": "5.0 - 6.0 (목표 pH 5.5 ±0.2)",
+            "appearance": "색상: 연한 황색~연한 앰버; 질감: 가벼운 세럼형(저점도 ~ 중점도), 표면에 오일막 없이 약간의 오팔레선스(미세유화) 허용; 투명도: 반투명~투명",
+            "stability_test": [
+                "가속열시험: 45°C에서 1주(색상·향·pH 변화 관찰)",
+                "냉난방 사이클: -5°C↔45°C, 5사이클(상 분리·응집 관찰)",
+                "원심분리/진동테스트: 3,000rpm 30분 및 패킹 진동테스트",
+                "미생물 챌린지 테스트(보존효능): 28일 표준법",
+                "활성성분함량 검사(HPLC) : 레스베라트롤/글루타티온/나이아신아마이드 등 초기대비 90% 이상 유지"
+            ]
+        },
+        "precautions": [
+            "총 AHA 농도가 낮더라도 민감성 피부는 패치 테스트 권장.",
+            "제품 도포 후 자외선 차단제 사용 권장(신규 각질연화 성분 포함 제품 사용시).",
+            "트로메타민으로 pH 조정 시 과다 사용 금지(점진적으로 넣으며 pH 측정).",
+            "에센셜오일이 포함되어 있어 광감작(특히 베르가모트) 및 민감성 반응 가능성 존재. 저농도로 설계했으나 민감성 피부는 사용 전 패치 테스트 권장.",
+            "제조 시 교반기·탱크·충진기 등 장비의 청결 유지(교차오염 방지).",
+            "제품에 이물·분리·강한 변색·강한 악취가 있을 경우 사용 금지."
+        ],
+        "storage_conditions": "직사광선 회피, 15-25°C 권장 보관(고온 및 동결 회피). 개봉 후 뚜껑을 잘 닫아 보관.",
+        "shelf_life": "개봉 전(미개봉): 24개월. 개봉 후 권장 사용기간: 6개월(보존성 및 활성유지 관점).",
+        "pros": [
+            "나이아신아마이드(5%)의 임상적으로 유효한 농도로 피부톤 개선 기대.",
+            "저농도 AHA(총 3.7%)를 포함하여 각질 관리와 톤 개선에 도움.",
+            "레스베라트롤·글루타티온의 항산화제로 미백 및 항산화 시너지.",
+            "수용성기반으로 빠른 흡수감과 가벼운 텍스처.",
+            "보존 보조제로 에틸헥실글리세린·벤질글라이콜을 사용하여 비교적 피부친화적 보존 시스템 구성."
+        ],
+        "cons": [
+            "에센셜 오일(향료) 포함으로 민감성 피부 자극 가능성(패치시험 권장).",
+            "나이아신아마이드와 AHA를 같은 포뮬레이션에 포함했으나 pH 및 안정성 관리가 중요(제조 시 pH 정확한 조정 필요).",
+            "레스베라트롤·글루타티온은 광·열에 민감하므로 제조·충진시 온도·광 차단 고려 필요.",
+            "벤질글라이콜·에센셜오일 등으로 인해 향취가 남을 수 있음(향 알레르기 주의)."
+        ]
+    },
+    "processing_time": 127.04,
+    "elasticsearch_connected": true,
+    "ingredients_found": 26,
+    "total_ingredients": 26,
+    "request_id": "req_1761714449140",
+    "request_data": {
+        "ingredients": [
+            {
+                "id": 0,
+                "repName": "정제수",
+                "repNameEn": "",
+                "esId": 2700
+            },
+            {
+                "id": 0,
+                "repName": "다이프로필렌글라이콜",
+                "repNameEn": "",
+                "esId": 5259
+            },
+            {
+                "id": 0,
+                "repName": "나이아신아마이드",
+                "repNameEn": "",
+                "esId": 1941
+            },
+            {
+                "id": 0,
+                "repName": "폴리글리세릴-4카프레이트",
+                "repNameEn": "",
+                "esId": 5981
+            },
+            {
+                "id": 0,
+                "repName": "글리세린",
+                "repNameEn": "",
+                "esId": 1013
+            },
+            {
+                "id": 0,
+                "repName": "부틸렌글라이콜",
+                "repNameEn": "",
+                "esId": 586
+            },
+            {
+                "id": 0,
+                "repName": "로즈우드오일",
+                "repNameEn": "",
+                "esId": 5516
+            },
+            {
+                "id": 0,
+                "repName": "스피어민트잎오일",
+                "repNameEn": "",
+                "esId": 1493
+            },
+            {
+                "id": 0,
+                "repName": "오렌지껍질오일",
+                "repNameEn": "",
+                "esId": 2145
+            },
+            {
+                "id": 0,
+                "repName": "오렌지꽃오일",
+                "repNameEn": "",
+                "esId": 2150
+            },
+            {
+                "id": 0,
+                "repName": "만다린껍질오일",
+                "repNameEn": "",
+                "esId": 7582
+            },
+            {
+                "id": 0,
+                "repName": "베르가모트오일",
+                "repNameEn": "",
+                "esId": 459
+            },
+            {
+                "id": 0,
+                "repName": "타타릭애씨드",
+                "repNameEn": "",
+                "esId": 3234
+            },
+            {
+                "id": 0,
+                "repName": "레스베라트롤",
+                "repNameEn": "",
+                "esId": 5483
+            },
+            {
+                "id": 0,
+                "repName": "글루타티온",
+                "repNameEn": "",
+                "esId": 935
+            },
+            {
+                "id": 0,
+                "repName": "피씨에이",
+                "repNameEn": "",
+                "esId": 4073
+            },
+            {
+                "id": 0,
+                "repName": "에틸헥실글리세린",
+                "repNameEn": "",
+                "esId": 2075
+            },
+            {
+                "id": 0,
+                "repName": "락틱애씨드",
+                "repNameEn": "",
+                "esId": 5453
+            },
+            {
+                "id": 0,
+                "repName": "시트릭애씨드",
+                "repNameEn": "",
+                "esId": 1532
+            },
+            {
+                "id": 0,
+                "repName": "글라이콜릭애씨드",
+                "repNameEn": "",
+                "esId": 647
+            },
+            {
+                "id": 0,
+                "repName": "말릭애씨드",
+                "repNameEn": "",
+                "esId": 123
+            },
+            {
+                "id": 0,
+                "repName": "트로메타민",
+                "repNameEn": "",
+                "esId": 3317
+            },
+            {
+                "id": 0,
+                "repName": "아데노신",
+                "repNameEn": "",
+                "esId": 1614
+            },
+            {
+                "id": 0,
+                "repName": "비사보롤",
+                "repNameEn": "",
+                "esId": 678
+            },
+            {
+                "id": 0,
+                "repName": "다이소듐이디티에이",
+                "repNameEn": "",
+                "esId": 5120
+            },
+            {
+                "id": 0,
+                "repName": "벤질글라이콜",
+                "repNameEn": "",
+                "esId": 9117
+            }
+        ],
+        "formulation": "스킨케어 > 에센스/앰플/세럼",
+        "direction": "집중 미백 및 피부톤 개선",
+        "model_name": "gpt-5-mini",
+        "temperature": 1.0
+    }
+}

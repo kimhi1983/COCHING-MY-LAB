@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=1400" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- chosen -->
+    <link rel="stylesheet" href="css/chosen.css" />
+    <!-- quill -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <!--nav-->
+    <nav>
+      <!--btn-acd-->
+      <button type="button" class="btn-acd"><span class="ic-md ic-arrow-right-primary"></span></button>
+      <!--header-->
+      <div class="header">
+        <!--logo-->
+        <a href="index.html" class="logo">
+          <img src="images/logo.png" alt="COCHING" />
+        </a>
+        <!--my-profile-->
+        <div class="my-profile">
+          <div class="img">
+            <img src="images/ic-profile.svg" alt="profile" />
+          </div>
+          <div class="my-id">K-pros</div>
+          <button type="button" class="btn btn-sm btn-primary">로그인</button>
+          <!--로그아웃-->
+          <!-- <button type="button" class="btn btn-sm btn-gray-outline">로그아웃</button> -->
+        </div>
+      </div>
+      <!--body-->
+      <div class="body scroller">
+        <div class="gnb">
+          <div class="group">
+            <!--현재페이지 active-->
+            <a href="javascript:;" class="ic-home-md">홈</a>
+          </div>
+          <div class="group">
+            <label>원료</label>
+            <a href="javascript:;" class="ic-drop-md active">원료 등록 및 관리</a>
+            <a href="javascript:;" class="ic-trash-md">휴지통</a>
+            <a href="javascript:;" class="ic-user-md">담당자 지정</a>
+          </div>
+          <div class="group">
+            <a href="javascript:;" class="ic-book-md">원료 등록 가이드</a>
+            <a href="javascript:;" class="ic-faq-md">자주 묻는 질문</a>
+          </div>
+          <div class="group">
+            <a href="javascript:;" class="ic-setting-md">계정관리</a>
+          </div>
+        </div>
+      </div>
+      <!--footer-->
+      <div class="footer">
+        <button type="button" class="btn btn-md btn-primary-outline w-100">COCHING 홈페이지</button>
+      </div>
+    </nav>
+
+    <!--wrap-->
+    <div class="wrap bg-gary">
+      <!--section-->
+      <section>
+        <div class="container">
+          <div class="content-wrap">
+            <!--title-->
+            <div class="h1">원료 등록</div>
+            <!--content-->
+            <div class="content-inner">
+              <!--base-register-->
+              <div class="base-register">
+                <form>
+                  <!--기본정보-->
+                  <div class="section">
+                    <!--title-wrap-->
+                    <div class="title-wrap">
+                      <div class="title">기본정보</div>
+                      <div class="check-radio-wrap">
+                        <div class="check-title">등록 원료 노출 여부</div>
+                        <div class="chehck-radio-flex">
+                          <div>
+                            <div class="radiobox">
+                              <input id="register-open" type="radio" name="material-register" />
+                              <label for="register-open" class="radiobox-label">노출</label>
+                            </div>
+                          </div>
+                          <div>
+                            <div class="radiobox">
+                              <input id="register-hidden" type="radio" name="material-register" />
+                              <label for="register-hidden" class="radiobox-label">숨김</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!--section-content-->
+                    <div class="section-content">
+                      <div class="info-wrap">
+                        <!--input-wrap-->
+                        <div class="input-wrap">
+                          <div class="label-set">
+                            <label>원료명</label>
+                            <div class="input-set">
+                              <input type="text" placeholder="원료명을 입력해 주세요" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>제조사</label>
+                            <div class="input-set">
+                              <input type="text" placeholder="제조사를 입력해 주세요" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>제조국</label>
+                            <div class="input-set">
+                              <input type="text" placeholder="제조국을 입력해 주세요" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>공급사</label>
+                            <div class="input-set">
+                              <input type="text" placeholder="공급사를 입력해 주세요" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>무게(kg)</label>
+                            <div class="input-set">
+                              <input type="number" placeholder="무게를 입력해 주세요" />
+                            </div>
+                          </div>
+                          <div class="label-set">
+                            <label>원료 담당자</label>
+                            <div class="input-set">
+                              <select data-placeholder="담당자 검색" class="chosen-select">
+                                <option value=""></option>
+                                <option>이써니</option>
+                                <option>이하나</option>
+                                <option>이두나</option>
+                                <option>이세나</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <!--img-wrap-->
+                        <div class="img-wrap">
+                          <label>원료 썸네일 등록</label>
+                          <div class="preview modal-open img-upload-modal">
+                            <!--이미지 등록 후 이곳에 이미지 넣기-->
+                            <img src="images/img-test-04.jpg" alt="img" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <!--base-add-->
+                      <div class="base-add">
+                        <div class="header">
+                          <div>성분명</div>
+                          <div>CAS No.</div>
+                        </div>
+                        <div class="body">
+                          <div class="item">
+                            <div class="add-wrap">
+                              <select data-placeholder="원료 검색" class="chosen-select">
+                                <option value=""></option>
+                                <option>글리세린(Glycerin)</option>
+                                <option>정제수(Water)</option>
+                              </select>
+
+                              <input type="text" placeholder="CAS No. 성분 DB에서 연동" readonly />
+                            </div>
+
+                            <button type="button" class="ic-lg ic-plus-add"></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--성분구분-->
+                  <div class="section">
+                    <!--title-wrap-->
+                    <div class="title-wrap">
+                      <div class="title">성분구분</div>
+                    </div>
+                    <!--section-content-->
+                    <div class="section-content">
+                      <!--base-type-->
+                      <div class="base-type">
+                        <div class="item">
+                          <label>효능</label>
+                          <select data-placeholder="효능 입력" class="chosen-select" multiple>
+                            <option value=""></option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Aland Islands">Aland Islands</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="American Samoa">American Samoa</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                          </select>
+                        </div>
+                        <div class="item">
+                          <label>기능</label>
+                          <select data-placeholder="기능 입력" class="chosen-select" multiple>
+                            <option value=""></option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Aland Islands">Aland Islands</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="American Samoa">American Samoa</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                          </select>
+                        </div>
+                        <div class="item">
+                          <label>제품</label>
+                          <select data-placeholder="제품 입력" class="chosen-select" multiple>
+                            <option value=""></option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Aland Islands">Aland Islands</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="American Samoa">American Samoa</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                          </select>
+                        </div>
+                        <div class="item">
+                          <label>원물</label>
+                          <select data-placeholder="원물 입력" class="chosen-select" multiple>
+                            <option value=""></option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Aland Islands">Aland Islands</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="American Samoa">American Samoa</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                          </select>
+                        </div>
+                        <div class="item">
+                          <label>성상</label>
+                          <select data-placeholder="성상 입력" class="chosen-select" multiple>
+                            <option value=""></option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Aland Islands">Aland Islands</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="American Samoa">American Samoa</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--구비서류-->
+                  <div class="section">
+                    <!--title-wrap-->
+                    <div class="title-wrap">
+                      <div class="title">구비서류</div>
+                    </div>
+                    <!--section-content-->
+                    <div class="section-content">
+                      <!--document-check-->
+                      <div class="document-check">
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-01" type="checkbox" />
+                            <label for="checkbox-01" class="checkbox-label">MSDS 영문</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-02" type="checkbox" />
+                            <label for="checkbox-02" class="checkbox-label">CoA</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-03" type="checkbox" />
+                            <label for="checkbox-03" class="checkbox-label">Composition Data Sheet</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-04" type="checkbox" />
+                            <label for="checkbox-04" class="checkbox-label">NMPA</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-05" type="checkbox" />
+                            <label for="checkbox-05" class="checkbox-label">MSDS 국문</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-06" type="checkbox" />
+                            <label for="checkbox-06" class="checkbox-label">Certificate of origin</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-07" type="checkbox" />
+                            <label for="checkbox-07" class="checkbox-label">TDS</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-08" type="checkbox" />
+                            <label for="checkbox-08" class="checkbox-label">Allergens Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-09" type="checkbox" />
+                            <label for="checkbox-09" class="checkbox-label">BSE_TSE Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-10" type="checkbox" />
+                            <label for="checkbox-10" class="checkbox-label">California Proposition 65 statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-11" type="checkbox" />
+                            <label for="checkbox-11" class="checkbox-label">Certificate of Application Fields</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-12" type="checkbox" />
+                            <label for="checkbox-12" class="checkbox-label">Certificate of presence of potential fragrance allergens</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-13" type="checkbox" />
+                            <label for="checkbox-13" class="checkbox-label">CITES Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-14" type="checkbox" />
+                            <label for="checkbox-14" class="checkbox-label">CMR Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-15" type="checkbox" />
+                            <label for="checkbox-15" class="checkbox-label">D4,D5,D6 Free Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-16" type="checkbox" />
+                            <label for="checkbox-16" class="checkbox-label">Country of Origin Certificate</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-17" type="checkbox" />
+                            <label for="checkbox-17" class="checkbox-label">Global compliance statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-18" type="checkbox" />
+                            <label for="checkbox-18" class="checkbox-label">Gluten Free statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-19" type="checkbox" />
+                            <label for="checkbox-19" class="checkbox-label">GMO Free Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-20" type="checkbox" />
+                            <label for="checkbox-20" class="checkbox-label">Halal Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-21" type="checkbox" />
+                            <label for="checkbox-21" class="checkbox-label">Impurity Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-22" type="checkbox" />
+                            <label for="checkbox-22" class="checkbox-label">KORHER Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-23" type="checkbox" />
+                            <label for="checkbox-23" class="checkbox-label">Manufacturing Flow Chart</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-24" type="checkbox" />
+                            <label for="checkbox-24" class="checkbox-label">Microplastic Free Statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-25" type="checkbox" />
+                            <label for="checkbox-25" class="checkbox-label">Non Animal Testing Certificate</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-26" type="checkbox" />
+                            <label for="checkbox-26" class="checkbox-label">Non-nano size statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-27" type="checkbox" />
+                            <label for="checkbox-27" class="checkbox-label">Residual solvents statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-28" type="checkbox" />
+                            <label for="checkbox-28" class="checkbox-label">Vegan statement</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-29" type="checkbox" />
+                            <label for="checkbox-29" class="checkbox-label">원산지포괄확인서</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-30" type="checkbox" />
+                            <label for="checkbox-30" class="checkbox-label">원산지증명서(나고야의정서)</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-31" type="checkbox" />
+                            <label for="checkbox-31" class="checkbox-label">RSPO</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-32" type="checkbox" />
+                            <label for="checkbox-32" class="checkbox-label">방사능확인서</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-33" type="checkbox" />
+                            <label for="checkbox-33" class="checkbox-label">Heavy Metals</label>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="checkbox">
+                            <input id="checkbox-34" type="checkbox" />
+                            <label for="checkbox-34" class="checkbox-label">REACH Statement</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--원료자료-->
+                  <div class="section">
+                    <div class="title-wrap">
+                      <div class="title">원료자료</div>
+                      <div class="check-radio-wrap">
+                        <div class="check-title">원료 자료 노출 여부</div>
+                        <div class="chehck-radio-flex">
+                          <div>
+                            <div class="radiobox">
+                              <input id="data-open" type="radio" name="material-data" />
+                              <label for="data-open" class="radiobox-label">노출</label>
+                            </div>
+                          </div>
+                          <div>
+                            <div class="radiobox">
+                              <input id="data-hidden" type="radio" name="material-data" />
+                              <label for="data-hidden" class="radiobox-label">숨김</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--section-content-->
+                    <div class="section-content">
+                      <!--파일첨부-->
+                      <div class="date-wrap">
+                        <div class="title">파일첨부</div>
+                        <div class="file-register">
+                          <!--upload-->
+                          <div class="upload-wrap">
+                            <div class="upload-area" id="uploadArea">
+                              <input type="file" id="fileInput" multiple style="display: none" />
+                              <div id="fileList"></div>
+                            </div>
+                          </div>
+                          <!--textarea-->
+                          <textarea placeholder="원료 자료에 대한 설명을 작성해주세요"></textarea>
+                        </div>
+                      </div>
+
+                      <!--직접입력-->
+                      <div class="date-wrap">
+                        <div class="title">직접입력</div>
+                        <div id="toolbar-container">
+                          <span class="ql-formats">
+                            <select class="ql-size"></select>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                          </span>
+                          <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-script" value="sub"></button>
+                            <button class="ql-script" value="super"></button>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-header" value="1"></button>
+                            <button class="ql-header" value="2"></button>
+                            <button class="ql-blockquote"></button>
+                            <button class="ql-code-block"></button>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                            <button class="ql-indent" value="-1"></button>
+                            <button class="ql-indent" value="+1"></button>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-direction" value="rtl"></button>
+                            <select class="ql-align"></select>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image"></button>
+                            <button class="ql-video"></button>
+                            <button class="ql-formula"></button>
+                          </span>
+                          <span class="ql-formats">
+                            <button class="ql-clean"></button>
+                          </span>
+                        </div>
+                        <div id="editor"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--button-->
+                  <div class="btn-area">
+                    <button type="button" class="btn btn-lg btn-primary">원료 등록</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--footer-->
+      <footer>
+        <div class="inner">
+          <div class="container">
+            <!--top-->
+            <div class="top">
+              <div class="left">
+                <div class="logo">
+                  <img src="images/logo-gray.svg" alt="COCHING" />
+                </div>
+              </div>
+              <div class="right">
+                <a href="javascript:;">이용약관</a>
+                <a href="javascript:;">개인정보처리방침</a>
+              </div>
+            </div>
+            <!--bottom-->
+            <div class="bottom">
+              <div class="left">
+                <ul>
+                  <li>경기도 광명시 일직로 43, GIDC A2 602호</li>
+                </ul>
+                <ul>
+                  <li>대표 : 오원석</li>
+                  <li>사업자등록번호 : 000-00-000000</li>
+                  <li>메일 : coching@coching.co.kr</li>
+                  <li>통신판매업 신고번호 : 2000-광명일직A-0000호</li>
+                  <a href="javascript:;" class="btn-info">사업자 정보</a>
+                </ul>
+              </div>
+              <div class="right">© COCHING All rights reserved.</div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!--back-to-top-->
+    <div id="back-to-top"></div>
+
+    <!--img-upload-->
+    <div class="modal for-img-upload">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-xlg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">이미지 선택</div>
+              </div>
+              <form>
+                <div class="modal-body">
+                  <!--img-upload-wrap-->
+                  <div class="img-upload-wrap scroller">
+                    <!--img-type-->
+                    <div class="img-type">
+                      <div class="item">
+                        <img src="images/img-test-01.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-02.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-03.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-01.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-02.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-03.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-01.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-02.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-03.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-01.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-02.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-03.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-01.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-02.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-03.jpg" alt="img" />
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                      </div>
+                      <!--btn-upload-->
+                      <label class="btn-upload">
+                        <input type="file" accept="image/*" class="img-upload" style="display: none" />
+                      </label>
+                      <!--추가시 해당 아이템 active 추가-->
+                      <div class="item active">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                      <div class="item">
+                        <img src="images/img-test-04.jpg" alt="img" />
+                        <button type="button" class="btn-delete"></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-md btn-gray img-upload-close">취소</button>
+                  <button type="button" class="btn btn-md btn-primary">등록하기</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--img-upload-edit-->
+    <div class="modal for-img-upload-edit">
+      <div class="layer">
+        <div class="layer-content">
+          <!--md:450px, lg:800px 
+          사이즈 조정 원하실 경우 style 직접 넣으세요 (예시:max-width:1000px)-->
+          <div class="modal-inner modal-lg">
+            <div class="modal-content">
+              <div class="modal-body p-t-0">
+                <div class="img-upload-edit">
+                  <img src="images/img-test-03.jpg" alt="img" />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray img-upload-edit-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary">등록하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- chosen -->
+    <script type="text/javascript" src="js/chosen.jquery.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+
+    <!-- quill -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script>
+      const quill = new Quill("#editor", {
+        modules: {
+          syntax: true,
+          toolbar: "#toolbar-container",
+        },
+        placeholder: "원료 자료에 대한 설명을 작성해주세요",
+        theme: "snow",
+      });
+    </script>
+  </body>
+</html>

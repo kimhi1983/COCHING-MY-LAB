@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.message.mapper.MessageDAO">
+
+	<!-- T_MESSAGE_INF -->
+	<sql id="baseFieldsAA">
+		  AA.RAW_SEQ
+		, AA.MESSAGE_SEQ
+		, AA.SENDER
+		, AA.RECEIVER
+		, AA.CONTENT
+		, AA.STATE
+		, AA.SECRET_YN
+		, AA.RAW_REQUEST_SEQ
+		, AA.BLOCK_YN
+		, AA.RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='rawSeq != null and rawSeq &gt; 0'>
+			AND AA.RAW_SEQ = #{rawSeq, jdbcType=INTEGER}
+		</if>
+		<if test='messageSeq != null and messageSeq &gt; 0'>
+			AND AA.MESSAGE_SEQ = #{messageSeq, jdbcType=INTEGER}
+		</if>
+		<if test='sender != null and sender &gt; 0'>
+			AND AA.SENDER = #{sender, jdbcType=INTEGER}
+		</if>
+		<if test='receiver != null and receiver &gt; 0'>
+			AND AA.RECEIVER = #{receiver, jdbcType=INTEGER}
+		</if>
+    	<if test='content != null and content != ""'>
+    		AND UPPER(AA.CONTENT) LIKE UPPER('%' || #{content, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='state != null and state != ""'>
+    		AND UPPER(AA.STATE) LIKE UPPER('%' || #{state, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='secretYn != null and secretYn != ""'>
+    		AND UPPER(AA.SECRET_YN) LIKE UPPER('%' || #{secretYn, jdbcType=VARCHAR} || '%')
+    	</if>
+		<if test='rawRequestSeq != null and rawRequestSeq &gt; 0'>
+			AND AA.RAW_REQUEST_SEQ = #{rawRequestSeq, jdbcType=INTEGER}
+		</if>
+    	<if test='blockYn != null and blockYn != ""'>
+    		AND UPPER(AA.BLOCK_YN) LIKE UPPER('%' || #{blockYn, jdbcType=VARCHAR} || '%')
+    	</if>
+    </sql>
+
+
+	<select id="getList"
+    		parameterType="com.erns.coching.message.domain.MessageSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.message.mapper.MessageDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+					SELECT
+						<include refid="baseFieldsAA"/>
+				    FROM  T_MESSAGE_INF AA
+				 <where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.message.domain.MessageSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.message.mapper.MessageDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_MESSAGE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="load"
+    	parameterType="com.erns.coching.message.domain.MessageSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.message.mapper.MessageDAO.load */
+
+    	SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MESSAGE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.message.domain.MessageVO">
+    	/* com.erns.coching.message.mapper.MessageDAO.insert */
+    	
+    	<selectKey resultType="long" keyProperty="messageSeq" order="BEFORE">
+			SELECT nextval('seq_t_message_inf')
+		</selectKey>
+
+    	INSERT INTO T_MESSAGE_INF (
+			  RAW_SEQ
+			, MESSAGE_SEQ
+			, SENDER
+			, RECEIVER
+			, CONTENT
+			, STATE
+			, SECRET_YN
+			, RAW_REQUEST_SEQ
+			, BLOCK_YN
+			, RGT_DTTM
+    	) VALUES (
+			  #{rawSeq		, jdbcType=INTEGER}
+			, #{messageSeq	, jdbcType=INTEGER}
+			, #{rgtr		, jdbcType=INTEGER}
+			, #{receiver	, jdbcType=INTEGER}
+			, #{content		, jdbcType=VARCHAR}
+			, COALESCE(#{state	, jdbcType=VARCHAR}, '0')
+			, #{secretYn		, jdbcType=VARCHAR}
+			, #{rawRequestSeq	, jdbcType=INTEGER}
+			, COALESCE(#{blockYn, jdbcType=VARCHAR}, '0')
+			, now()
+    	)
+    </insert>
+    
+    <update id="updateState"
+    	parameterType="com.erns.coching.message.domain.MessageSearchDTO">
+    	/* com.erns.coching.message.mapper.MessageDAO.updateState */
+
+    	UPDATE T_MESSAGE_INF SET
+			  STATE				= COALESCE(#{state	, jdbcType=VARCHAR}, '0')
+		<where>
+			AND MESSAGE_SEQ		= #{messageSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+    <delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.message.mapper.MessageDAO.delete */
+
+		DELETE FROM T_MESSAGE_INF
+		<where>
+			AND MESSAGE_SEQ 	= #{messageSeq	, jdbcType=INTEGER}
+		</where>
+	</delete>
+	
+
+    
+</mapper>

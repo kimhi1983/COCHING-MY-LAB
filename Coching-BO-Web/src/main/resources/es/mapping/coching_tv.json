@@ -1,0 +1,173 @@
+{
+  "settings": {
+    "index": {
+      "max_ngram_diff": 10
+    },
+    "analysis": {
+      "analyzer": {
+        "korean_analyzer": {  // Nori 분석기 설정
+          "type": "nori"
+        },
+
+        "english_analyzer": { //영문 분석기
+          "tokenizer": "standard",
+          "filter": ["lowercase", "english_stop", "english_stemmer"]
+        },
+
+        "korean_english_analyzer": {  // 한영 분석기
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",  
+          "filter": [
+            "lowercase",
+            "english_stop",
+            "english_stemmer"
+          ]
+        },
+
+        "company_name_analyzer": { //회사명 분석기
+          "char_filter": ["corp_filter"],
+          "tokenizer": "nori_tokenizer",
+          "filter": ["lowercase"]
+        },
+        
+        "ingd_korean_analyzer": {  
+          "type": "nori"  // Nori 분석기 설정
+        },
+
+        "ingd_english_analyzer": {  //영어 성분명 분석기
+          "type": "english"  // english 분석기 설정
+        },
+
+        "korean_ingd_synonym_analyzer": {  // 한글 동의어 분석기
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase", 
+            "korean_ingd_synonym_filter" 
+          ]
+        },
+
+        "english_ingd_synonym_analyzer": {  // 영문 동의어 분석기
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "english_ingd_synonym_filter",
+            "stop",
+            "porter_stem"
+          ]
+        },
+
+        "static_name_analyzer": { //고유명사 분석기
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase", 
+            "ngram_filter"
+          ]
+        },
+        
+        "cas_number_edge_analyzer": { //cas_no, ec_no 분석기
+          "tokenizer": "custom_edge_ngram_tokenizer",
+          "filter": ["lowercase"]
+        }
+      },
+      "normalizer": {
+        "lowercase_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": ["lowercase"]
+        }
+      },
+      "tokenizer": {
+        "custom_edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 5,
+          "max_gram": 15,
+          "token_chars": ["letter", "digit", "punctuation"]
+        }
+      },
+      "filter": {
+        "ngram_filter": {
+          "type": "ngram",
+          "min_gram": 3,
+          "max_gram": 5
+        },
+        "english_stop": {
+          "type": "stop",
+          "stopwords": "_english_"  // 내장 영어 불용어
+        },
+        "english_stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        },
+        "korean_ingd_synonym_filter": {  // 한국어 성분 동의어 필터 설정
+          "type": "synonym",
+          "synonyms_path": "synonyms/coching/korean_ingd_synonyms.txt"  // 동의어 파일 경로
+        },
+        "english_ingd_synonym_filter": {  // 영문 성분 동의어 필터 설정
+          "type": "synonym",
+          "synonyms_path": "synonyms/coching/english_ingd_synonyms.txt"  // 동의어 파일 경로
+        }
+      },
+      "char_filter": {
+        "corp_filter": {
+          "type": "pattern_replace",
+          "pattern": "(^|\\s|\\()?(주식회사|주|유|사)(\\s|\\)|$)?|㈜|㈔|(\\((주|유|사)\\))|((주|유|사)\\)$)|\\b(ltd|inc|co\\.?|corp|llc|gmbh)\\b",
+          "replacement": "",
+          "flags": "CASE_INSENSITIVE"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "tvSeq": { "type": "integer" },
+      "ytUrl": { "type": "keyword" },
+      "sortOrd": { "type": "integer" },
+      "title": {
+        "type": "text",
+        "fields": {
+          "keyword": { 
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"  
+          },
+          "ko": {
+            "type": "text",
+            "analyzer": "korean_english_analyzer"
+          },
+          "en": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+          },
+          "static": {
+            "type": "text",
+            "analyzer": "static_name_analyzer"
+          }
+        }
+      },
+      "hashtag": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "views": { "type": "integer" },
+      "ytDttm": {
+        "type": "date", 
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "rgtr": {
+        "type": "integer"
+      },
+      "rgtDttm": {
+        "type": "date", 
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "korean_english_analyzer" 
+      }
+    }
+  }
+}

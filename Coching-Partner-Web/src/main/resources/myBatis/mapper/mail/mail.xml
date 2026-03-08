@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.mail.mapper.MailDAO">
+
+	<insert id="insert"
+		parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.MailDAO.insert */
+		INSERT INTO TB_CM_ESNDG_BACH (
+			SEND_YMD
+			, ENTR_YMD
+			, SEND_MAIL
+			, RECEIVE_MAIL
+			, SUBJECT
+			, CONTENT
+			, ENC_CONTENT
+			, RELATION_NO
+			, CONTENT_TYP
+			, FILE_NAME
+			, FILE_OBJ
+			, SEND_YN
+			, RGT_DTTM
+			, RGTR
+			, CHNG_DTTM
+			, ETC1
+			, ETC2
+			, ETC3
+			, ETC4
+			, ENC_YN
+			, ENC_KEY
+			, ETC8
+		) VALUES (
+			TO_CHAR(SYSDATE,'YYYYMMDD')
+			, TO_CHAR(SYSDATE,'YYYYMMDD')
+			, #{sendMail		,jdbcType=VARCHAR}
+			, #{toEmail			,jdbcType=VARCHAR}
+			, #{title			,jdbcType=VARCHAR}
+			, #{content			,jdbcType=VARCHAR}
+			, null
+			, #{relationNo		,jdbcType=VARCHAR}
+			, 'text/html; charset=UTF-8'
+			, NULL
+			, NULL
+			, 'N'
+			, SYSDATE
+			, #{membSeq			,jdbcType=INTEGER}
+			, SYSDATE
+			, 'MAIL'
+			, ''
+			, 'QP'
+			, ''
+			, ''
+			, ''
+			, ''
+		)
+	</insert>
+
+	<insert id="insertDev"
+			parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.MailDAO.insertDev */
+		INSERT INTO TB_CM_ESNDG_BACH (
+			   SEND_YMD
+			 , ENTR_YMD
+			 , SEND_MAIL
+			 , RECEIVE_MAIL
+			 , SUBJECT
+			 , CONTENT
+			 , ENC_CONTENT
+			 , RELATION_NO
+			 , CONTENT_TYP
+			 , FILE_NAME
+			 , FILE_OBJ
+			 , SEND_YN
+			 , RGT_DTTM
+			 , RGTR
+			 , CHNG_DTTM
+			 , ETC1
+			 , ETC2
+			 , ETC3
+			 , ETC4
+			 , ENC_YN
+			 , ENC_KEY
+			 , ETC8
+		) VALUES (
+			TO_CHAR(SYSDATE,'YYYYMMDD')
+			 , TO_CHAR(SYSDATE,'YYYYMMDD')
+			 , #{sendMail		,jdbcType=VARCHAR}
+			 , #{toEmail		,jdbcType=VARCHAR}
+			 , #{title			,jdbcType=VARCHAR}
+			 , #{content		,jdbcType=VARCHAR}
+			 , null
+			 , #{relationNo		,jdbcType=VARCHAR}
+			 , 'text/html; charset=UTF-8'
+			 , NULL
+			 , NULL
+			 , 'N'
+			 , SYSDATE
+			 , #{membSeq		,jdbcType=INTEGER}
+			 , SYSDATE
+			 , 'MAIL'
+			 , ''
+			 , 'QP'
+			 , ''
+			 , ''
+			 , ''
+			 , ''
+		 )
+	</insert>
+
+</mapper>

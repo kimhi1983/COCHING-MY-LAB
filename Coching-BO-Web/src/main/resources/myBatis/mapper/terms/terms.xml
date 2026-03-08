@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.terms.mapper.TermsDAO">
+
+	<sql id="baseFieldsAA">
+  		  AA.TERMS_CD
+		, AA.VERSION
+		, AA.TERMS_TYPE
+		, AA.CONTENT
+		, AA.USE_YN
+		, AA.REQUIRED_YN
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.REMARKS
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='termsCd != null and termsCd != ""'>
+			AND AA.TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+		</if>
+
+		<if test='termsCds != null'>
+    		<foreach item="item" index="index" collection="termsCds"
+    			open="AND AA.TERMS_CD in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+    	</if>
+
+    	<if test='version != null and version != ""'>
+			AND AA.VERSION = #{version, jdbcType=VARCHAR}
+		</if>
+
+		<if test='termsType != null and termsType != ""'>
+			AND AA.TERMS_TYPE = #{termsType, jdbcType=VARCHAR}
+		</if>
+
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+
+		<if test='requiredYn != null and requiredYn != ""'>
+			AND AA.REQUIRED_YN = #{requiredYn, jdbcType=CHAR}
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, (SELECT COUNT(*) FROM T_TERMS_INF WHERE TERMS_CD = AA.TERMS_CD) AS CNT
+				FROM T_TERMS_INF AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				<if test='sortColumn != null and sortColumn != ""'>
+					ORDER BY AA.RGT_DTTM DESC
+				</if>
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	     WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="int">
+		/* com.erns.coching.terms.mapper.TermsDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_TERMS_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, (SELECT COUNT(*) FROM T_TERMS_INF WHERE TERMS_CD = AA.TERMS_CD) AS CNT
+		FROM T_TERMS_INF AA
+		<where>
+			AND	AA.TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+			AND AA.USE_YN 	= 'Y'
+		</where>
+
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.terms.domain.TermsVO">
+		/* com.erns.coching.terms.mapper.TermsDAO.insert */
+
+		INSERT INTO T_TERMS_INF (
+			  TERMS_CD
+			, VERSION
+			, TERMS_TYPE
+			, CONTENT
+			, USE_YN
+			, REQUIRED_YN
+			, FROM_DATE
+			, TO_DATE
+			, REMARKS
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+		) VALUES (
+			  #{termsCd		, jdbcType=VARCHAR}
+			, #{version		, jdbcType=VARCHAR}
+			, #{termsType	, jdbcType=VARCHAR}
+			, #{content		, jdbcType=VARCHAR}
+			, #{useYn		, jdbcType=CHAR}
+			, COALESCE(#{requiredYn	, jdbcType=CHAR}, 'N')
+			, #{fromDate	, jdbcType=VARCHAR}
+			, #{toDate		, jdbcType=VARCHAR}
+			, #{remarks		, jdbcType=VARCHAR}
+
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+			, #{chnr		, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.terms.domain.TermsVO">
+		/* com.erns.coching.terms.mapper.TermsDAO.update */
+
+		UPDATE T_TERMS_INF SET
+			  TERMS_TYPE    = #{termsType	, jdbcType=VARCHAR}
+			, CONTENT       = #{content		, jdbcType=VARCHAR}
+			, REQUIRED_YN   = #{requiredYn	, jdbcType=CHAR}
+			, FROM_DATE   	= #{fromDate	, jdbcType=VARCHAR}
+			, TO_DATE   	= #{toDate		, jdbcType=VARCHAR}
+			, REMARKS   	= #{remarks		, jdbcType=VARCHAR}
+
+			, CHNR          = #{chnr		, jdbcType=INTEGER}
+			, CHNG_DTTM     = now()
+		<where>
+			AND	TERMS_CD = #{termsCd	, jdbcType=VARCHAR}
+			AND VERSION  = #{version	, jdbcType=VARCHAR}
+		</where>
+	</update>
+
+	<update id="updateUseYn"
+		parameterType="com.erns.coching.terms.domain.TermsVO">
+		/* com.erns.coching.terms.mapper.TermsDAO.updateUseYn */
+
+		UPDATE T_TERMS_INF SET
+			USE_YN = CASE 
+		                WHEN VERSION = #{version, jdbcType=VARCHAR} THEN 'Y'
+		                ELSE 'N'
+		             END
+		<where>
+			AND	TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+		</where>
+	</update>
+
+
+	<select id="getVersionList"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.getVersionList */
+
+		SELECT VERSION
+		FROM T_TERMS_INF
+		<where>
+			TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+		</where>
+		ORDER BY RGT_DTTM DESC
+	</select>
+</mapper>

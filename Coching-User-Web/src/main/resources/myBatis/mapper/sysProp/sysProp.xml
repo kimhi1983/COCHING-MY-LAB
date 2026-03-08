@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.sysProp.mapper.SysPropDAO">
+
+	<sql id="baseFieldsAA">
+ 	  	AA.SYS_KEY
+		, AA.SYS_VALUE
+
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+
+		<if test='sysKey != null and sysKey != ""'>
+			AND UPPER(AA.SYS_KEY) LIKE UPPER('%' || #{sysKey, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test=' sysValue != null and sysValue != "" '>
+			AND UPPER(AA.SYS_VALUE) LIKE UPPER('%' || #{sysValue, jdbcType=VARCHAR} || '%')
+		</if>
+
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.sysProp.domain.SysPropSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.sysProp.mapper.SysPropDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM (
+			SELECT
+				<include refid="baseFieldsAA"/>
+				, A1.MEMB_SEQ 	AS MEMB_SEQ
+				, A1.MEMB_ID 		AS MEMB_ID
+				, A1.MEMB_NAME	AS MEMB_NAME
+			FROM T_SYS_PROP_INF AA
+				LEFT OUTER JOIN T_MEMB_INF A1 ON AA.CHNR = A1.MEMB_SEQ
+			<where>
+				<include refid="baseSearchConditionAA"/>
+			</where>
+			ORDER BY RGT_DTTM DESC
+		) AS ZZ
+	  <if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+  </select>
+
+
+	<select id="getListCount"
+			parameterType	="com.erns.coching.sysProp.domain.SysPropSearchDTO"
+			resultType		="int">
+		/* com.erns.coching.sysProp.mapper.SysPropDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_SYS_PROP_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+
+	</select>
+
+	<select id="load"
+    	parameterType="com.erns.coching.sysProp.domain.SysPropSearchDTO"
+    	resultType="camelMap">
+		/* com.erns.coching.sysProp.mapper.SysPropDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_SYS_PROP_INF AA
+		<where>
+			AND AA.SYS_KEY= #{sysKey, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<select id="loadVo"
+    	parameterType="String"
+    	resultType="com.erns.coching.sysProp.domain.SysPropVO">
+		/* com.erns.coching.sysProp.mapper.SysPropDAO.loadVo */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_SYS_PROP_INF AA
+		<where>
+			AND AA.SYS_KEY= #{value, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+</mapper>

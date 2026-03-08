@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.es.log.mapper.ApiProcLogDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.API_LOG_SEQ
+		, AA.MEMB_SEQ
+		, AA.QUERY_STR
+		, AA.PROC_STATUS
+		, AA.PROC_MSG
+		, AA.PROC_TYPE
+		, AA.TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchCondition">
+		<if test='seq != null and seq &gt; 0'>
+			AND AA.API_LOG_SEQ = #{seq, jdbcType=INTEGER}
+		</if>
+
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='procStatus != null and procStatus != ""'>
+			AND AA.PROC_STATUS = #{logTypeRL, jdbcType=CHAR}
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.es.log.domain.ApiProcLogSearchDTO"
+		resultType="camelMap">
+		/* com.erns.es.log.mapper.ApiProcLogDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_API_PROC_H AA
+				<where>
+					<include refid="baseSearchCondition"/>
+				</where>
+				ORDER BY AA.RGT_DTTM DESC
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	     WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.es.log.domain.ApiProcLogSearchDTO"
+		resultType="int">
+		/* com.erns.es.log.mapper.ApiProcLogDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_API_PROC_H AA
+		<where>
+			<include refid="baseSearchCondition"/>
+		</where>
+	</select>
+
+
+	<insert id="insert"
+		parameterType="com.erns.es.log.domain.ApiProcLogVO">
+		/* com.erns.es.log.mapper.ApiProcLogDAO.insert */
+
+		<selectKey resultType="long" keyProperty="apiLogSeq" order="BEFORE">
+			SELECT nextval('seq_t_api_proc_log')
+		</selectKey>
+
+
+		INSERT INTO T_API_PROC_H (
+    		  API_LOG_SEQ
+			, MEMB_SEQ
+			, QUERY_STR
+			, PROC_STATUS
+			, PROC_MSG
+			, PROC_TYPE
+			, RGT_DTTM
+    	)
+    	VALUES(
+    		  #{apiLogSeq		,jdbcType=INTEGER}
+    		, COALESCE(#{membSeq		,jdbcType=INTEGER}, 0)
+			,CASE
+				WHEN #{queryStr	,jdbcType=VARCHAR} IS NOT NULL
+				THEN SUBSTRING(#{queryStr	,jdbcType=VARCHAR} FROM 1 FOR 500)
+				ELSE NULL
+			END
+    		, #{procStatus		,jdbcType=CHAR}
+    		, #{procMsg			,jdbcType=VARCHAR}
+			, COALESCE(#{procType	,jdbcType=VARCHAR}, 'API')
+			, now()
+    	)
+	</insert>
+
+
+</mapper>

@@ -1,0 +1,68 @@
+{
+    "resultData": {
+        "total": 2,
+        "maxScore": 1.0,
+        "list": [
+            {
+                "id": 1,
+                "rep_name": "가공소금",
+                "rep_name_en": null,
+                "kcai_id": 1,
+                "ewg_id": null,
+                "hw_ingd_id": 149,
+                "inci": [],
+                "names_ko": [
+                    "가공소금"
+                ],
+                "names_en": [
+                    "Processed Salt"
+                ],
+                "purposes": [],
+                "cas_no": [],
+                "ec_no": [],
+                "formula": null,
+                "exp_url_1": null,
+                "exp_url_2": null,
+                "ewg_data_lebel": null,
+                "ewg_url": null
+            },
+            {
+                "id": 2,
+                "rep_name": "가지열매추출물",
+                "rep_name_en": "Solanum Melongena (Eggplant) Fruit Extract",
+                "kcai_id": 2,
+                "ewg_id": 723992,
+                "hw_ingd_id": 162,
+                "inci": [
+                    "Solanum Melongena (Eggplant) Fruit Extract"
+                ],
+                "names_ko": [
+                    "가지열매추출물",
+                    "가지추출물"
+                ],
+                "names_en": [
+                    "Solanum Melongena (Eggplant) Fruit Extract"
+                ],
+                "purposes": [
+                    "피부컨디셔닝제(기타)"
+                ],
+                "cas_no": [
+                    "84012-19-1"
+                ],
+                "ec_no": [
+                    "281-665-6(I)"
+                ],
+                "formula": null,
+                "exp_url_1": null,
+                "exp_url_2": null,
+                "ewg_score_min": 1,
+                "ewg_score": 1,
+                "ewg_data_lebel": "fair",
+                "ewg_rawcno_id": "723992-SOLANUM_MELONGENA_EGGPLANT_FRUIT_EXTRACT",
+                "ewg_url": "https://www.ewg.org/skindeep/ingredients/eData.723992-SOLANUM_MELONGENA_EGGPLANT_FRUIT_EXTRACT"
+            }
+        ]
+    },
+    "resultCode": "0000",
+    "resultFailMessage": "OK"
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <!--header-->
+    <header>
+      <div class="inner">
+        <div class="container">
+          <!--left-->
+          <div class="left flex">
+            <div class="ic-wrap menu-wrap m-none">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+            <!--logo-->
+            <a href="index.html" class="logo">
+              <img src="images/logo.svg" alt="COCHING" />
+            </a>
+          </div>
+          <!--right-->
+          <div class="right">
+            <!--login-->
+            <div class="login flex m-none">
+              <button type="button" class="btn btn-sm btn-primary">로그인</button>
+              <button type="button" class="btn btn-sm btn-primary-outline">회원가입</button>
+            </div>
+            <!--mobile menu-->
+            <div class="ic-wrap menu-wrap pc-none modal-open-full menu-modal">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+          </div>
+        </div>
+        <!--search-->
+        <div class="main-search">
+          <form>
+            <!--search-wrap-->
+            <div class="search-wrap">
+              <button type="button" class="ic-lg ic-arrow-left-long"></button>
+              <!--hash-->
+              <div class="hash">#</div>
+              <!--tag-->
+              <button type="button" class="tag">원료명</button>
+              <!--input-->
+              <div class="search-input-wrap">
+                <input type="search" placeholder="글리세린(glycerin)" id="searchInput" />
+                <button type="button" class="ic-md ic-delete"></button>
+              </div>
+              <!--btn-->
+              <div class="btn-wrap">
+                <button type="submit" class="ic-lg ic-search"></button>
+                <button type="button" class="ic-lg ic-hash"></button>
+              </div>
+            </div>
+            <!--tag-layer-->
+            <div class="tag-layer">
+              <div class="inner">
+                <!--tag-wrap-->
+                <div class="tag-wrap scroll-x-area">
+                  <button type="button" class="btn btn-xsm btn-gray">원료명</button>
+                  <button type="button" class="btn btn-xsm btn-gray">제조사</button>
+                  <button type="button" class="btn btn-xsm btn-gray">원료사</button>
+                  <button type="button" class="btn btn-xsm btn-gray">성분</button>
+                  <button type="button" class="btn btn-xsm btn-gray">제품명</button>
+                  <button type="button" class="btn btn-xsm btn-gray">제품 제조사</button>
+                </div>
+                <!--search-list-->
+                <div class="search-list">
+                  <div class="top">
+                    <div class="title">최근 검색어</div>
+                    <a href="javascript:;" class="delete modal-open search-delete-modal">전체 삭제</a>
+                  </div>
+                  <div class="body scroller">
+                    <div class="item">
+                      <a href="javascript:;">테스트1</a>
+                      <div class="item-delete">
+                        <button type="button" class="ic-sm ic-close-gray-sm"></button>
+                      </div>
+                    </div>
+                    <div class="item">
+                      <a href="javascript:;">테스트2</a>
+                      <div class="item-delete">
+                        <button type="button" class="ic-sm ic-close-gray-sm"></button>
+                      </div>
+                    </div>
+                    <div class="item">
+                      <a href="javascript:;">테스트3</a>
+                      <div class="item-delete">
+                        <button type="button" class="ic-sm ic-close-gray-sm"></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="foot">
+                    <div class="title">검색기록 저장</div>
+                    <label class="switch">
+                      <input type="checkbox" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--auto-layer-->
+            <div class="auto-layer scroller" style="display: none">
+              <a href="javascript:;" class="item">
+                <div class="title-wrap">
+                  <!--제목은 2줄까지만-->
+                  <!--highlight-->
+                  <div class="title"><span class="highlight">글리</span>세린</div>
+                  <div class="info">one two three,four five six seven eight nine ten</div>
+                </div>
+                <div class="badge green">성분</div>
+              </a>
+              <a href="javascript:;" class="item">
+                <div class="title-wrap">
+                  <div class="title"><span class="highlight">글리</span>세린</div>
+                  <div class="info"><span>(주)케이프로스</span><span>삼정트레이딩</span></div>
+                </div>
+                <div class="badge blue">원료</div>
+              </a>
+              <a href="javascript:;" class="item">
+                <div class="title-wrap">
+                  <div class="title">원료<span class="highlight">글리</span>세린</div>
+                  <div class="info"><span>(주)케이프로스</span><span>삼정트레이딩</span></div>
+                </div>
+                <div class="badge blue">원료</div>
+              </a>
+              <a href="javascript:;" class="item">
+                <div class="title-wrap">
+                  <div class="title">원료<span class="highlight">글리</span>세린</div>
+                  <div class="info"><span>(주)케이프로스</span><span>삼정트레이딩</span></div>
+                </div>
+                <div class="badge blue">원료</div>
+              </a>
+              <a href="javascript:;" class="item">
+                <div class="title-wrap">
+                  <div class="title">원료<span class="highlight">글리</span>세린</div>
+                  <div class="info"><span>(주)케이프로스</span><span>삼정트레이딩</span></div>
+                </div>
+                <div class="badge blue">원료</div>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+    <!--wrap-->
+    <div class="wrap">
+      <!--nav-->
+      <nav class="scroller m-none">
+        <!--lg-->
+        <div class="lg">
+          <!--gnb-->
+          <div class="gnb">
+            <!--group-->
+            <div class="group">
+              <a href="javascript:;" class="ic-home-lg">홈</a>
+              <a href="javascript:;" class="ic-tv-lg">코칭 TV</a>
+            </div>
+            <!--group-->
+            <div class="group gnb-acd block">
+              <div class="title">알림함</div>
+              <div class="gnb-wrap">
+                <a href="javascript:;" class="ic-noti-lg">알림함</a>
+                <a href="javascript:;" class="ic-list-lg">원료요청</a>
+                <a href="javascript:;" class="ic-message-lg">쪽지함</a>
+              </div>
+            </div>
+
+            <!--group-->
+            <div class="group">
+              <a href="javascript:;" class="ic-drop-lg">원료소싱</a>
+              <a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+              <a href="javascript:;" class="ic-book-lg">사용자 매뉴얼</a>
+              <a href="javascript:;" class="ic-chats-lg">1:1 문의하기</a>
+            </div>
+          </div>
+          <!--footer-->
+          <div class="footer">
+            <div class="top">
+              <div>이용약관</div>
+              <div>개인정보처리방침</div>
+            </div>
+            <div class="info">
+              <ul>
+                <li>경기도 광명시 일직로 43, GIDC A2 602호</li>
+                <li>대표 : 오원석</li>
+                <li>사업자등록번호 : 316-81-29819</li>
+                <li>통신판매업 신고번호 : 2000-광명일직A-0000호</li>
+              </ul>
+            </div>
+            <div class="info">© COCHING All rights reserved.</div>
+          </div>
+        </div>
+        <!--sm-->
+        <div class="sm">
+          <a href="javascript:;" class="ic-home-lg">홈</a>
+          <a href="javascript:;" class="ic-tv-lg">코칭 TV</a> <a href="javascript:;" class="ic-noti-lg">알림함</a> <a href="javascript:;" class="ic-drop-lg">원료소싱</a><a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+          <a href="javascript:;" class="ic-chats-lg">문의하기</a>
+        </div>
+      </nav>
+      <!--section-->
+      <section>
+        <div class="container h-100">
+          <!--login-->
+          <div class="login-wrap">
+            <div class="inner">
+              <div class="h1 text-center">로그인</div>
+              <form>
+                <div class="input-wrap input-line only">
+                  <div class="label-set">
+                    <div class="input-set">
+                      <input type="email" placeholder="이메일" />
+                    </div>
+                  </div>
+                  <div class="label-set">
+                    <div class="input-set">
+                      <input type="password" placeholder="비밀번호" />
+                    </div>
+                  </div>
+                </div>
+                <div class="bottom">
+                  <!--auto login-->
+                  <div class="checkbox">
+                    <input id="auto-login" type="checkbox" />
+                    <label for="auto-login" class="checkbox-label">자동로그인</label>
+                  </div>
+                  <!--auto login-->
+                  <a href="javascript:;" class="id-pw-find modal-open id-pw-find-modal">아이디/비밀번호 찾기</a>
+                </div>
+                <!--button-->
+                <div class="btn-area vertical">
+                  <button type="button" class="btn btn-lg btn-primary w-100">로그인</button>
+                  <button type="button" class="btn btn-lg btn-primary-outline w-100">회원가입</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!--m menu-->
+    <div class="modal-full for-menu pc-none">
+      <div class="inner">
+        <!--header-->
+        <div class="modal-header">
+          <!--logo-->
+          <div class="logo">
+            <img src="images/logo.svg" alt="COCHING" />
+          </div>
+
+          <!--button-->
+          <div class="full-close ic-wrap">
+            <div class="ic-lg ic-close"></div>
+          </div>
+        </div>
+
+        <!--body-->
+        <div class="modal-body p-t-0 scroller">
+          <!--board menu-->
+          <div class="board-menu">
+            <div class="item" OnClick="location.href ='javascript:;'">
+              <div class="ic-xlg ic-drop"></div>
+              <div class="title">원료소싱</div>
+            </div>
+            <div class="item" OnClick="location.href ='javascript:;'">
+              <div class="ic-xlg ic-speaker"></div>
+              <div class="title">공지사항</div>
+            </div>
+          </div>
+
+          <!--button-->
+          <div class="btn-area">
+            <!--로그인 전-->
+            <button type="button" class="btn btn-md btn-primary w-100">로그인</button>
+            <button type="button" class="btn btn-md btn-primary-outline w-100">회원가입</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--id-pw-find-->
+    <div class="modal for-id-pw-find">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+              </div>
+              <div class="modal-body p-t-0">
+                <div class="tabs style-line">
+                  <!--탭네비-->
+                  <div class="tabs-nav">
+                    <ul>
+                      <li class="active"><a href="#id-find">아이디 찾기</a></li>
+                      <li><a href="#pw-find">비밀번호 찾기</a></li>
+                    </ul>
+                  </div>
+                  <!--컨텐츠-->
+                  <div class="tabs-content id-pw-find-content">
+                    <!--id-->
+
+                    <div id="id-find" class="tabs-panel active">
+                      <!--title-->
+                      <div class="title">
+                        가입 시 등록된<br />
+                        이메일 주소를 입력하세요.
+                      </div>
+                      <form>
+                        <!--input-->
+                        <div class="input-wrap input-line">
+                          <div class="label-set">
+                            <div class="input-set">
+                              <input type="email" placeholder="가입된 이메일 입력" />
+                            </div>
+                          </div>
+                        </div>
+                        <!--button-->
+                        <div class="btn-area">
+                          <button type="button" class="btn btn-md btn-primary w-100">확인</button>
+                        </div>
+                      </form>
+                    </div>
+
+                    <!--pw-->
+                    <div id="pw-find" class="tabs-panel">
+                      <!--title-->
+                      <div class="title">
+                        가입 시 등록된<br />
+                        이메일 주소를 입력하세요.
+                      </div>
+                      <form>
+                        <!--input-->
+                        <div class="input-wrap input-line">
+                          <div class="label-set">
+                            <div class="input-set">
+                              <input type="email" placeholder="가입된 이메일 입력" />
+                            </div>
+                          </div>
+                        </div>
+                        <!--button-->
+                        <div class="btn-area">
+                          <button type="button" class="btn btn-md btn-primary w-100">비밀번호 초기화</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--최근 검색어 삭제-->
+    <div class="modal for-search-delete">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body only">
+                <p class="text-center">최근검색어를 모두 삭제하시겠습니까?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray bottom-modal-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close delete">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- scroller-x -->
+    <script src="js/scroller-x.js"></script>
+  </body>
+</html>

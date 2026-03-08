@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.rnd.mapper.LabElementInfDAO">
+
+	<sql id="baseFieldsAA">
+			AA.LAB_ELE_SEQ
+		, AA.LAB_MST_SEQ
+		, AA.RAW_ELM_ID
+		, AA.RAW_ELM_KR
+		, AA.RAW_ELM_EN
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='labSeq &gt; 0'>
+			AND AA.LAB_MST_SEQ = #{labSeq	, jdbcType=INTEGER}
+		</if>
+
+		<if test='elementId &gt; 0'>
+			AND AA.RAW_ELM_ID = #{elementId	, jdbcType=INTEGER}
+		</if>
+
+		<if test='labElementSeq &gt; 0'>
+			AND AA.LAB_ELE_SEQ = #{labElementSeq	, jdbcType=INTEGER}
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.rnd.domain.LabElementInfSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.getList */
+
+    SELECT
+      <include refid="baseFieldsAA"/>
+    FROM T_LAB_ELEMENT_INF AA
+    <where>
+      <include refid="baseSearchConditionAA"/>
+    </where>
+
+    <choose>
+      <otherwise>
+        ORDER BY AA.LAB_ELE_SEQ DESC
+      </otherwise>
+    </choose>
+
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.rnd.domain.LabElementInfSearchDTO"
+			resultType="int">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_LAB_ELEMENT_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.rnd.domain.LabElementInfSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_LAB_ELEMENT_INF AA
+		<where>
+			AND AA.LAB_ELE_SEQ = #{labElementSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.rnd.domain.LabElementInfVO">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.insert */
+
+		<selectKey resultType="long" keyProperty="labEleSeq" order="BEFORE">
+			SELECT nextval('seq_t_lab_element_inf')
+		</selectKey>	
+
+		INSERT INTO T_LAB_ELEMENT_INF (
+			LAB_ELE_SEQ
+			, LAB_MST_SEQ
+			, RAW_ELM_ID
+			, RAW_ELM_KR
+			, RAW_ELM_EN
+		) VALUES (
+				#{labEleSeq	, jdbcType=INTEGER}
+			, #{labMstSeq	, jdbcType=INTEGER}
+			, #{rawElmId	, jdbcType=INTEGER}
+			, #{rawElmKr	, jdbcType=VARCHAR}
+			, #{rawElmEn	, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.rnd.domain.LabElementInfVO">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.update */
+
+		UPDATE T_LAB_ELEMENT_INF SET
+				LAB_MST_SEQ 	= #{labMstSeq	, jdbcType=INTEGER}
+			, RAW_ELM_ID   	= #{rawElmId	, jdbcType=INTEGER}
+			, RAW_ELM_KR   	= #{rawElmKr	, jdbcType=VARCHAR}
+			, RAW_ELM_EN   	= #{rawElmEn	, jdbcType=VARCHAR}
+		<where>
+			AND LAB_ELE_SEQ 	= #{labEleSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.rnd.mapper.LabElementInfDAO.delete */
+
+		DELETE FROM T_LAB_ELEMENT_INF
+		<where>
+			AND LAB_ELE_SEQ = #{labElementSeq, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+  <delete id="deleteByLabMstSeq"
+    parameterType="long">
+    /* com.erns.coching.rnd.mapper.LabElementInfDAO.deleteByLabMstSeq */
+
+    DELETE FROM T_LAB_ELEMENT_INF
+    <where>
+      AND LAB_MST_SEQ = #{labSeq, jdbcType=INTEGER}
+    </where>
+  </delete>
+
+</mapper>

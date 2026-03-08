@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.code.mapper.CodeMasterDAO">
+
+	<sql id="baseFieldsAA">
+			AA.GRP_CODE
+		, AA.GRP_CODE_NAME
+		, AA.CODE_DESC
+		, AA.ETC_CMMT
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = 'Y'
+		</if>
+
+		<if test='grpCode != null and grpCode != ""'>
+			AND UPPER(AA.GRP_CODE) = UPPER(#{grpCode, jdbcType=VARCHAR})
+		</if>
+
+		<if test='searchText != null and searchText != ""'>
+			AND (UPPER(AA.GRP_CODE) 	 LIKE UPPER('%' || #{searchText, jdbcType=VARCHAR} || '%')
+				OR UPPER(AA.GRP_CODE_NAME) LIKE UPPER('%' || #{searchText, jdbcType=VARCHAR} || '%'))
+		</if>
+
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.coching.code.domain.CodeMasterSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_CODE_MST AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.GRP_CODE
+			) A
+		) B
+		<if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.code.domain.CodeMasterSearchDTO"
+		resultType="int">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_CODE_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_CODE_MST AA
+
+		<where>
+			AA.GRP_CODE = #{grpCode, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.insert */
+
+		INSERT INTO T_CODE_MST (
+				GRP_CODE
+			, GRP_CODE_NAME
+			, CODE_DESC
+			, ETC_CMMT
+			, USE_YN
+			, DEL_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+		) VALUES (
+				#{grpCode			, jdbcType=VARCHAR}
+			, #{grpCodeName	, jdbcType=VARCHAR}
+			, #{codeDesc		, jdbcType=VARCHAR}
+			, #{etcCmmt			, jdbcType=VARCHAR}
+			, COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+			, COALESCE(#{delYn		, jdbcType=CHAR}, 'N')
+
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+			, #{chnr		, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.update */
+
+		UPDATE T_CODE_MST SET
+				GRP_CODE_NAME  = 	#{grpCodeName	, jdbcType=VARCHAR}
+			, CODE_DESC			 = 	#{codeDesc		, jdbcType=VARCHAR}
+			, ETC_CMMT			 = 	#{etcCmmt			, jdbcType=VARCHAR}
+
+			, CHNR					=  #{chnr			, jdbcType=INTEGER}
+			, CHNG_DTTM		 	=  now()
+		<where>
+			GRP_CODE = #{grpCode, jdbcType=VARCHAR}
+		</where>
+
+	</update>
+
+	<update id="updateUseYn"
+		parameterType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.updateUseYn */
+
+		UPDATE T_CODE_MST SET
+				USE_YN        = COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+
+			, CHNR					= #{chnr			, jdbcType=INTEGER}
+			, CHNG_DTTM		 	= now()
+		<where>
+			GRP_CODE 				= #{grpCode, jdbcType=VARCHAR}
+		</where>
+
+	</update>
+	
+	<update id="updateDelYn"
+		parameterType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.updateDelYn */
+
+		UPDATE T_CODE_MST SET
+				DEL_YN        = COALESCE(#{delYn		, jdbcType=CHAR}, 'Y')
+
+			, CHNR					= #{chnr			, jdbcType=INTEGER}
+			, CHNG_DTTM		 	= now()
+		<where>
+			GRP_CODE 				= #{grpCode, jdbcType=VARCHAR}
+		</where>
+
+	</update>
+	
+	<update id="updateState"
+		parameterType="com.erns.coching.code.domain.CodeMasterVO">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.updateState */
+
+		UPDATE T_CODE_MST SET
+				USE_YN        = COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+
+			, CHNR					= #{chnr			, jdbcType=INTEGER}
+			, CHNG_DTTM		 	= now()
+		<where>
+			GRP_CODE 				= #{grpCode, jdbcType=VARCHAR}
+		</where>
+
+	</update>
+	
+	<delete id="delete"
+		parameterType="String">
+		/* com.erns.coching.code.mapper.CodeMasterDAO.delete */
+
+		DELETE FROM T_CODE_MST
+		<where>
+			AND GRP_CODE = #{grpCode, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+</mapper>

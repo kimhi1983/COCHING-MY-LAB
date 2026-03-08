@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.notification.mapper.NotificationDAO">
+
+	<!-- T_NOTIFICATION -->
+	<sql id="baseFieldsAA">
+		  AA.NOTI_SEQ
+		, AA.MEMB_SEQ
+		, AA.REF_CODE
+		, AA.REF_SEQ
+		, AA.REF_LINK
+		, AA.CONTENT
+		, AA.CHK_YN
+		, AA.RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='notiSeq != null and notiSeq &gt; 0'>
+			AND AA.NOTI_SEQ = #{notiSeq, jdbcType=INTEGER}
+		</if>
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+    	<if test='refCode != null and refCode != ""'>
+    		AND UPPER(AA.REF_CODE) LIKE UPPER('%' || #{refCode, jdbcType=VARCHAR} || '%')
+    	</if>
+		<if test='refSeq != null and refSeq &gt; 0'>
+			AND AA.REF_SEQ = #{refSeq, jdbcType=INTEGER}
+		</if>
+    	<if test='content != null and content != ""'>
+    		AND UPPER(AA.CONTENT) LIKE UPPER('%' || #{content, jdbcType=VARCHAR} || '%')
+    	</if>
+    	<if test='chkYn != null and chkYn != ""'>
+    		AND UPPER(AA.CHK_YN) LIKE UPPER('%' || #{chkYn, jdbcType=VARCHAR} || '%')
+    	</if>
+    </sql>
+
+
+	<select id="getList"
+    		parameterType="com.erns.coching.notification.domain.NotificationSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.notification.mapper.NotificationDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+					SELECT
+						<include refid="baseFieldsAA"/>
+				    FROM  T_NOTIFICATION AA
+				 <where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY
+				CASE WHEN AA.CHK_YN = 'N' THEN 1 ELSE 2 END,  -- CHK_YN이 N인 것을 우선
+				AA.RGT_DTTM DESC
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.notification.domain.NotificationSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.notification.mapper.NotificationDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_NOTIFICATION AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.notification.domain.NotificationVO">
+    	/* com.erns.coching.notification.mapper.NotificationDAO.insert */
+
+    	<selectKey resultType="long" keyProperty="notiSeq" order="BEFORE">
+			SELECT nextval('seq_t_notification')
+		</selectKey>
+
+    	INSERT INTO T_NOTIFICATION (
+			NOTI_SEQ
+			, MEMB_SEQ
+			, REF_CODE
+			, REF_SEQ
+			, CONTENT
+			, CHK_YN
+			, RGTR
+			, RGT_DTTM
+    	) VALUES (
+			  #{notiSeq		, jdbcType=INTEGER}
+			, #{membSeq		, jdbcType=INTEGER}
+			, #{refCode		, jdbcType=VARCHAR}
+			, #{refSeq		, jdbcType=INTEGER}
+			, #{content		, jdbcType=VARCHAR}
+			, COALESCE(#{chkYn	, jdbcType=CHAR}, 'N')
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    <update id="updateChkYn"
+    	parameterType="com.erns.coching.notification.domain.NotificationSetDTO">
+    	/* com.erns.coching.notification.mapper.NotificationDAO.updateChkYn */
+
+    	UPDATE T_NOTIFICATION SET
+			  CHK_YN				= COALESCE(#{chkYn	, jdbcType=VARCHAR}, 'N')
+		<where>
+			AND NOTI_SEQ		= #{notiSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+
+</mapper>

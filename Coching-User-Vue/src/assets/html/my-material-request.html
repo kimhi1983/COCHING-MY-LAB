@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!--tippy-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.7/animations/shift-toward.min.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <!--header-->
+      <header>
+        <div class="inner">
+          <div class="container">
+            <!--logo-->
+            <a href="index.html" class="logo">
+              <img src="images/logo.svg" alt="COCHING" />
+            </a>
+            <!--unit-->
+            <div class="unit">
+              <!--left-->
+              <div class="flex m-none">
+                <a href="javascript:;">게시판</a>
+                <a href="javascript:;">로그인</a>
+                <a href="javascript:;">회원가입</a>
+              </div>
+              <!--right-->
+              <div class="flex right">
+                <!--mobile menu-->
+                <div class="ic-wrap menu-wrap pc-none">
+                  <div class="ic-lg ic-menu"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--search-->
+          <div class="main-search">
+            <form>
+              <!--input-->
+              <div class="search-wrap">
+                <button type="button" class="ic-lg ic-arrow-left-long"></button>
+                <div class="search-input-wrap"><input type="search" placeholder="글리세린(glycerin)" id="searchInput" /> <button type="button" class="ic-md ic-delete"></button></div>
+
+                <div class="btn-wrap">
+                  <button type="submit" class="ic-lg ic-search"></button>
+                  <button type="button" class="ic-lg ic-help tooltip" data-tippy-content="툴팁 내용 블라블라.."></button>
+                </div>
+              </div>
+              <!--layer-->
+              <div class="search-layer">
+                <a href="javascript:;" class="hidden">글리세린1</a>
+                <a href="javascript:;" class="hidden">글리세린2</a>
+                <a href="javascript:;" class="hidden">테스트1</a>
+                <a href="javascript:;" class="hidden">테스트2</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <!--section-->
+      <section>
+        <div class="inner">
+          <div class="container">
+            <div class="content-wrap">
+              <!--content-title-wrap-->
+              <div class="content-title-wrap">
+                <div class="h1">원료 요청</div>
+                <div class="link-box-wrap fill m-none">
+                  <button type="button">쪽지함</button>
+                  <button type="button">찜한 원료</button>
+                  <button type="button" class="active">원료 요청</button>
+                  <button type="button">최근 본 원료</button>
+                  <button type="button">내가 쓴 글</button>
+                  <button type="button">개인정보</button>
+                </div>
+              </div>
+
+              <!--section-content-->
+              <!--광고 배너 없을 경우 including 삭제-->
+              <div class="section-content including content-right board-content">
+                <!--real-content-->
+                <div class="real-content">
+                  <div class="container-inner">
+                    <!--total-wrap-->
+                    <div class="total-wrap">
+                      <div class="total-num">총<span>82</span></div>
+                      <div class="right">
+                        <!--button-->
+                        <button type="button" class="btn btn-sm btn-gray-outline">삭제</button>
+                      </div>
+                    </div>
+                    <!--responsive table-->
+                    <div class="responsive-table check-table">
+                      <table>
+                        <colgroup>
+                          <col width="50" />
+                          <col />
+                          <col width="150" />
+                          <col width="150" />
+                          <col width="150" />
+                          <col width="150" />
+                          <col width="120" />
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th>
+                              <div class="checkbox only">
+                                <input id="checkall-board" type="checkbox" />
+                                <label for="checkall-board" class="checkbox-label"></label>
+                              </div>
+                            </th>
+                            <th class="text-left">원료명</th>
+                            <th class="text-left">성분</th>
+                            <th>유통사</th>
+                            <th>제조사</th>
+                            <th>요청일</th>
+                            <th>진행상태</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-01" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-01" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge orange">요청중</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-02" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-02" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge green">자료 확인</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-03" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-03" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge blue">자료 회신</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-04" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-04" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge gray">메일 회신 예정</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-01" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-01" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge orange">요청중</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-02" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-02" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge green">자료 확인</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-03" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-03" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge blue">자료 회신</div></td>
+                          </tr>
+                          <tr class="link" OnClick="location.href ='javascript:;'">
+                            <td class="board-check">
+                              <div class="checkbox only">
+                                <input id="board-04" name="chk-checkall-board" type="checkbox" />
+                                <label for="board-04" class="checkbox-label"></label>
+                              </div>
+                            </td>
+                            <td class="text-left m-w-100">
+                              <div class="title-wrap flex">
+                                <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                              </div>
+                            </td>
+                            <td class="text-left">
+                              <div class="info">글리세린, 정제수글리세린</div>
+                            </td>
+                            <td>한국코리아</td>
+                            <td>Kpros</td>
+                            <td>24.07.30</td>
+                            <td class="m-w-100 m-p-t"><div class="state-badge gray">메일 회신 예정</div></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <!--검색결과 없음(모든 곳 공통)-->
+                      <!-- <div class="result-none">검색결과가 없습니다.</div> -->
+                    </div>
+                    <!--pagenation-->
+                    <div class="pagenation">
+                      <a href="javascript:;" class="ic double-prev"></a>
+                      <a href="javascript:;" class="ic prev"></a>
+                      <a href="javascript:;" class="active">1</a>
+                      <a href="javascript:;">2</a>
+                      <a href="javascript:;">3</a>
+                      <a href="javascript:;">4</a>
+                      <a href="javascript:;">5</a>
+                      <a href="javascript:;" class="ic next"></a>
+                      <a href="javascript:;" class="ic double-next"></a>
+                    </div>
+                  </div>
+                </div>
+
+                <!--banner-wrap-->
+                <!--배너는 2가지 타입 type-text / type-img-->
+                <div class="banner-wrap scroller type-text m-scroll-hidden">
+                  <div class="item">
+                    <div class="img">
+                      <img src="images/logo.svg" alt="COCHING" />
+                    </div>
+                    <div class="text-wrap">
+                      <div class="title">조에바이오</div>
+                      <div class="info">Bio-conversion을 기반으로 한 화장품 소재를 연구, 개발, 제조합니다.</div>
+                      <div class="tag"><span>화장품원료</span><span>바이오소재</span><span>발효기술</span></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="text-wrap">
+                      <div class="title">청산어택</div>
+                      <div class="info">실리콘 및 기타 화장품 원료 생산/수입/판매</div>
+                      <div class="tag"><span>화장품원료</span><span>바이오소재</span><span>발효기술</span></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="img">
+                      <img src="images/logo.svg" alt="COCHING" />
+                    </div>
+                    <div class="text-wrap">
+                      <div class="title">피엠씨코리아</div>
+                      <div class="info">고객과 함께 발전하는 화공약품 전문기업</div>
+                      <div class="tag"><span>화장품원료</span></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="img">
+                      <img src="images/logo.svg" alt="COCHING" />
+                    </div>
+                    <div class="text-wrap">
+                      <div class="title">조에바이오</div>
+                      <div class="info">Bio-conversion을 기반으로 한 화장품 소재를 연구, 개발, 제조합니다.</div>
+                      <div class="tag"><span>화장품원료</span><span>바이오소재</span><span>발효기술</span></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="img">
+                      <img src="images/logo.svg" alt="COCHING" />
+                    </div>
+                    <div class="text-wrap">
+                      <div class="title">조에바이오</div>
+                      <div class="info">Bio-conversion을 기반으로 한 화장품 소재를 연구, 개발, 제조합니다.</div>
+                      <div class="tag"><span>화장품원료</span><span>바이오소재</span><span>발효기술</span></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="img">
+                      <img src="images/logo.svg" alt="COCHING" />
+                    </div>
+                    <div class="text-wrap">
+                      <div class="title">조에바이오</div>
+                      <div class="info">Bio-conversion을 기반으로 한 화장품 소재를 연구, 개발, 제조합니다.</div>
+                      <div class="tag"><span>화장품원료</span><span>바이오소재</span><span>발효기술</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--footer-->
+      <footer>
+        <div class="inner">
+          <div class="container">
+            <!--top-->
+            <div class="top">
+              <div class="left">
+                <div class="logo">
+                  <img src="images/logo-gray.svg" alt="COCHING" />
+                </div>
+              </div>
+              <div class="right">
+                <a href="javascript:;">이용약관</a>
+                <a href="javascript:;">개인정보처리방침</a>
+              </div>
+            </div>
+            <!--bottom-->
+            <div class="bottom">
+              <div class="left">
+                <ul>
+                  <li>경기도 광명시 일직로 43, GIDC A2 602호</li>
+                </ul>
+                <ul>
+                  <li>대표 : 오원석</li>
+                  <li>사업자등록번호 : 000-00-000000</li>
+                  <li>메일 : coching@coching.co.kr</li>
+                  <li>통신판매업 신고번호 : 2000-광명일직A-0000호</li>
+                  <a href="javascript:;" class="btn-info">사업자 정보</a>
+                </ul>
+              </div>
+              <div class="right">© COCHING All rights reserved.</div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!--back-to-top-->
+    <div id="back-to-top"></div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!--tippy-->
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- scroller-x -->
+    <script src="js/scroller-x.js"></script>
+  </body>
+</html>

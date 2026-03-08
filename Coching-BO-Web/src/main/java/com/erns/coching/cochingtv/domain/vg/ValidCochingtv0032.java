@@ -1,0 +1,11 @@
+package com.erns.coching.cochingtv.domain.vg;
+
+/**
+ * <p>코칭TV 상태저장 Validation Group</p>
+ *
+ * @author hw.park@erns.co.kr
+ *
+ */
+public interface ValidCochingtv0032 {
+
+}

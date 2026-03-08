@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <div class="ui-wrap">
+      <div class="container">
+        <div class="ui">
+          <div class="item">
+            <div class="title">Input-Line</div>
+            <div class="input-wrap input-line">
+              <div class="input-set">
+                <input type="text" placeholder="인풋만" />
+              </div>
+              <div class="label-set">
+                <label>일반형</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋" />
+                </div>
+              </div>
+              <div class="label-set">
+                <label>disabled</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋" disabled />
+                </div>
+              </div>
+              <div class="label-set">
+                <label>일반메세지</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋+메세지" />
+                  <div class="info">default message..</div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>성공메세지</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋+성공메세지" />
+                  <!--성공 메세지 노출 active-->
+                  <div class="info success active">success message..</div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>에러메세지</label>
+                <div class="input-set">
+                  <!--실패 input fail-->
+                  <input type="text" class="fail" placeholder="라벨+인풋+에러메세지" />
+                  <!--실패 메세지 노출 active-->
+                  <div class="info error active">error message..</div>
+                </div>
+              </div>
+
+              <div class="label-set">
+                <label>인풋 아이콘 세트</label>
+                <div class="input-set">
+                  <div class="input-ic-set">
+                    <input type="text" placeholder="아이콘 버튼" />
+                    <button type="button" class="input-ic ic-md ic-search-md"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>버튼세트</label>
+                <div class="input-set">
+                  <div class="btn-set">
+                    <input type="text" placeholder="라벨+인풋+버튼" />
+                    <button type="button" class="btn btn-sm btn-gray-outline">button</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="title">Input-Box</div>
+            <div class="input-wrap">
+              <div class="input-set">
+                <input type="text" placeholder="인풋만" />
+              </div>
+              <div class="label-set">
+                <label>일반형</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋" />
+                </div>
+              </div>
+              <div class="label-set">
+                <label>disabled</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋" disabled />
+                </div>
+              </div>
+              <div class="label-set">
+                <label>일반메세지</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋+메세지" />
+                  <div class="info">default message..</div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>성공메세지</label>
+                <div class="input-set">
+                  <input type="text" placeholder="라벨+인풋+성공메세지" />
+                  <!--성공 메세지 노출 active-->
+                  <div class="info success active">success message..</div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>에러메세지</label>
+                <div class="input-set">
+                  <!--실패 input fail-->
+                  <input type="text" class="fail" placeholder="라벨+인풋+에러메세지" />
+                  <!--실패 메세지 노출 active-->
+                  <div class="info error active">error message..</div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>인풋안에 한글자 세트</label>
+                <div class="input-set">
+                  <div class="input-text-set">
+                    <input type="text" placeholder="오른쪽 정렬" class="text-right" />
+                    <div class="input-text">원</div>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>인풋 아이콘 세트</label>
+                <div class="input-set">
+                  <div class="input-ic-set">
+                    <input type="text" placeholder="아이콘 버튼" />
+                    <button type="button" class="input-ic ic-md ic-search-md"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>버튼세트</label>
+                <div class="input-set">
+                  <div class="btn-set">
+                    <input type="text" placeholder="라벨+인풋+버튼" />
+                    <button type="button" class="btn btn-sm btn-gray-outline">button</button>
+                  </div>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>셀렉트박스</label>
+                <div class="input-set">
+                  <select class="custom-select" placeholder="국가선택">
+                    <option value="">한국</option>
+                    <option value="">미국</option>
+                    <option value="">일본</option>
+                    <option value="">중국</option>
+                  </select>
+                </div>
+              </div>
+              <div class="label-set">
+                <label>셀렉트박스 disabled</label>
+                <div class="input-set">
+                  <select class="custom-select disabled" placeholder="국가선택">
+                    <option value="">한국</option>
+                    <option value="">미국</option>
+                    <option value="">일본</option>
+                    <option value="">중국</option>
+                  </select>
+                </div>
+              </div>
+              <!--cehckbox-->
+              <div class="chehck-radio-flex">
+                <div>
+                  <div class="checkbox">
+                    <input id="checkbox-01" type="checkbox" />
+                    <label for="checkbox-01" class="checkbox-label">checkbox</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="checkbox">
+                    <input id="checkbox-02" type="checkbox" checked />
+                    <label for="checkbox-02" class="checkbox-label">checkbox</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="checkbox">
+                    <input id="checkbox-03" type="checkbox" disabled />
+                    <label for="checkbox-03" class="checkbox-label">checkbox</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="checkbox">
+                    <input id="checkbox-04" type="checkbox" checked disabled />
+                    <label for="checkbox-04" class="checkbox-label">checkbox</label>
+                  </div>
+                </div>
+              </div>
+
+              <!--radio-->
+              <div class="chehck-radio-flex">
+                <div>
+                  <div class="radiobox">
+                    <input id="radio-01" type="radio" name="radio" />
+                    <label for="radio-01" class="radiobox-label">radio</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="radiobox">
+                    <input id="radio-02" type="radio" name="radio" checked />
+                    <label for="radio-02" class="radiobox-label">radio</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="radiobox">
+                    <input id="radio-03" type="radio" disabled />
+                    <label for="radio-03" class="radiobox-label">radio</label>
+                  </div>
+                </div>
+                <div>
+                  <div class="radiobox">
+                    <input id="radio-04" type="radio" checked disabled />
+                    <label for="radio-04" class="radiobox-label">radio</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>

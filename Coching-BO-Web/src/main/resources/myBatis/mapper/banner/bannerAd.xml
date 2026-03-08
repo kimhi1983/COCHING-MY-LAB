@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.banner.mapper.BannerAdDAO">
+
+	<sql id="baseFieldsAA">
+			AA.BANNER_SEQ
+		, AA.BANNER_MST_CD
+		, AA.TITLE
+		, AA.CONTENT
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.AD_STATUS
+		, AA.SORT_ORD
+		, AA.DISP_YN
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.REF_SEQ
+		, AA.REF_CODE
+		, AA.REF_URL
+		, AA.REMARKS
+		, AA.CLICKS
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<!-- 
+		AND COALESCE(AA.USE_YN, 'Y') = 'Y'
+		AND COALESCE(AA.DEL_YN, 'N') = 'N'
+		AND COALESCE(AA.DISP_YN, 'Y') = 'Y'
+
+		AND NOW()::DATE BETWEEN 
+			COALESCE(NULLIF(TRIM(AA.FROM_DATE), ''), '2000-01-01')::DATE AND 
+			COALESCE(NULLIF(TRIM(AA.TO_DATE)	, ''), '3000-12-31')::DATE
+		 -->
+
+		<if test='bannerMstCd != null and bannerMstCd != ""'>
+			AND AA.BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+		</if>
+
+		<if test='bannerSeq &gt; 0'>
+			AND AA.BANNER_SEQ 	= #{bannerSeq	, jdbcType=INTEGER}
+		</if>
+		
+		<if test='titleL != null and titleL != ""'>
+			AND UPPER(AA.TITLE) LIKE UPPER('%' || #{titleL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<!-- 
+		<if test='contentL != null and contentL != ""'>
+			AND UPPER(AA.CONTENT) LIKE UPPER('%' || #{contentL, jdbcType=VARCHAR} || '%')
+		</if>
+		
+		<if test='remarksL != null and remarksL != ""'>
+			AND UPPER(AA.REMARKS) LIKE UPPER('%' || #{remarksL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='adStatus != null and adStatus != ""'>
+			AND AA.AD_STATUS = #{adStatus, jdbcType=CHAR}
+		</if>
+		 -->
+		
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+		
+		<if test='delYn != null and delYn != ""'>
+			AND AA.DEL_YN = #{delYn, jdbcType=CHAR}
+		</if>
+
+		<if test='dispYn != null and dispYn != ""'>
+			AND AA.DISP_YN = #{dispYn, jdbcType=CHAR}
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.banner.domain.BannerAdSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>	
+					, MEMB.MEMB_ID AS MEMB_ID			
+				FROM T_BANNER_AD AA
+				LEFT JOIN T_MEMB_INF MEMB ON AA.CHNR = MEMB.MEMB_SEQ
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>					
+					<otherwise>
+						ORDER BY AA.SORT_ORD ASC
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.banner.domain.BannerAdSearchDTO"
+			resultType="int">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_BANNER_AD AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+			parameterType="com.erns.coching.banner.domain.BannerAdSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, BM.BANNER_TYPE
+			, BM.BANNER_MST_NAME
+			, MEMB.MEMB_NAME AS RGTR_NAME
+		FROM T_BANNER_AD AA
+			JOIN T_BANNER_MST BM ON AA.BANNER_MST_CD = BM.BANNER_MST_CD
+			LEFT JOIN T_MEMB_INF MEMB ON AA.RGTR = MEMB.MEMB_SEQ
+		<where>
+			AND AA.BANNER_SEQ 	= #{bannerSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.insert */
+
+		<selectKey resultType="long" keyProperty="bannerSeq" order="BEFORE">
+			SELECT nextval('seq_t_banner_ad')
+		</selectKey>
+
+		INSERT INTO T_BANNER_AD (
+				BANNER_SEQ
+			, BANNER_MST_CD
+			, TITLE
+			, CONTENT
+			, FROM_DATE
+			, TO_DATE
+			, AD_STATUS
+			, SORT_ORD
+			, DISP_YN
+			, USE_YN
+			, DEL_YN
+			, REF_SEQ
+			, REF_CODE
+			, REF_URL
+			, REMARKS
+			, CLICKS						
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+    	
+		) VALUES (
+			  #{bannerSeq		, jdbcType=INTEGER}
+			, #{bannerMstCd , jdbcType=VARCHAR}
+			, #{title				, jdbcType=VARCHAR}
+			, #{content			, jdbcType=VARCHAR}
+			, #{fromDate		, jdbcType=VARCHAR}
+			, #{toDate			, jdbcType=VARCHAR}
+			, #{adStatus		, jdbcType=VARCHAR}
+			, (SELECT COALESCE(MAX(S.SORT_ORD), 0) + 1 FROM T_BANNER_AD S WHERE S.BANNER_MST_CD = #{bannerMstCd , jdbcType=VARCHAR} )
+			, COALESCE(#{dispYn	, jdbcType=VARCHAR}, 'Y')
+			, COALESCE(#{useYn	, jdbcType=VARCHAR}, 'Y')
+			, COALESCE(#{delYn	, jdbcType=VARCHAR}, 'N')
+			, #{refSeq			, jdbcType=INTEGER}
+			, #{refCode			, jdbcType=VARCHAR}
+			, #{refUrl			, jdbcType=VARCHAR}
+			, #{remarks			, jdbcType=VARCHAR}
+			, COALESCE(#{clicks	, jdbcType=INTEGER}, 0)
+			, #{rgtr			, jdbcType=INTEGER}
+			, now() 
+			, #{chnr			, jdbcType=INTEGER}
+			, now()
+    )
+  </insert>
+
+	<update id="update"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.update */
+
+		UPDATE T_BANNER_AD SET
+				TITLE       		= #{title			, jdbcType=VARCHAR}
+			, CONTENT        		= #{content		, jdbcType=VARCHAR}
+			, FROM_DATE        		= #{fromDate	, jdbcType=VARCHAR}
+			, TO_DATE          		= #{toDate		, jdbcType=VARCHAR}
+			, AD_STATUS       		= #{adStatus		, jdbcType=VARCHAR}
+			, DISP_YN				= COALESCE(#{dispYn	, jdbcType=VARCHAR}, 'Y')
+			, USE_YN				= COALESCE(#{useYn	, jdbcType=VARCHAR}, 'Y')
+			, DEL_YN				= COALESCE(#{delYn	, jdbcType=VARCHAR}, 'N')
+			, REF_SEQ        		= #{refSeq		, jdbcType=INTEGER}
+			, REF_CODE      		= #{refCode		, jdbcType=VARCHAR}
+			, REF_URL     			= #{refUrl		, jdbcType=VARCHAR}
+			, REMARKS				= #{remarks		, jdbcType=VARCHAR}			
+			, CHNR 		 			= #{chnr, jdbcType=INTEGER}
+			, CHNG_DTTM  			= now()
+		<where>
+			AND BANNER_SEQ 			= #{bannerSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+    
+	<update id="updateDispYn"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateDispYn */
+
+		UPDATE T_BANNER_AD SET
+				DISP_YN           = COALESCE(#{dispYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 					= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  				= now()
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateUseYn"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateUseYn */
+
+		UPDATE T_BANNER_AD SET
+				USE_YN            = COALESCE(#{useYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 					= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  				= now()
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateDelYn"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateDelYn */
+
+		UPDATE T_BANNER_AD SET
+				DEL_YN            = COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 					= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  				= now()
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateOrder"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateOrder */
+
+		UPDATE T_BANNER_AD SET
+				SORT_ORD      		= #{sortOrd	, jdbcType=INTEGER}
+
+			, CHNR 		 					= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  				= now()
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+	
+	<update id="updateState"
+			parameterType="com.erns.coching.banner.domain.BannerAdVO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateState */
+
+		UPDATE T_BANNER_AD SET
+			DISP_YN					= COALESCE(#{dispYn	, jdbcType=VARCHAR}, 'Y')
+			, USE_YN					= COALESCE(#{useYn	, jdbcType=VARCHAR}, 'Y')
+			, CHNR 		 				= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  				= now()
+		<where>
+			AND BANNER_MST_CD 		= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateClicks"
+			parameterType="com.erns.coching.banner.domain.BannerAdSearchDTO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.updateClicks */
+
+		UPDATE T_BANNER_AD SET
+			CLICKS      			= CLICKS + 1
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<delete id="delete"
+			parameterType="com.erns.coching.banner.domain.BannerAdSearchDTO">
+		/* com.erns.coching.banner.mapper.BannerAdDAO.delete */
+
+		DELETE FROM T_BANNER_AD
+		<where>
+			AND BANNER_MST_CD 	= #{bannerMstCd	, jdbcType=VARCHAR}
+			AND BANNER_SEQ 			= #{bannerSeq		, jdbcType=INTEGER}
+		</where>
+	</delete>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.es.coching.mapper.EsCochingIngredientDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.id
+		, AA.rep_name 		
+		, AA.rep_name_en 	
+		, AA.kcai_id		
+		, AA.ewg_id			
+		, AA.hw_ingd_id		
+		
+		, AA.inci			
+		, AA.names_ko 		
+		, AA.names_en 		
+		, AA.purposes		
+		, AA.cas_no			
+		, AA.ec_no 			
+		
+		, AA.formula		
+		, AA.exp_url1		
+		, AA.exp_url2		
+		
+		, AA.ewg_score_min	
+		, AA.ewg_score		
+		, AA.ewg_data_label 
+		, AA.ewg_rawcno_id	
+		, AA.ewg_url
+		, AA.ewg_chng_dttm
+		
+		, AA.rgt_dttm		
+		, AA.chng_dttm		
+	</sql>
+	
+	<sql id="idCheckCondition">
+		<choose>
+			<when test='idType == "R"'>
+				AND AA.id::text = #{id}
+			</when>
+			<when test='idType == "K"'>
+				AND AA.kcai_id::text = #{id}
+			</when>
+			<when test='idType == "E"'>
+				AND AA.ewg_id::text = #{id}
+			</when>
+			<otherwise>
+				AND AA.hw_ingd_id::text = #{id}
+			</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='idType != null and id !=null and idType != "" and id != ""'>
+			<include refid="idCheckCondition"/>
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.es.coching.domain.EsIngredientSearchDTO"
+		resultType="com.erns.es.coching.domain.EsCochingIngredientVO">
+		/* com.erns.es.coching.mapper.EsCochingIngredientDAO.getListForRawMapping */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			<if test="loadDetailJson == true">
+				, AA.detail_json::text 
+			</if>
+		FROM t_es_coching_ingd AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		ORDER BY AA.id
+
+		<if test='rowSize &gt; 0'>
+			LIMIT #{rowSize} OFFSET #{offset}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.es.coching.domain.EsIngredientSearchDTO"
+		resultType="int">
+		/* com.erns.es.coching.mapper.EsCochingIngredientDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM t_es_coching_ingd AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+
+	<select id="loadByIds"
+		parameterType="com.erns.es.coching.domain.EsIngredientSearchDTO"
+		resultType="com.erns.es.coching.domain.EsCochingIngredientVO">
+		/* com.erns.es.coching.mapper.EsCochingIngredientDAO.loadByIds */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			<if test="loadDetailJson">
+				, AA.detail_json::text 
+			</if>
+		FROM t_es_coching_ingd AA			
+		<where>
+			<include refid="idCheckCondition"/>
+		</where>
+		LIMIT 1 OFFSET 0
+
+	</select>
+</mapper>

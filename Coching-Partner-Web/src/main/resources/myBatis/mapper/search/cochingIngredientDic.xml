@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.CochingEsIngredientDicDAO">
+
+	<!-- T_INGD_DIC -->
+	<sql id="baseFieldsAA">
+			AA.ID
+		, AA.REP_NAME
+		, AA.REP_NAME_EN
+		, AA.KCAI_ID
+		, AA.EWG_ID
+		, AA.HW_INGD_ID
+		, AA.INCI
+		, AA.CAS_NO
+		, AA.EC_NO
+		, AA.EWG_SCORE_MIN
+		, AA.EWG_SCORE
+		, AA.EWG_DATA_LABEL		
+	</sql>
+
+
+	<sql id="baseSearchConditionAA">
+		<choose>
+			<when test='idType == "H"'>
+				AND AA.hw_ingd_id::text = #{id}
+			</when>
+			<when test='idType == "K"'>
+				AND AA.kcai_id::text = #{id}
+			</when>
+			<when test='idType == "E"'>
+				AND AA.ewg_id::text = #{id}
+			</when>
+			<when test='idType == "R"'>
+				AND AA.id::text = #{id}
+			</when>
+			<otherwise>
+				
+			</otherwise>
+		</choose>
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.search.domain.EsIngredientSearchDTO"
+			resultType="Map">
+		/* com.erns.coching.search.mapper.CochingEsIngredientDicDAO.getList */
+
+
+		SELECT
+			<include refid="baseFieldsAA"/>					
+		FROM T_INGD_DIC AA					
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		ORDER BY AA.ID
+		
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.search.domain.EsIngredientSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.search.mapper.CochingEsIngredientDicDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_INGD_DIC AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+  </select>
+
+
+	<select id="load"
+    	parameterType="long"
+    	resultType="Map">
+    	/* com.erns.coching.search.mapper.CochingEsIngredientDicDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_INGD_DIC AA
+		<where>
+			AND AA.ID = #{value, jdbcType=INTEGER}
+		</where>
+
+	</select>
+
+</mapper>

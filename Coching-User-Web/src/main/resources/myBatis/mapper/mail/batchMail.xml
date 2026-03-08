@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.mail.mapper.MailDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.BATCH_SEQ
+		, AA.MEMB_SEQ
+		, AA.RESULT
+		, AA.RESULT_DATA
+		, AA.ERR_CNT
+		, AA.SEND_DATE
+		, AA.TO_EMAIL
+		, AA.PRIORITY
+		, AA.TITLE
+		, AA.CONTENT
+		, TO_CHAR(AA.RGT_DTTM	, 'YYYY-MM-DD HH24:mi:SS') AS RGT_DATE
+		, TO_CHAR(AA.CHNG_DTTM	, 'YYYY-MM-DD HH24:mi:SS') AS CHNG_DATE
+		, AA.MAIL_SEQ
+		, AA.FILE_ID
+	</sql>
+
+	<select id="selectWillSend"
+		parameterType="Integer"
+		resultType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.FcmPushDAO.selectWillSend */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+        FROM T_BATCH_MAIL AA
+
+        <where>
+        	AND AA.RESULT in ('R', 'F')
+        	AND AA.ERR_CNT <![CDATA[ < ]]> 3
+			AND TO_DATE(AA.SEND_DATE, 'YYYY-MM-DD HH24:mi:SS')  <![CDATA[ < ]]> SYSDATE
+        	AND ROWNUM <![CDATA[ < ]]> #{value	,jdbcType=INTEGER}
+        </where>
+        ORDER BY AA.BATCH_SEQ ASC
+	</select>
+
+	<select id="load"
+		parameterType="Long"
+		resultType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.FcmPushDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+        FROM T_BATCH_MAIL AA
+
+        <where>
+        	AND AA.BATCH_SEQ = #{value	,jdbcType=INTEGER}
+        </where>
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.MailDAO.insert */
+		<selectKey resultType="long" keyProperty="batchSeq" order="BEFORE">
+			SELECT nextval('seq_t_batch_mail')
+		</selectKey>
+
+		INSERT INTO T_BATCH_MAIL (
+		BATCH_SEQ
+		, RESULT
+		, RESULT_DATA
+		, ERR_CNT
+		, SEND_DATE
+		, SENT_DATE
+		, MEMB_SEQ
+		, TO_EMAIL
+		, PRIORITY
+		, TITLE
+		, CONTENT
+		, MAIL_SEQ
+		, FILE_ID
+		)
+		VALUES (
+		#{batchSeq	,jdbcType=INTEGER}
+		, 'R'
+		, NULL
+		, 0
+		, COALESCE(#{sendDate	,jdbcType=VARCHAR}
+		, TO_CHAR(now(), 'YYYY-MM-DD HH24:mi:SS'))
+		, NULL
+		, #{membSeq     ,jdbcType=INTEGER}
+		, #{toEmail		,jdbcType=VARCHAR}
+		, #{priority	,jdbcType=VARCHAR}
+		, #{title		,jdbcType=VARCHAR}
+		, #{content		,jdbcType=VARCHAR}
+		, #{mailSeq		,jdbcType=INTEGER}
+		, #{fileId		,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateSuccess"
+		parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.FcmPushDAO.updateSuccess */
+
+		UPDATE T_BATCH_MAIL SET
+			  RESULT = 'S'
+			, RESULT_DATA = #{resultData,	jdbcType=VARCHAR}
+			, SENT_DATE = SYSDATE
+			, CHNG_DTTM = SYSDATE
+
+		WHERE BATCH_SEQ = #{batchSeq	,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateFail"
+		parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.FcmPushDAO.updateFail */
+
+		UPDATE T_BATCH_MAIL SET
+			  RESULT = NVL(#{result,	jdbcType=VARCHAR}, 'F')
+			, RESULT_DATA 	= #{resultData,	jdbcType=VARCHAR}
+			, ERR_CNT 		= ERR_CNT + 1
+			, CHNG_DTTM		= SYSDATE
+
+		WHERE BATCH_SEQ 	= #{batchSeq	,jdbcType=INTEGER}
+	</update>
+
+
+</mapper>

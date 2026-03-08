@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.terms.mapper.TermsDAO">
+
+	<sql id="baseFieldsAA">
+  		  AA.TERMS_CD
+		, AA.VERSION
+		, AA.TERMS_TYPE
+		, AA.CONTENT
+		, AA.USE_YN
+		, AA.REQUIRED_YN
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.REMARKS
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='termsCd != null and termsCd != ""'>
+			AND AA.TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+		</if>
+
+		<if test='termsCds != null'>
+    		<foreach item="item" index="index" collection="termsCds"
+    			open="AND AA.TERMS_CD in (" separator="," close=")">#{item}, jdbcType=VARCHAR}</foreach>
+    	</if>
+
+    	<if test='version != null and version != ""'>
+			AND AA.VERSION = #{version, jdbcType=VARCHAR}
+		</if>
+
+		<if test='termsType != null and termsType != ""'>
+			AND AA.TERMS_TYPE = #{termsType, jdbcType=VARCHAR}
+		</if>
+
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+
+		<if test='requiredYn != null and requiredYn != ""'>
+			AND AA.REQUIRED_YN = #{requiredYn, jdbcType=CHAR}
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, CD1.CODE_NAME
+					, CD1.ETC1
+					, CD1.ETC5
+				FROM T_TERMS_INF AA
+					JOIN T_CODE_INF CD1
+						ON CD1.GRP_CODE = 'CH004' AND CD1.ETC5 = UPPER(#{locale}) AND AA.TERMS_CD = CD1.CODE
+				<where>
+					<include refid="baseSearchConditionAA"/>
+					<if test='localeTermsCd != null and localeTermsCd != ""'>
+						AND CD1.ETC1 = #{localeTermsCd, jdbcType=VARCHAR}
+					</if>
+
+					<if test='localeTermsCds != null'>
+			    		<foreach item="item" index="index" collection="localeTermsCds"
+			    			open="AND CD1.ETC1 in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+			    	</if>
+				</where>
+				ORDER BY AA.RGT_DTTM DESC
+			) A
+	    <if test='rowSize &gt; 0'>
+	    ) B WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="int">
+		/* com.erns.coching.terms.mapper.TermsDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_TERMS_INF AA
+			JOIN T_CODE_INF CD1
+				ON CD1.GRP_CODE = 'CH004' AND CD1.ETC5 = UPPER(#{locale, jdbcType=VARCHAR}) AND AA.TERMS_CD = CD1.CODE
+		<where>
+			<include refid="baseSearchConditionAA"/>
+			<if test='localeTermsCd != null and localeTermsCd != ""'>
+				AND CD1.ETC1 = #{localeTermsCd, jdbcType=VARCHAR}
+			</if>
+
+			<if test='localeTermsCds != null'>
+	    		<foreach item="item" index="index" collection="localeTermsCds"
+	    			open="AND CD1.ETC1 in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+	    	</if>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, CD1.CODE_NAME
+			, CD1.ETC1
+			, CD1.ETC5
+		FROM T_TERMS_INF AA
+			JOIN T_CODE_INF CD1
+				ON CD1.GRP_CODE = 'CH004' AND CD1.ETC5 = UPPER(#{locale}) AND AA.TERMS_CD = CD1.CODE
+		<where>
+			AND AA.USE_YN 	= 'Y'
+			<if test='termsCd != null and termsCd != ""'>
+				AND AA.TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+			</if>
+			<if test='localeTermsCd != null and localeTermsCd != ""'>
+				AND CD1.ETC1 = #{localeTermsCd, jdbcType=VARCHAR}
+			</if>
+			<if test='localeTermsCds != null'>
+	    		<foreach item="item" index="index" collection="localeTermsCds"
+	    			open="AND CD1.ETC1 in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+	    	</if>
+		</where>
+
+	</select>
+
+
+
+	<select id="getVersionList"
+		parameterType	="com.erns.coching.terms.domain.TermsSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.terms.mapper.TermsDAO.getVersionList */
+
+		SELECT VERSION
+		FROM T_TERMS_INF AA
+			JOIN T_CODE_INF CD1
+				ON CD1.GRP_CODE = 'CH004' AND CD1.ETC5 = UPPER(#{locale, jdbcType=VARCHAR}) AND AA.TERMS_CD = CD1.CODE
+		<where>
+			<if test='termsCd != null and termsCd != ""'>
+				AND AA.TERMS_CD = #{termsCd, jdbcType=VARCHAR}
+			</if>
+			<if test='localeTermsCd != null and localeTermsCd != ""'>
+				AND CD1.ETC1 = #{localeTermsCd, jdbcType=VARCHAR}
+			</if>
+			<if test='localeTermsCds != null'>
+	    		<foreach item="item" index="index" collection="localeTermsCds"
+	    			open="AND CD1.ETC1 in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+	    	</if>
+		</where>
+		ORDER BY RGT_DTTM DESC
+	</select>
+</mapper>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.cochingtv.mapper.CochigtvDAO">
+
+
+	<sql id="baseFieldsAA">
+		AA.TV_SEQ
+		, AA.YT_URL
+		, AA.SORT_ORD
+		, AA.TITLE
+		, AA.HASHTAG
+		, AA.VIEWS
+		, AA.YT_DTTM
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.CONTENT
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+		, AA.CATEGORY
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+	
+		<if test='delYn != null and delYn != ""'>
+			AND AA.DEL_YN = #{delYn, jdbcType=CHAR}
+		</if>
+
+		<if test='titleL != null and titleL != ""'>
+			AND UPPER(AA.TITLE) LIKE UPPER('%' || #{titleL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+	
+	<select id="getList"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_CH_TV AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+					AND AA.DEL_YN = 'N'
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.SORT_ORD ASC
+					</otherwise>
+				</choose>			
+			) ZZ
+		<!-- 
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+		 -->
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="int">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.getListCount */
+
+		SELECT
+			COUNT(*) AS CNT
+		FROM T_CH_TV AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_CH_TV AA			
+		<where>
+			AND AA.TV_SEQ = #{tvSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<insert id="insert"
+			parameterType="com.erns.coching.cochingtv.domain.CochingtvVO">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.insert */
+
+		<selectKey resultType="long" keyProperty="tvSeq" order="BEFORE">
+			SELECT nextval('seq_t_ch_tv')
+		</selectKey>
+
+		INSERT INTO T_CH_TV (
+		    TV_SEQ
+		    , YT_URL
+		    , SORT_ORD
+		    , TITLE
+		    , HASHTAG
+		    , VIEWS
+		    , YT_DTTM
+		    , USE_YN
+		    , DEL_YN
+		    , CONTENT
+		    , RGTR
+		    , RGT_DTTM
+		    , CHNR
+		    , CHNG_DTTM
+		    , CATEGORY
+		) VALUES (
+		    #{tvSeq        , jdbcType=INTEGER}
+		    , #{ytUrl      , jdbcType=VARCHAR}
+		    , -1
+		    , #{title      , jdbcType=VARCHAR}
+		    , #{hashtag    , jdbcType=VARCHAR}
+		    , #{views      , jdbcType=VARCHAR}
+		    , #{ytDttm     , jdbcType=VARCHAR}
+		    , COALESCE(#{useYn  , jdbcType=CHAR}, 'Y')
+		    , COALESCE(#{delYn  , jdbcType=CHAR}, 'N')
+		    , #{content     , jdbcType=VARCHAR}
+		    , #{rgtr       , jdbcType=INTEGER}
+		    , now()
+		    , #{chnr       , jdbcType=INTEGER}
+		    , now()
+		    , #{category      , jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateState"
+    	parameterType="com.erns.coching.cochingtv.domain.CochingtvVO">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.updateState */
+
+	    UPDATE T_CH_TV SET
+	        YT_URL           = #{ytUrl    , jdbcType=VARCHAR}
+	        , TITLE             = #{title    , jdbcType=VARCHAR}
+	        , HASHTAG             = #{hashtag    , jdbcType=VARCHAR}
+	        , VIEWS           = #{views    , jdbcType=VARCHAR}
+	        , YT_DTTM           = #{ytDttm    , jdbcType=VARCHAR}
+	        , USE_YN           = COALESCE(#{useYn    , jdbcType=CHAR}, 'N')
+			, CONTENT           = #{content    , jdbcType=VARCHAR}
+			
+	        , CATEGORY           = #{category    , jdbcType=VARCHAR}
+	
+	        , CHNR             = #{chnr     , jdbcType=INTEGER}
+	        , CHNG_DTTM        = now()
+	    <where>
+	        AND TV_SEQ         = #{tvSeq    , jdbcType=INTEGER}
+	    </where>
+	</update>
+	
+	<update id="updateDelYn"
+    	parameterType="com.erns.coching.cochingtv.domain.CochingtvVO">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.updateDelYn */
+
+	    UPDATE T_CH_TV SET
+	          DEL_YN            = COALESCE(#{delYn, jdbcType=CHAR}, 'N')
+	
+	        , CHNR             = #{chnr     , jdbcType=INTEGER}
+	        , CHNG_DTTM        = now()
+	    <where>
+	        AND TV_SEQ         = #{tvSeq    , jdbcType=INTEGER}
+	    </where>
+	</update>
+	
+	<update id="updateOrder"
+    	parameterType="com.erns.coching.cochingtv.domain.CochingtvVO">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.updateOrder */
+
+	    UPDATE T_CH_TV SET
+	          SORT_ORD      = #{sortOrd	, jdbcType=INTEGER}
+	
+	        , CHNR             = #{chnr     , jdbcType=INTEGER}
+	        , CHNG_DTTM        = now()
+	    <where>
+	        AND TV_SEQ         = #{tvSeq    , jdbcType=INTEGER}
+	    </where>
+	</update>
+
+	<update id="updateOrderWhenInsert"
+    	parameterType="com.erns.coching.cochingtv.domain.CochingtvVO">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.updateOrderWhenInsert */
+
+		UPDATE T_CH_TV T
+		SET SORT_ORD = SUB.RN
+		FROM (
+				SELECT
+						TV_SEQ,
+						ROW_NUMBER() OVER (ORDER BY SORT_ORD ASC) AS RN
+				FROM T_CH_TV
+		) SUB
+		WHERE T.TV_SEQ = SUB.TV_SEQ
+	</update>
+    
+</mapper>

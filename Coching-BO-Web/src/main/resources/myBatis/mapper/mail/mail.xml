@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.mail.mapper.MailDAO">
+
+	<sql id="baseFieldsAA">
+		AA.BATCH_SEQ
+		, AA.RESULT
+		, AA.RESULT_DATA
+		, AA.ERR_CNT
+		, AA.SEND_DATE
+		, TO_CHAR(AA.SENT_DATE, 'YYYY-MM-DD HH24:mi:SS') AS SENT_DATE
+
+		, AA.MEMB_SEQ
+		, AA.TO_EMAIL
+		, AA.PRIORITY
+		, AA.TITLE
+		, AA.CONTENT
+		, AA.MAIL_SEQ
+		, AA.FILE_ID
+
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:mi:SS') AS RGT_DTTM
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:mi:SS') AS CHNG_DTTM
+	</sql>
+
+	<select id="selectWillSend"
+			parameterType="Integer"
+			resultType="com.erns.coching.mail.domain.MailBatchVO">
+		/* com.erns.coching.mail.mapper.MailDAO.selectWillSend */
+
+		SELECT
+		<include refid="baseFieldsAA"/>
+		FROM T_BATCH_MAIL AA
+
+		<where>
+			AND AA.RESULT in ('R', 'F')
+			AND AA.ERR_CNT <![CDATA[ < ]]> 2
+		</where>
+		ORDER BY AA.BATCH_SEQ ASC
+		LIMIT #{value	,jdbcType=INTEGER}
+	</select>
+
+	<update id="updateSuccess"
+			parameterType="com.erns.coching.mail.domain.MailBatchVO">
+		/* com.erns.coching.mail.mapper.MailDAO.updateSuccess */
+
+		UPDATE T_BATCH_MAIL SET
+			RESULT = 'S'
+								   , SENT_DATE = NOW()
+								   , CHNG_DTTM = NOW()
+
+		WHERE BATCH_SEQ = #{batchSeq	,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateFail"
+			parameterType="com.erns.coching.mail.domain.MailBatchVO">
+		/* com.erns.coching.mail.mapper.MailDAO.updateFail */
+
+		UPDATE T_BATCH_MAIL SET
+			RESULT = 'F'
+								   , RESULT_DATA = CAST(#{resultData} AS jsonb)
+								   , ERR_CNT = ERR_CNT + 1
+								   , CHNG_DTTM = NOW()
+
+		WHERE BATCH_SEQ = #{batchSeq	,jdbcType=INTEGER}
+	</update>
+	
+	<insert id="insert"
+			parameterType="com.erns.coching.mail.domain.MailVO">
+		/* com.erns.coching.mail.mapper.MailDAO.insert */
+		<selectKey resultType="long" keyProperty="batchSeq" order="BEFORE">
+			SELECT nextval('seq_t_batch_mail')
+		</selectKey>
+
+		INSERT INTO T_BATCH_MAIL (
+		BATCH_SEQ
+		, RESULT
+		, RESULT_DATA
+		, ERR_CNT
+		, SEND_DATE
+		, SENT_DATE
+		, MEMB_SEQ
+		, TO_EMAIL
+		, PRIORITY
+		, TITLE
+		, CONTENT
+		, MAIL_SEQ
+		, FILE_ID
+		)
+		VALUES (
+		#{batchSeq	,jdbcType=INTEGER}
+		, 'R'
+		, NULL
+		, 0
+		, COALESCE(#{sendDate	,jdbcType=VARCHAR}
+		, TO_CHAR(now(), 'YYYY-MM-DD HH24:mi:SS'))
+		, NULL
+		, #{membSeq     ,jdbcType=INTEGER}
+		, #{toEmail		,jdbcType=VARCHAR}
+		, #{priority	,jdbcType=VARCHAR}
+		, #{title		,jdbcType=VARCHAR}
+		, #{content		,jdbcType=VARCHAR}
+		, #{mailSeq		,jdbcType=INTEGER}
+		, #{fileId		,jdbcType=VARCHAR}
+		)
+	</insert>
+
+</mapper>

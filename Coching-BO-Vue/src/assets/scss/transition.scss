@@ -1,0 +1,12 @@
+/* fade-transform */
+.fade-in-leave-active, .fade-in-enter-active {
+    transition: all .3s;
+}
+
+.fade-in-enter, .fade-in-leave-to {
+    opacity: 0;
+}
+
+.fade-in-enter-to .fade-in-leave {
+    opacity: 1;
+}

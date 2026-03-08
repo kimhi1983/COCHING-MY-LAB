@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.log.mapper.UserRecentInfoDAO">
+
+	<!-- T_RECENT_INF -->
+	<sql id="baseFieldsAA">
+		  AA.MEMB_SEQ
+		, AA.REF_CODE
+		, AA.REF_SEQ1
+		, AA.REF_SEQ2
+		, AA.REF_SEQ3
+		, AA.RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+		<if test='refCode != null and refCode != ""'>
+			AND AA.REF_CODE = #{refCode, jdbcType=VARCHAR}
+		</if>
+		<if test='refSeq1 != null and refSeq1 != ""'>
+			AND AA.REF_SEQ1 = #{refSeq, jdbcType=INTEGER}
+		</if>
+		<if test='refSeq2 != null and refSeq2 &gt; 0'>
+			AND AA.REF_SEQ2 = #{refSeq2, jdbcType=INTEGER}
+		</if>
+		<if test='refSeq3 != null and refSeq3 &gt; 0'>
+			AND AA.REF_SEQ3 = #{refSeq3, jdbcType=INTEGER}
+		</if>
+		<if test='refSeq1s != null'>
+			<foreach item="item" index="index" collection="refSeq1s"
+				open="AND AA.REF_SEQ1 in (" separator="," close=")">#{item}</foreach>
+		</if>
+	</sql>
+
+	<select id="load"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoVO"
+			resultType="com.erns.coching.log.domain.UserRecentInfoVO">
+		/* com.erns.coching.log.mapper.UserRecentInfoDAO.load */
+
+		SELECT
+		  	<include refid="baseFieldsAA"/>		
+		FROM T_RECENT_INF AA
+		<where>
+			AND MEMB_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+			AND REF_CODE 	= #{refCode	, jdbcType=VARCHAR}
+			AND REF_SEQ1 	= #{refSeq1	, jdbcType=VARCHAR}
+			AND REF_SEQ2 = #{refSeq2, jdbcType=INTEGER}
+			AND REF_SEQ3 = #{refSeq3, jdbcType=INTEGER}
+		</where>		
+	</select>
+
+	<select id="getListVo"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoSearchDTO"
+			resultType="com.erns.coching.log.domain.UserRecentInfoVO">
+		/* com.erns.coching.log.mapper.UserRecentInfoDAO.getListVo */
+
+		SELECT
+		  	<include refid="baseFieldsAA"/>		
+		FROM T_RECENT_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getList"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoSearchDTO"
+			resultType="camelMap">
+    	/* com.erns.coching.log.mapper.UserRecentInfoDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+					<choose>
+						<!-- <when test='refCode == "raw'></when> -->
+						<otherwise>
+							, RM.raw_seq
+							, RM.raw_name							
+							, RDT.title
+							, RDMI.memb_name AS MANAGER_NAME
+						</otherwise>
+					</choose>
+				FROM T_RECENT_INF AA
+					<choose>
+						<!-- <when test='refCode == "raw'></when> -->
+						<otherwise>
+							JOIN T_RAW_DETAIL RDT ON AA.REF_SEQ1::integer = RDT.raw_detail_seq
+							JOIN T_RAW_MST RM ON RDT.raw_seq = RM.raw_seq
+							JOIN T_MEMB_INF RDMI ON RDT.memb_seq = RDMI.memb_seq
+						</otherwise>
+					</choose>
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.RGT_DTTM DESC	
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.log.mapper.UserRecentInfoDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_RECENT_INF AA
+			<choose>
+				<!-- <when test='refCode == "raw'></when> -->
+				<otherwise>
+					JOIN T_RAW_DETAIL RDT ON AA.REF_SEQ1::integer = RDT.raw_detail_seq
+					JOIN T_RAW_MST RM ON RDT.raw_seq = RM.raw_seq
+					JOIN T_MEMB_INF RDMI ON RDT.memb_seq = RDMI.memb_seq
+				</otherwise>
+			</choose>
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoVO">
+    	/* com.erns.coching.log.mapper.UserRecentInfoDAO.insert */
+    	
+		INSERT INTO T_RECENT_INF (
+				MEMB_SEQ
+			, REF_CODE
+			, REF_SEQ1
+			, REF_SEQ2
+			, REF_SEQ3
+			, RGT_DTTM
+
+		) VALUES (
+
+				#{membSeq		, jdbcType=INTEGER}
+			, #{refCode		, jdbcType=VARCHAR}
+			, #{refSeq1		, jdbcType=VARCHAR}
+			, #{refSeq2		, jdbcType=INTEGER}
+			, #{refSeq3		, jdbcType=INTEGER}
+			, now()
+		) ON CONFLICT (MEMB_SEQ, REF_CODE, REF_SEQ1, REF_SEQ2, REF_SEQ3)
+		DO UPDATE SET
+    	RGT_DTTM = now()
+	</insert>
+    
+	<delete id="delete"
+			parameterType="com.erns.coching.log.domain.UserRecentInfoVO">
+			/* com.erns.coching.log.mapper.UserRecentInfoDAO.delete */
+
+		DELETE FROM T_RECENT_INF
+		<where>
+			AND MEMB_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+			AND REF_CODE 	= #{refCode	, jdbcType=VARCHAR}
+			AND REF_SEQ1 	= #{refSeq1	, jdbcType=INTEGER}
+			AND REF_SEQ2 = #{refSeq2, jdbcType=INTEGER}
+			AND REF_SEQ3 = #{refSeq3, jdbcType=INTEGER}
+		</where>
+	</delete>
+    
+</mapper>

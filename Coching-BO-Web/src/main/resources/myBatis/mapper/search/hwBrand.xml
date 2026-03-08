@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.HwBrandDAO">
+
+	<!-- T_RECOMMEND_KEYWORD -->
+	<sql id="baseFieldsAA">
+			AA.SEQ
+		, AA.BRAND_FULL_NAME
+		, AA.BRAND_KO
+		, AA.BRAND_EN
+		, AA.COUNT
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='nameL != null and nameL != ""'>
+			AND UPPER(AA.BRAND_FULL_NAME) LIKE UPPER('%' || #{nameL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.search.domain.HwBrandSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.search.mapper.HwBrandDAO.getList */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_HW_BRAND AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+				
+		<choose>
+			<otherwise>
+				ORDER BY AA.SORT_ORD ASC, AA.SEQ ASC
+			</otherwise>
+		</choose>			
+
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListVo"
+			parameterType="com.erns.coching.search.domain.HwBrandSearchDTO"
+			resultType="com.erns.coching.search.domain.HwBrandVO">
+		/* com.erns.coching.search.mapper.HwBrandDAO.getListVo */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_HW_BRAND AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+				
+		<choose>
+			<otherwise>
+				ORDER BY AA.SORT_ORD ASC, AA.SEQ ASC
+			</otherwise>
+		</choose>			
+
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+  <select id="getListCount"
+			parameterType="com.erns.coching.search.domain.HwBrandSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.search.mapper.HwBrandDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_HW_BRAND AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+  </select>
+
+	<select id="load"
+    	parameterType="long"
+    	resultType="com.erns.coching.search.domain.HwBrandVO">
+    	/* com.erns.coching.search.mapper.HwBrandDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_HW_BRAND AA
+		<where>
+			AND AA.SEQ = #{value, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.search.domain.HwBrandVO">
+			/* com.erns.coching.search.mapper.HwBrandDAO.insert */
+
+		INSERT INTO T_HW_BRAND (
+			  SEQ
+			, BRAND_FULL_NAME
+			, BRAND_KO
+			, BRAND_EN
+			, COUNT
+			, RGT_DTTM
+		) VALUES (
+			  #{seq							, jdbcType=INTEGER}
+			, #{brandFullName		, jdbcType=VARCHAR}
+			, #{brandKo					, jdbcType=VARCHAR}
+			, #{brandEn					, jdbcType=VARCHAR}
+			, #{count						, jdbcType=INTEGER}
+			, now()			
+		)
+	</insert>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.search.mapper.HwBrandDAO.delete */
+
+		DELETE FROM T_HW_BRAND
+		<where>
+			AND SEQ 	= #{value	, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+	<delete id="deleteAll"
+		parameterType="long">
+		/* com.erns.coching.search.mapper.HwBrandDAO.deleteAll */
+
+		DELETE FROM T_HW_BRAND
+	</delete>
+    
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.board.mapper.BoardMasterDAO">
+
+    <sql id="baseFieldsAA">
+    	  AA.BOARD_MST_ID
+		, AA.BOARD_NAME
+		, AA.BOARD_TYPE
+		, AA.BOARD_DESC
+		, AA.USE_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+    </sql>
+
+    <sql id="baseFieldsBB">
+    	  BB.LIST_CNT
+		, BB.FILE_ADD_CNT
+		, BB.FILE_EXT_EXP
+		, BB.CATE_CD
+    </sql>
+
+
+    <sql id="baseSearchConditionAA">
+    	<if test='boardType != null and boardType != ""'>
+    		AND AA.BOARD_TYPE = #{boardType, jdbcType=VARCHAR}
+    	</if>
+
+    	<if test='boardNameL != null and boardNameL != ""'>
+    		AND UPPER(AA.BOARD_NAME) LIKE UPPER('%' || #{boardNameL, jdbcType=VARCHAR} || '%')
+    	</if>
+
+    	<if test='boardMstIdL != null and boardMstIdL != ""'>
+    		AND UPPER(AA.BOARD_MST_ID) LIKE UPPER('%' || #{boardMstIdL, jdbcType=VARCHAR} || '%')
+    	</if>
+
+    </sql>
+
+	<select id="getList"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.board.mapper.BoardMasterDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, <include refid="baseFieldsBB"/>
+				FROM T_BOARD_MST AA
+				LEFT OUTER JOIN T_BOARD_OPT BB ON AA.BOARD_MST_ID = BB.BOARD_MST_ID
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.BOARD_MST_ID
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.board.domain.BoardSearchDTO"
+		resultType="int">
+		/* com.erns.coching.board.mapper.BoardMasterDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_BOARD_MST AA
+		LEFT OUTER JOIN T_BOARD_OPT BB ON AA.BOARD_MST_ID = BB.BOARD_MST_ID
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="camelMap">
+		/* com.erns.coching.board.mapper.BoardMasterDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, <include refid="baseFieldsBB"/>
+		FROM T_BOARD_MST AA
+		LEFT OUTER JOIN T_BOARD_OPT BB ON AA.BOARD_MST_ID = BB.BOARD_MST_ID
+		<where>
+			AA.BOARD_MST_ID = #{boardMstId, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.board.domain.BoardMasterVO">
+    	/* com.erns.coching.board.mapper.BoardMasterDAO.insert */
+    	INSERT INTO T_BOARD_MST (
+    		  BOARD_MST_ID
+			, BOARD_NAME
+			, BOARD_TYPE
+			, BOARD_DESC
+			, USE_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+    	) VALUES (
+    		  #{boardMstId	, jdbcType=VARCHAR}
+			, #{boardName	, jdbcType=VARCHAR}
+			, #{boardType	, jdbcType=VARCHAR}
+			, #{boardDesc	, jdbcType=VARCHAR}
+			, COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+			, #{chnr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    
+</mapper>

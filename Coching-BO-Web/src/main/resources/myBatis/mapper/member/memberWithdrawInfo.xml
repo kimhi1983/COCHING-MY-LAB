@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.member.mapper.MemberWithdrawInfoDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.WTHDR_SEQ		AS 	SEQ
+		, AA.MEMB_SEQ		AS	MEMB_SEQ
+		, AA.WTHDR_RSN		AS	WITHDRAW_REASON
+		, AA.DEL_ACNT		AS	DEL_ACCOUNT_AGREE_YN
+		, AA.DEL_INTRL		AS	DEL_LINK_INFO_YN
+		, AA.RGTR  			AS	RGTR
+		, AA.RGT_DTTM		AS	RGT_DTTM
+		, AA.WTHDR_RSN_TXT	AS	WITHDRAW_REASON_TXT
+	</sql>
+
+
+	<select id="getWithdrwalStatistics"
+		resultType="camelMap">
+		/* com.erns.coching.member.mapper.MemberWithdrawInfoDAO.getWithdrwalStatistics */
+
+		SELECT
+    		/* 탈회 */
+		    (SELECT COUNT(*) FROM T_MEMB WHERE WTDR_YN ='Y')
+		        AS WTHDR_TOTAL_CNT
+		    ,(SELECT COUNT(*) FROM T_MEMB WHERE WTDR_YN ='Y'
+		        AND now() - 30 &lt; WTDR_DTTM)
+		        AS NEW_WTHDR_CNT  /* 30일 이내 탈회 */
+		    ,(SELECT COUNT(DISTINCT M1.MEMB_SEQ)
+		        FROM T_MEMB M1
+		            JOIN T_BUSINESS_LIC_INF B1 ON M1.MEMB_SEQ = B1.MEMB_SEQ
+		        WHERE M1.WTDR_YN ='Y'
+		        ) AS WTHDR_BIZ_CNT /* 사업자연동 탈회*/
+		    ,(SELECT COUNT(DISTINCT M1.MEMB_SEQ)
+		        FROM T_MEMB M1
+		            JOIN T_BUSINESS_LIC_INF B1 ON M1.MEMB_SEQ = B1.MEMB_SEQ
+		            JOIN TB_SC_ACC_INF_DAMO SAI ON B1.CLIENT_NO = SAI.CLIENT_NO
+		        WHERE M1.WTDR_YN ='Y'
+		            	AND (
+										(SAI.ORG_CD = 'scd' AND (SAI.JOIN_YN = 'Y' OR SAI.JOIN_YN = 'F') )
+										OR 	(SAI.ORG_CD = 'card')
+									)
+		        ) AS  WTHDR_2ND_CNT /* 카드연동 탈회 */
+		FROM DUAL
+	</select>
+
+	<select id="getWithdrwalDetailStatistics"
+		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.member.mapper.MemberWithdrawInfoDAO.getWithdrwalDetailStatistics */
+
+		SELECT
+    		/* 탈회 */
+		    (SELECT COUNT(*) FROM T_MEMB
+		    	<where>
+		    		AND WTDR_YN ='Y'
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		    ) AS WTHDR_CNT
+		    ,(SELECT COUNT(DISTINCT M1.MEMB_SEQ)
+		        FROM T_MEMB M1
+		            JOIN T_BUSINESS_LIC_INF B1 ON M1.MEMB_SEQ = B1.MEMB_SEQ
+		        <where>
+		    		AND WTDR_YN ='Y'
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		        ) AS WTHDR_BIZ_CNT /* 사업자연동 탈회*/
+		    ,(SELECT COUNT(DISTINCT M1.MEMB_SEQ)
+		        FROM T_MEMB M1
+		            JOIN T_BUSINESS_LIC_INF B1 ON M1.MEMB_SEQ = B1.MEMB_SEQ
+		            JOIN TB_SC_ACC_INF_DAMO SAI ON B1.CLIENT_NO = SAI.CLIENT_NO
+		        <where>
+		    		AND WTDR_YN ='Y'
+		    		AND (
+									(SAI.ORG_CD = 'scd' AND (SAI.JOIN_YN = 'Y' OR SAI.JOIN_YN = 'F') )
+		          OR 	(SAI.ORG_CD = 'card')
+							)
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		        ) AS  WTHDR_2ND_CNT /* 카드연동 탈회 */
+		    ,(SELECT COUNT(DISTINCT M1.MEMB_SEQ)
+		        FROM T_MEMB M1
+		            JOIN T_BUSINESS_LIC_INF B1 ON M1.MEMB_SEQ = B1.MEMB_SEQ
+		            JOIN TB_SC_ACC_INF_DAMO SAI ON B1.CLIENT_NO = SAI.CLIENT_NO
+		         <where>
+		        	AND WTDR_YN ='Y'
+		    		AND SAI.ORG_CD IN ('mall', 'dlvy', 'bank', 'hometax')
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		        ) AS  WTHDR_3RD_CNT /* 3단계연동 탈회 */
+
+		    /* 탈회자 유지 기간 */
+		  	,(SELECT count(*)
+    			FROM T_MEMB
+    			<where>
+		    		AND WTDR_YN ='Y'
+		    		AND (TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &gt;= 365
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		      ) AS MORE_THAN_ONE_YEAR/* 1년 이상 유지 */
+		  	,(SELECT count(*)
+    			FROM T_MEMB
+    			<where>
+		    		AND WTDR_YN ='Y'
+		    		AND ((TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &gt;= 90
+		    			AND (TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &lt; 365)
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		      ) AS MORE_THAN_NINTY /* 90일 이상 */
+		  	,(SELECT count(*)
+    			FROM T_MEMB
+    			<where>
+		    		AND WTDR_YN ='Y'
+		    		AND ((TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &gt;= 30
+		    			AND (TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &lt; 90)
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		      ) AS MORE_THAN_THIRTY /* 30일 이상 */
+		  	,(SELECT count(*)
+    			FROM T_MEMB
+    			<where>
+		    		AND WTDR_YN ='Y'
+		    		AND ((TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &lt; 30
+		    			AND (TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &gt;= 7)
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		      ) AS LESS_THEN_THIRTY /* 30일 미만 */
+		  	,(SELECT count(*)
+    			FROM T_MEMB
+    			<where>
+		    		AND WTDR_YN ='Y'
+		    		AND (TO_DATE(WTDR_DTTM, 'YYYY-MM-DD') - TO_DATE(JOIN_DTTM, 'YYYY-MM-DD')) &lt; 7
+		    		<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(WTDR_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+		    	</where>
+		      ) AS LESS_THEN_SEVEN /* 7일 미만 */
+		FROM DUAL
+	</select>
+
+	<!-- 탈회 사유 통계 -->
+	<select id="getWithdrawReason"
+		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.member.mapper.MemberWithdrawInfoDAO.getWithdrawReason */
+
+		SELECT
+		 	COUNT(AA.WTHDR_RSN) WTHDR_RSN_CNT
+		 	, CD.CODE_NAME AS WTHDR_RSN
+		 	, CD.SORT_ORD
+		FROM T_CODE_INF CD
+		LEFT OUTER JOIN
+			(SELECT WTHDR_RSN
+			 FROM T_MEMB_WTHDR_INF
+			<where>
+				<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+	    			AND TO_CHAR(RGT_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+	    		</if>
+	    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+	    			AND TO_CHAR(RGT_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+	    		</if>
+			</where>
+			) AA ON CD.CODE = AA.WTHDR_RSN
+		WHERE CD.CODE IN ('UW_00010', 'UW_00020', 'UW_00030','UW_00040', 'UW_09000')
+		GROUP BY AA.WTHDR_RSN, CD.CODE_NAME, CD.SORT_ORD, CD.CODE
+
+		ORDER BY CD.SORT_ORD
+	</select>
+
+	<!-- 탈회 사유 기타 -->
+	<select id="getWithdrawReasonText"
+		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.member.mapper.MemberWithdrawInfoDAO.getWithdrawReasonText */
+
+
+    	SELECT * FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_MEMB_WTHDR_INF AA
+				<where>
+					AND AA.WTHDR_RSN = 'UW_09000'
+					<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+		    			AND TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+		    		</if>
+		    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+		    			AND TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+		    		</if>
+				</where>
+				ORDER BY AA.WTHDR_SEQ DESC
+			) A
+		)
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getWithdrawReasonTextCount"
+		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+		resultType="int">
+		/* com.erns.coching.member.mapper.MemberWithdrawInfoDAO.getWithdrawReasonTextCount */
+
+		SELECT COUNT(*)
+		FROM T_MEMB_WTHDR_INF AA
+		<where>
+			AND AA.WTHDR_RSN = 'UW_09000'
+			<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+    			AND TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD') &gt;= #{wtdrFromDate}
+    		</if>
+    		<if test='wtdrToDate != null and wtdrToDate != ""'>
+    			AND TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD') &lt;= #{wtdrToDate}
+    		</if>
+		</where>
+	</select>
+</mapper>

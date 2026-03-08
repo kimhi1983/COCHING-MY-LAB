@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.es.log.mapper.UserLogDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.LOG_DATE
+		, AA.MEMB_SEQ 	AS USER_SEQ
+		, AA.LOG_TYPE
+		, AA.SITE_TYPE
+		, AA.MEMB_ID 	AS USER_ID
+		, AA.MEMB_IP	AS USER_IP
+		, AA.LOG_JSON
+	</sql>
+
+	<sql id="baseSearchCondition">
+		<if test='userSeq &gt; 0'>
+			AND AA.A_MEMB_SEQ = #{userSeq}
+		</if>
+
+		<if test='logType != null and logType != ""'>
+			AND AA.LOG_TYPE = #{logType}
+		</if>
+
+		<if test='logTypeRL != null and logTypeRL != ""'>
+			AND UPPER(AA.LOG_TYPE) LIKE UPPER('%' || #{logTypeRL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='siteType != null and siteType != ""'>
+			AND AA.SITE_TYPE = #{siteType}
+		</if>
+
+		<if test='logDateRL != null and logDateRL != ""'>
+			AND UPPER(AA.LOG_DATE) LIKE UPPER('%' || #{logDateRL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='userIdL != null and userIdL != ""'>
+			AND UPPER(AA.MEMB_ID) LIKE UPPER('%' || #{userIdL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.es.log.domain.UserLogSearchDTO"
+		resultType="camelMap">
+		/* com.erns.es.log.mapper.UserLogDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					  AA.LOG_DATE
+					, AA.MEMB_SEQ 	AS USER_SEQ
+					, AA.LOG_TYPE
+					, AA.SITE_TYPE
+					, AA.MEMB_ID 	AS USER_ID
+					, AA.MEMB_IP	AS USER_IP
+
+					, UUR.MEMB_NAME AS USER_NAME
+
+				FROM T_MEMB_LOG_H AA
+					LEFT OUTER JOIN T_MEMB_INF UUR
+						ON AA.MEMB_SEQ = UUR.MEMB_SEQ
+				<where>
+					<include refid="baseSearchCondition"/>
+				</where>
+				ORDER BY AA.LOG_DATE DESC, AA.SITE_TYPE, AA.MEMB_SEQ
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	     WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.es.log.domain.UserLogSearchDTO"
+		resultType="int">
+		/* com.erns.es.log.mapper.UserLogDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_MEMB_LOG_H AA
+		<where>
+			<include refid="baseSearchCondition"/>
+		</where>
+	</select>
+
+
+	<insert id="insert"
+		parameterType="com.erns.es.log.domain.UserLogVO">
+		/* com.erns.es.log.mapper.UserLogDAO.insert */
+
+		INSERT INTO T_MEMB_LOG_H (
+			LOG_DATE, MEMB_SEQ, LOG_TYPE, SITE_TYPE
+			, MEMB_ID, MEMB_IP, LOG_JSON
+		)
+		VALUES (
+			to_char(now(), 'YYYY-MM-DD HH24:MI:SS.MS')
+			, #{userSeq	, jdbcType=INTEGER}
+			, #{logType	, jdbcType=VARCHAR}
+			, #{siteType, jdbcType=VARCHAR}
+
+			, #{userId	, jdbcType=VARCHAR}
+			, #{userIp	, jdbcType=VARCHAR}
+			, #{logJson	, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<select id="loadJson"
+		parameterType="com.erns.es.log.domain.UserLogVO"
+		resultType="com.erns.es.log.domain.UserLogVO">
+		/* com.erns.es.log.mapper.UserLogDAO.loadJson */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_LOG_H AA
+		<where>
+			AND AA.LOG_DATE		= #{logDate}
+			AND AA.MEMB_SEQ		= #{userSeq}
+			AND AA.LOG_TYPE		= #{logType}
+		</where>
+
+	</select>
+</mapper>

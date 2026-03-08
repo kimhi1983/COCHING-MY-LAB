@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=1140" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- chosen -->
+    <link rel="stylesheet" href="css/chosen.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <div class="ui-wrap">
+      <div class="container">
+        <div class="ui">
+          <div class="item">
+            <div class="title">Modal</div>
+            <div class="btn-area p-t-0">
+              <button type="button" class="btn btn-sm btn-primary modal-open default-modal">기본모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open double-modal">버튼두개모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open basic-modal">타이틀없음</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open check-modal">확인모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open error-modal">오류모달</button>
+              <button type="button" class="btn btn-sm btn-primary modal-open info-modal">안내모달</button>
+            </div>
+            <div class="btn-area">
+              <button type="button" class="btn btn-sm btn-gray modal-open agree-modal">이용약관</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open document-modal">구비서류</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open data-modal">원료사 자료</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open upload-modal">엑셀 업로드</button>
+              <button type="button" class="btn btn-sm btn-gray modal-open user-change-modal">담당자 변경</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--모달 사이즈는 lg,md,sm이 있음-->
+    <!--기본모달-->
+    <div class="modal for-default">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">타이틀</div>
+              </div>
+              <div class="modal-body">
+                <p class="text-gray">모달 내용 text...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--버튼두개모달-->
+    <div class="modal for-double">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">타이틀</div>
+              </div>
+              <div class="modal-body">
+                <p class="text-gray">모달 내용 text...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray bottom-modal-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--타이틀없음-->
+    <div class="modal for-basic">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body only">
+                <p class="text-center">타이틀 없음 텍스트만 블라블라...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--확인모달-->
+    <div class="modal for-check">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal success"></div>
+                <p class="text-center">성공 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--오류모달-->
+    <div class="modal for-error">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal error"></div>
+                <p class="text-center">실패 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--안내모달-->
+    <div class="modal for-info">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-sm">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="ic-modal info"></div>
+                <p class="text-center">인포, 경고 메세지 모달</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-primary w-100 radius bottom-modal-close">확인</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--이용약관-->
+    <div class="modal for-agree">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">이용약관</div>
+              </div>
+              <div class="modal-body">
+                <div class="agree-box scroller">
+                  <div class="article">
+                    <div class="article-wrap">
+                      <div class="article-h1">제 1 장. 총칙</div>
+                      <div class="article-h2">제 1 조 (약관의 목적)</div>
+                      <div class="article-p">
+                        <li>이 약관은 코칭(이하 회사)가 온라인으로 제공하는 디지털콘텐츠(이하 "콘텐츠"라고 한다) 및 제반서비스의 이용과 관련하여 회사와 이용자와의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.</li>
+                      </div>
+                      <div class="article-h2">제 2 조 (약관의 효력 및 변경)</div>
+                      <div class="article-p">
+                        <li>1. "회사"라 함은 "콘텐츠" 산업과 관련된 경제활동을 영위하는 자로서 콘텐츠 및 제반서비스를 제공하는 자를 말합니다.</li>
+                        <li>2. "이용자"라 함은 "회사"의 사이트에 접속하여 이 약관에 따라 "회사"가 제공하는 "콘텐츠" 및 제반서비스를 이용하는 회원 및 비회원을 말합니다.</li>
+                        <li>3. "회원"이라 함은 "회사"와 이용계약을 체결하고 "이용자" 아이디(ID)를 부여받은 "이용자"로서 "회사"의 정보를 지속적으로 제공받으며 "회사"가 제공하는 서비스를 지속적으로 이용할 수 있는 자를 말합니다.</li>
+                        <li>4. "비회원"이라 함은 "회원"이 아니면서 "회사"가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+                        <li>5. "콘텐츠"라 함은 정보통신망이용촉진 및 정보보호 등에 관한 법률 제2조 제1항 제1호의 규정에 의한 정보통신망에서 사용되는 부호·문자·음성·음향·이미지 또는 영상 등으로 표현된 자료 또는 정보로서, 그 보존 및 이용에 있어서 효용을 높일 수 있도록 전자적 형태로 제작 또는 처리된 것을 말합니다.</li>
+                      </div>
+                    </div>
+                    <div class="article-wrap">
+                      <div class="article-h1">제 1 장. 총칙</div>
+                      <div class="article-h2">제 1 조 (약관의 목적)</div>
+                      <div class="article-p">
+                        <li>이 약관은 코칭(이하 회사)가 온라인으로 제공하는 디지털콘텐츠(이하 "콘텐츠"라고 한다) 및 제반서비스의 이용과 관련하여 회사와 이용자와의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.</li>
+                      </div>
+                      <div class="article-h2">제 2 조 (약관의 효력 및 변경)</div>
+                      <div class="article-p">
+                        <li>1. "회사"라 함은 "콘텐츠" 산업과 관련된 경제활동을 영위하는 자로서 콘텐츠 및 제반서비스를 제공하는 자를 말합니다.</li>
+                        <li>2. "이용자"라 함은 "회사"의 사이트에 접속하여 이 약관에 따라 "회사"가 제공하는 "콘텐츠" 및 제반서비스를 이용하는 회원 및 비회원을 말합니다.</li>
+                        <li>3. "회원"이라 함은 "회사"와 이용계약을 체결하고 "이용자" 아이디(ID)를 부여받은 "이용자"로서 "회사"의 정보를 지속적으로 제공받으며 "회사"가 제공하는 서비스를 지속적으로 이용할 수 있는 자를 말합니다.</li>
+                        <li>4. "비회원"이라 함은 "회원"이 아니면서 "회사"가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+                        <li>5. "콘텐츠"라 함은 정보통신망이용촉진 및 정보보호 등에 관한 법률 제2조 제1항 제1호의 규정에 의한 정보통신망에서 사용되는 부호·문자·음성·음향·이미지 또는 영상 등으로 표현된 자료 또는 정보로서, 그 보존 및 이용에 있어서 효용을 높일 수 있도록 전자적 형태로 제작 또는 처리된 것을 말합니다.</li>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--구비서류-->
+    <div class="modal for-document">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-xlg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">구비서류</div>
+              </div>
+              <div class="modal-body">
+                <div class="document-content scroller">
+                  <div class="item">MSDS 영문</div>
+                  <div class="item">CoA</div>
+                  <div class="item">Composition Data Sheet</div>
+                  <div class="item">NMPA</div>
+                  <!--없는경우-->
+                  <div class="item empty">MSDS 국문</div>
+                  <div class="item empty">Certificate of origin</div>
+                  <div class="item">TDS</div>
+                  <div class="item">Allergens Statement</div>
+                  <div class="item">BSE_TSE Statement</div>
+                  <div class="item">California Proposition 65 statement</div>
+                  <div class="item">Certificate of Application Fields</div>
+                  <div class="item">Certificate of presence of potential fragrance allergens</div>
+                  <div class="item">CITES Statement</div>
+                  <div class="item">CMR Statement</div>
+                  <div class="item">D4,D5,D6 Free Statement</div>
+                  <div class="item">Country of Origin Certificate</div>
+                  <div class="item">Global compliance statement</div>
+                  <div class="item">Gluten Free statement</div>
+                  <div class="item">GMO Free Statement</div>
+                  <div class="item">Halal Statement</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--등록자료-->
+    <div class="modal for-data">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-xlg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">등록자료</div>
+              </div>
+              <div class="modal-body">
+                <div class="data-content scroller">
+                  <div class="text-p">
+                    <p>자연을 화장품에 담다</p>
+                    <p>
+                      안녕하세요. ERNS입니다.<br />
+                      이번 달은 계속되는 비건과 천연 트렌드에 맞추어 두 가지의 식물 추출물 <br />원료를 소개드리려 합니다!
+                    </p>
+                  </div>
+
+                  <div class="img">
+                    <img src="images/img-test-01.jpg" alt="" />
+                  </div>
+                  <div class="img">
+                    <img src="images/img-test-04.jpg" alt="" />
+                  </div>
+                  <div class="text-p">
+                    <p>자연을 화장품에 담다</p>
+                    <p>
+                      안녕하세요. ERNS입니다.<br />
+                      이번 달은 계속되는 비건과 천연 트렌드에 맞추어 두 가지의 식물 추출물 <br />원료를 소개드리려 합니다!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--엑셀업로드-->
+    <div class="modal for-upload">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <div class="title">엑셀 업로드</div>
+              </div>
+              <div class="modal-body">
+                <!--upload-->
+                <div class="upload-wrap">
+                  <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" multiple style="display: none" />
+                    <div id="fileList"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray bottom-modal-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary">파일 업로드</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--담당자 변경-->
+    <div class="modal for-user-change">
+      <div class="layer">
+        <div class="layer-content">
+          <div class="modal-inner modal-md">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="title">변경할 담당자를 지정하세요</div>
+              </div>
+              <div class="modal-body">
+                <!--select-->
+                <select data-placeholder="담당자 검색" class="chosen-select">
+                  <option value=""></option>
+                  <option>이써니</option>
+                  <option>이하나</option>
+                  <option>이두나</option>
+                  <option>이세나</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-md btn-gray bottom-modal-close">취소</button>
+                <button type="button" class="btn btn-md btn-primary">변경하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- chosen -->
+    <script type="text/javascript" src="js/chosen.jquery.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+  </body>
+</html>

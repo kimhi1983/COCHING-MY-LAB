@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.rnd.mapper.AiLabResDAO">
+
+	<sql id="baseFieldsAA">
+			AA.AI_LAB_MST_SEQ
+		, AA.LAB_MST_SEQ
+		, AA.AI_LAB_PARAM
+		, AA.AI_LAB_RES
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='labMstSeq &gt; 0'>
+			AND AA.LAB_MST_SEQ = #{labMstSeq	, jdbcType=INTEGER}
+		</if>
+		<if test='resSeq &gt; 0'>
+			AND AA.AI_LAB_MST_SEQ = #{resSeq	, jdbcType=INTEGER}
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.rnd.domain.AiLabResSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.getList */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_AI_LAB_RES AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		<choose>
+			<otherwise>
+				ORDER BY AA.AI_LAB_MST_SEQ DESC
+			</otherwise>
+		</choose>
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.rnd.domain.AiLabResSearchDTO"
+			resultType="int">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_AI_LAB_RES AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.rnd.domain.AiLabResSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_AI_LAB_RES AA
+		<where>
+			AND AA.AI_LAB_MST_SEQ = #{resSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.rnd.domain.AiLabResVO">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.insert */
+
+		<selectKey resultType="long" keyProperty="aiLabMstSeq" order="BEFORE">
+			SELECT nextval('seq_t_ai_lab_res')
+		</selectKey>
+
+		INSERT INTO T_AI_LAB_RES (
+			AI_LAB_MST_SEQ
+			, LAB_MST_SEQ
+			, AI_LAB_PARAM
+			, AI_LAB_RES
+			, RGTR
+			, RGT_DTTM
+		) VALUES (
+				#{aiLabMstSeq	, jdbcType=INTEGER}
+			, #{labMstSeq	, jdbcType=INTEGER}
+			, <choose>
+				<when test='aiLabParam != null and aiLabParam != ""'>CAST(#{aiLabParam} AS jsonb)</when>
+				<otherwise>NULL</otherwise>
+			</choose>
+			, <choose>
+				<when test='aiLabRes != null and aiLabRes != ""'>CAST(#{aiLabRes} AS jsonb)</when>
+				<otherwise>NULL</otherwise>
+			</choose>
+			, #{rgtr	, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.rnd.domain.AiLabResVO">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.update */
+
+		UPDATE T_AI_LAB_RES SET
+				LAB_MST_SEQ 	= #{labMstSeq	, jdbcType=INTEGER}
+			, AI_LAB_PARAM   	= <choose>
+				<when test='aiLabParam != null and aiLabParam != ""'>CAST(#{aiLabParam} AS jsonb)</when>
+				<otherwise>NULL</otherwise>
+			</choose>
+			, AI_LAB_RES     	= <choose>
+				<when test='aiLabRes != null and aiLabRes != ""'>CAST(#{aiLabRes} AS jsonb)</when>
+				<otherwise>NULL</otherwise>
+			</choose>
+		<where>
+			AND AI_LAB_MST_SEQ 	= #{aiLabMstSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.rnd.mapper.AiLabResDAO.delete */
+
+		DELETE FROM T_AI_LAB_RES
+		<where>
+			AND AI_LAB_MST_SEQ = #{resSeq, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+  <delete id="deleteByLabMstSeq"
+    parameterType="long">
+    /* com.erns.coching.rnd.mapper.AiLabResDAO.deleteByLabMstSeq */
+
+    DELETE FROM T_AI_LAB_RES
+    <where>
+      AND LAB_MST_SEQ = #{labMstSeq, jdbcType=INTEGER}
+    </where>
+  </delete>
+
+</mapper>

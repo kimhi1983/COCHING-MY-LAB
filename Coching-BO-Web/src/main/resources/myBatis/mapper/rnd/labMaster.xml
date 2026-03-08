@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.rnd.mapper.LabMasterDAO">
+
+	<sql id="baseFieldsAA">
+			AA.LAB_MST_SEQ
+		, AA.TITLE
+		, AA.PROD_CATE_GROUP
+		, AA.PROD_CATE_CODE
+		, AA.CONTENT
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='titleL != null and titleL != ""'>
+			AND UPPER(AA.TITLE) LIKE UPPER('%' || #{titleL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='prodCateGroup != null'>
+			AND AA.PROD_CATE_GROUP = #{prodCateGroup	, jdbcType=INTEGER}
+		</if>
+
+		<if test='prodCateCode != null'>
+			AND AA.PROD_CATE_CODE = #{prodCateCode	, jdbcType=INTEGER}
+		</if>
+
+		<if test='labMstSeq &gt; 0'>
+			AND AA.LAB_MST_SEQ 	= #{labMstSeq	, jdbcType=INTEGER}
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.rnd.domain.LabMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(					
+				SELECT
+					<include refid="baseFieldsAA"/>
+					,	A1.MEMB_SEQ 	AS MEMB_SEQ	
+					, A1.MEMB_ID 		AS MEMB_ID
+					, A1.MEMB_NAME	AS MEMB_NAME
+          , (SELECT COUNT(*) FROM T_AI_LAB_RES WHERE LAB_MST_SEQ = AA.LAB_MST_SEQ) AS AI_LAB_RES_CNT
+				FROM T_LAB_MST AA
+					LEFT OUTER JOIN T_MEMB_INF A1 ON AA.CHNR = A1.MEMB_SEQ
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+
+				<choose>
+					<otherwise>
+						ORDER BY AA.CHNG_DTTM DESC
+					</otherwise>
+				</choose>	
+		) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.rnd.domain.LabMasterSearchDTO"
+			resultType="int">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_LAB_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.rnd.domain.LabMasterSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_LAB_MST AA
+		<where>
+			AND AA.LAB_MST_SEQ 	= #{labMstSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.rnd.domain.LabMasterVO">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.insert */
+
+		<selectKey resultType="long" keyProperty="labMstSeq" order="BEFORE">
+			SELECT nextval('seq_t_lab_mst')
+		</selectKey>	
+
+		INSERT INTO T_LAB_MST (
+			  LAB_MST_SEQ
+			, TITLE
+			, PROD_CATE_GROUP
+			, PROD_CATE_CODE
+			, CONTENT
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+
+    ) VALUES (
+
+				#{labMstSeq			, jdbcType=INTEGER}
+			, #{title 			  , jdbcType=VARCHAR}
+			, #{prodCateGroup	, jdbcType=VARCHAR}
+			, #{prodCateCode	, jdbcType=VARCHAR}
+			, #{content			  , jdbcType=VARCHAR}
+
+			, #{rgtr	, jdbcType=INTEGER}
+			, now()
+			, #{chnr	, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.rnd.domain.LabMasterVO">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.update */
+
+		UPDATE T_LAB_MST SET
+				TITLE     	      = #{title 			  , jdbcType=VARCHAR}
+			, PROD_CATE_GROUP   = #{prodCateGroup	, jdbcType=VARCHAR}
+			, PROD_CATE_CODE    = #{prodCateCode	, jdbcType=VARCHAR}
+			, CONTENT        	  = #{content			  , jdbcType=VARCHAR}
+
+			, CHNR 		 		  = #{chnr				, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND LAB_MST_SEQ 	= #{labMstSeq			, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.rnd.mapper.LabMasterDAO.delete */
+
+		DELETE FROM T_LAB_MST
+		<where>
+			AND LAB_MST_SEQ = #{labMstSeq, jdbcType=INTEGER}
+		</where>
+	</delete> 
+</mapper>

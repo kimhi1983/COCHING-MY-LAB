@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.member.mapper.MemberDAO">
+
+	<sql id="baseFieldsAA">
+		AA.MEMB_SEQ
+		, AA.MEMB_ID
+		, AA.MEMB_TYPE
+		, AA.PTN_SEQ
+		, AA.SALT
+		, AA.PSWD
+
+		, AA.MEMB_NAME
+		, AA.NICKNAME
+		, AA.PHONE
+		, AA.EMAIL
+		, AA.USE_YN
+
+		, AA.AA.WTDR_YN
+		, AA.AA.WTDR_DTTM
+
+		, AA.PSWD_CHNG_DTTM
+		, AA.PSWD_ERR_CNT
+
+		, AA.RCT_ACS_DTTM
+		, AA.RCT_ACS_IP
+
+		, AA.RGTR
+		, AA.RGT_DTTM
+		, AA.CHNR
+		, AA.CHNG_DTTM
+
+		, AA.DORMANT_YN
+	</sql>
+
+	<sql id="baseMemberFieldsAA">
+		  AA.MEMB_SEQ
+		, AA.PTN_SEQ
+		, AA.MEMB_ID
+
+		, AA.MEMB_NAME
+		, AA.NICKNAME
+		, AA.MEMB_TYPE
+		, AA.PHONE
+		, AA.EMAIL
+
+		, TO_CHAR(AA.JOIN_DTTM	, 'YYYY-MM-DD HH24:mi:SS') 	AS JOIN_DTTM
+		, AA.USE_YN
+		, AA.WTDR_YN
+		, TO_CHAR(AA.WTDR_DTTM	, 'YYYY-MM-DD HH24:mi:SS') 	AS WTDR_DTT
+		, TO_CHAR(AA.RCT_ACS_DTTM	, 'YYYY-MM-DD HH24:mi:SS') 	AS RCT_ACS_DTTM
+		, AA.RCT_ACS_IP 			AS MEMB_RCT_ACS_IP
+		, AA.DORMANT_YN 			AS MEMB_DORMANT_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM	, 'YYYY-MM-DD HH24:mi:SS') 	AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:mi:SS') AS CHNG_DTTM
+
+		, AA.DORMANT_YN
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='allSrch != null and allSrch != ""'>
+			AND
+			(
+			REPLACE(UPPER(AA.MEMB_ID), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+			OR
+			REPLACE(UPPER(AA.MEMB_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+			)
+		</if>
+    	<if test='membSeq != null and membSeq &gt; 0'>
+    		AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+    	</if>
+
+    	<if test='ptnSeq != null and ptnSeq &gt; 0'>
+    		AND AA.PTN_SEQ = #{ptnSeq, jdbcType=INTEGER}
+    	</if>
+
+		<if test='menuType != null and menuType != ""'>
+			<if test="menuType == 'USER' ">
+				AND AA.MEMB_TYPE != '001'
+			</if>
+			<if test="menuType == 'ADMIN' ">
+				AND AA.MEMB_TYPE = '001'
+			</if>
+		</if>
+
+		<if test='membIdL != null and membIdL != ""'>
+			AND UPPER(AA.MEMB_ID) LIKE UPPER('%' || #{membIdL, jdbcType=VARCHAR} || '%')
+		</if>
+
+    	<if test='emailL != null and emailL != ""'>
+    		AND UPPER(AA.EMAIL) LIKE UPPER('%' || #{emailL, jdbcType=VARCHAR} || '%')
+    	</if>
+
+    	<if test='membNameL != null and membNameL != ""'>
+    		AND UPPER(AA.MEMB_NAME) LIKE UPPER('%' || #{membNameL, jdbcType=VARCHAR} || '%')
+    	</if>
+
+    	<if test='phoneL != null and phoneL != ""'>
+    		AND UPPER(AA.PHONE) LIKE UPPER('%' || #{phoneL, jdbcType=VARCHAR} || '%')
+    	</if>
+
+    	<if test='joinFromDate != null and joinFromDate != ""'>
+			AND AA.JOIN_DTTM &gt;= TO_DATE(#{joinFromDate ,jdbcType=VARCHAR} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+		<if test='joinToDate != null and joinToDate != ""'>
+			AND AA.JOIN_DTTM &lt;= TO_DATE(#{joinToDate ,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+    	<if test='useYn != null and useYn != ""'>
+    		AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+    	</if>
+
+    	<if test='wtdrYn != null and wtdrYn != ""'>
+    		AND AA.WTDR_YN = #{wtdrYn, jdbcType=CHAR}
+    	</if>
+
+    	<if test='wtdrFromDate != null and wtdrFromDate != ""'>
+			AND AA.WTDR_DTTM &gt;= TO_DATE(#{wtdrFromDate ,jdbcType=VARCHAR} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+		<if test='wtdrToDate != null and wtdrToDate != ""'>
+			AND AA.WTDR_DTTM &lt;= TO_DATE(#{wtdrToDate ,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+		<if test='rctFromDate != null and rctFromDate != ""'>
+			AND AA.RCT_ACS_DTTM &gt;= TO_DATE(#{rctFromDate ,jdbcType=VARCHAR} || ' 00:00:00', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+		<if test='rctToDate != null and rctToDate != ""'>
+			AND AA.RCT_ACS_DTTM &lt;= TO_DATE(#{rctToDate ,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+		</if>
+
+    	<if test='dormantYn != null and dormantYn != ""'>
+    		AND AA.DORMANT_YN = #{dormantYn, jdbcType=CHAR}
+    	</if>
+    </sql>
+
+	<select id="getMembList"
+    		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.member.mapper.MemberDAO.getMembList */
+
+    	SELECT * FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseMemberFieldsAA"/>
+				FROM T_MEMB_INF AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.MEMB_ID
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+     <select id="getMembListCount"
+    		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.member.mapper.MemberDAO.getMembListCount */
+
+    	SELECT
+			COUNT(*)
+		FROM T_MEMB_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="loadMemb"
+    		parameterType	="com.erns.coching.member.domain.MemberSearchDTO"
+    		resultType="com.erns.coching.member.domain.MemberVO">
+    	/* com.erns.coching.member.mapper.MemberDAO.loadMemb */
+
+ 		SELECT
+			<include refid="baseMemberFieldsAA"/>
+		FROM T_MEMB_INF AA
+		WHERE 1=1
+			<if test='membSeq != null and membSeq &gt; 0'>
+	    		AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+	    	</if>
+
+	    	<if test='ptnSeq != null and ptnSeq &gt; 0'>
+	    		AND AA.PTN_SEQ = #{ptnSeq, jdbcType=INTEGER}
+	    	</if>
+
+	    	<if test='email != null and email != ""'>
+	    		AND UPPER(AA.EMAIL) LIKE UPPER('%' || #{email, jdbcType=VARCHAR} || '%')
+	    	</if>
+    </select>
+
+    <select id="load"
+			parameterType	="com.erns.coching.member.domain.MemberVO"
+			resultType="camelMap">
+   		/* com.erns.coching.member.mapper.MemberDAO.load */
+
+			SELECT
+			<include refid="baseMemberFieldsAA"/>
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	 <insert id="insertMemb"
+    	parameterType="com.erns.coching.member.domain.MemberVO">
+    	/* com.erns.coching.member.mapper.MemberDAO.insertMemb */
+
+		 <selectKey order="BEFORE" resultType="hashmap"
+					keyProperty="membSeq,salt" keyColumn="memb_seq,salt">
+			 SELECT
+			 nextval('seq_t_memb_inf') AS memb_seq,
+			 gen_salt('md5') AS SALT;
+		 </selectKey>
+
+		 INSERT INTO T_MEMB_INF (
+			 MEMB_SEQ
+			 , MEMB_ID
+			 , MEMB_TYPE
+			 , PTN_SEQ
+			 , SALT
+			 , PSWD
+			 , MEMB_NAME
+			 , NICKNAME
+			 , PHONE
+			 , EMAIL
+			 , EMAIL_YN
+			 , MESSAGE_YN
+			 , JOIN_DTTM
+			 , USE_YN
+			 , WTDR_YN
+			 , WTDR_DTTM
+			 , DORMANT_YN
+			 , PSWD_CHNG_DTTM
+			 , PSWD_ERR_CNT
+			 , PSWD_INIT_YN
+			 , PSWD_EXP_DTTM
+			 , RCT_ACS_DTTM
+			 , RCT_ACS_IP
+			 , RGTR
+			 , RGT_DTTM
+			 , CHNR
+			 , CHNG_DTTM
+		 ) VALUES (
+			 #{membSeq, jdbcType=INTEGER}
+			 , #{membId, jdbcType=VARCHAR}
+			 , #{membType, jdbcType=VARCHAR}
+			 , #{ptnSeq, jdbcType=INTEGER}
+			 , #{salt, jdbcType=VARCHAR}
+			 , ENCODE(DIGEST(#{pswd, jdbcType=VARCHAR} || #{salt,jdbcType=VARCHAR}, 'sha512'), 'hex')
+			 , #{membName, jdbcType=VARCHAR}
+			 , #{nickname, jdbcType=VARCHAR}
+			 , #{phone, jdbcType=VARCHAR}
+			 , #{email, jdbcType=VARCHAR}
+			 , COALESCE(#{emailYn, jdbcType=CHAR}, 'N')
+			 , COALESCE(#{messageYn, jdbcType=CHAR}, 'N')
+			 , now()
+			 , COALESCE(#{useYn, jdbcType=CHAR}, 'Y')
+			 , COALESCE(#{wtdrYn, jdbcType=CHAR}, 'N')
+			 , #{wtdrDttm, jdbcType=TIMESTAMP}
+			 , COALESCE(#{dormantYn, jdbcType=CHAR}, 'N')
+			 , now()
+			 , 0
+			 , COALESCE(#{pswdInitYn, jdbcType=CHAR}, 'N')
+			 , #{pswdExpDttm, jdbcType=TIMESTAMP}
+			 , #{rctAcsDttm, jdbcType=TIMESTAMP}
+			 , #{rctAcsIp, jdbcType=VARCHAR}
+			 , #{rgtr, jdbcType=INTEGER}
+			 , now()
+			 , #{chnr, jdbcType=INTEGER}
+			 , now()
+		 )
+    </insert>
+
+	<update id="update"
+			parameterType="com.erns.coching.member.domain.MemberVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.update */
+
+		UPDATE T_MEMB_INF SET
+			  MEMB_NAME = #{membName	, jdbcType=VARCHAR}
+			, PHONE = #{phone			, jdbcType=VARCHAR}
+			, EMAIL = #{email			, jdbcType=VARCHAR}
+			, NICKNAME = #{nickname		, jdbcType=VARCHAR}
+			, USE_YN = #{useYn			, jdbcType=VARCHAR}
+			, CHNR = #{chnr				, jdbcType=INTEGER}
+			, CHNG_DTTM = now()
+		<where>
+			AND MEMB_SEQ 		= #{membSeq			, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateUseYn"
+			parameterType="com.erns.coching.member.domain.MemberVO">
+		/* mapper.member.com.erns.coching.MemberDAO.updateAuth */
+
+		UPDATE T_MEMB_INF SET
+		USE_YN = 		#{useYn		, jdbcType=VARCHAR}
+		, CHNR = 		#{chnr	, jdbcType=INTEGER}
+		, CHNG_DTTM = 	now()
+		<where>
+			AND MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateState"
+		parameterType="com.erns.coching.member.domain.MemberVO">
+		/* mapper.member.com.erns.coching.MemberDAO.updateState */
+
+		UPDATE T_MEMB_INF SET
+			USE_YN = 		#{useYn		, jdbcType=VARCHAR}
+			, CHNR = 		#{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM = 	now()
+		<where>
+			AND MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updatePassword"
+			parameterType="com.erns.coching.member.domain.MemberVO">
+		/* mapper.member.com.erns.coching.MemberDAO.update */
+
+		<selectKey order="BEFORE" resultType="String"
+				   keyColumn="salt" keyProperty="salt">
+			SELECT gen_salt('md5') AS SALT;
+		</selectKey>
+
+		UPDATE T_MEMB_INF SET
+		PSWD = 				ENCODE(DIGEST(#{pswd, jdbcType=VARCHAR} || #{salt,jdbcType=VARCHAR}, 'sha512'), 'hex')
+		, SALT =			#{salt		, jdbcType=VARCHAR}
+
+		, PSWD_CHNG_DTTM =	now()	/* 비밀번호 변경일 */
+		, PSWD_ERR_CNT =	0	/* 비밀번호 오류 횟수 */
+		, PSWD_INIT_YN = 	#{pswdInitYn, jdbcType=VARCHAR}
+
+		, CHNR = 			#{membSeq		, jdbcType=INTEGER}
+		, CHNG_DTTM = 		now()
+		<where>
+			AND MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+    <select id="getMembInfoList"
+    		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.member.mapper.MemberDAO.getMembInfoList */
+
+    	SELECT
+    			MEMB_SEQ,
+    			MEMB_ID,
+    			EMAIL
+    	FROM T_MEMB_INF
+    	WHERE USE_YN = 'Y'
+    </select>
+
+    <select id="getMembInfoListCount"
+    		parameterType="com.erns.coching.member.domain.MemberSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.member.mapper.MemberDAO.getMembListCount */
+
+		SELECT
+				COUNT(*)
+		FROM T_MEMB_INF
+		WHERE USE_YN = 'Y'
+    </select>
+
+	<select id="chkDuplicate"
+			parameterType="String"
+			resultType="camelMap">
+		/* mapper.member.com.erns.coching.MemberDAO.checkMembId */
+
+		SELECT
+			MEMB_ID
+		FROM
+		T_MEMB_INF AA
+		<where>
+			<if test='membId != null and membId != ""'>
+				AND UPPER(AA.MEMB_ID) = UPPER(#{membId, jdbcType=VARCHAR})
+			</if>
+			<if test='email != null and email != ""'>
+				AND UPPER(AA.EMAIL) = UPPER(#{email, jdbcType=VARCHAR})
+			</if>
+			<if test='nickname != null and nickname != ""'>
+				AND UPPER(AA.NICKNAME) = UPPER(#{nickname, jdbcType=VARCHAR})
+			</if>
+		</where>
+	</select>
+
+	<select id="selectProfileBatchList"
+			parameterType="Integer"
+			resultType="com.erns.coching.member.domain.MemberVO">
+		SELECT
+			MI.MEMB_SEQ,
+			MI.MEMB_TYPE,
+			MI.MEMB_NAME,
+			MI.PTN_SEQ,
+			PI.PTN_NAME
+		FROM T_MEMB_INF MI
+				 LEFT OUTER JOIN T_FILE_INF FI
+				     ON FI.REF_SEQ = MI.MEMB_SEQ AND FI.REF_CODE = 'FT_PROFILE' AND FI.DEL_YN = 'N'
+				 LEFT OUTER JOIN T_PARTNER_INF PI
+				     ON PI.PTN_SEQ = MI.PTN_SEQ
+		WHERE MI.MEMB_TYPE != '001'
+			AND FI.FILE_ID IS NULL
+		LIMIT #{value	,jdbcType=INTEGER}
+	</select>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.login.mapper.TempSnsInfoDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.SI_KEY
+		, AA.SNS_TYPE
+		, AA.SNS_ID
+		, AA.SNS_JSON
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:mi:SS') AS REG_DATE
+	</sql>
+
+	<select id="getList"
+		resultType="com.erns.coching.login.domain.TempSnsInfoVO">
+		/* mapper.login.com.erns.coching.TempSnsInfoDAO.getList */
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_TMP_SNS_INF AA
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="com.erns.coching.login.domain.TempSnsInfoVO">
+		/* mapper.login.com.erns.coching.TempSnsInfoDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_TMP_SNS_INF AA
+		<where>
+			AND AA.SI_KEY = #{value, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.login.domain.TempSnsInfoVO">
+		/* com.erns.coching.login.mapper.TempSnsInfoDAO.insert */
+		INSERT INTO T_TMP_SNS_INF (
+			SI_KEY, SNS_TYPE, SNS_ID, SNS_JSON
+			, RGT_DTTM
+		)
+		VALUES (
+			  #{siKey			, jdbcType=VARCHAR}
+			, #{snsType			, jdbcType=VARCHAR}
+			, #{snsId			, jdbcType=VARCHAR}
+			, #{snsJson			, jdbcType=VARCHAR}
+			, SYSDATE
+		)
+	</insert>
+
+	<delete id="delete"
+		parameterType="String">
+		/* mapper.login.com.erns.coching.TempSnsInfoDAO.delete */
+
+		DELETE FROM T_TMP_SNS_INF
+		<where>
+			AND SI_KEY = #{value, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+
+	<delete id="deleteExpired">
+		/* mapper.login.com.erns.coching.TempSnsInfoDAO.deleteExpired */
+
+		DELETE FROM T_TMP_SNS_INF
+		<where>
+			<![CDATA[ AND RGT_DTTM <= SYSDATE - 3 ]]>
+		</where>
+	</delete>
+
+</mapper>

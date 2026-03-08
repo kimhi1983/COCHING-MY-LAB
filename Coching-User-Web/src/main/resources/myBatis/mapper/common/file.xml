@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.common.file.mapper.FileDAO">
+
+    <sql id="baseFieldsAA">
+    	  AA.FILE_ID
+		, AA.REF_CODE
+		, AA.REF_SEQ
+		, AA.SORT_ORD
+		, AA.FILE_NAME
+		, AA.FILE_EXT
+		, AA.FILE_NAME_DEST
+		, AA.FILE_PATH
+		, AA.FILE_SIZE
+		, AA.DEL_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+    </sql>
+
+    <sql id="baseSearchConditionAA">
+ 		<if test='refCode != null and refCode != ""'>
+			AND AA.REF_CODE = #{refCode, jdbcType=VARCHAR}
+		</if>
+
+		<if test='refSeq != null and refSeq &gt; 0'>
+			AND AA.REF_SEQ = #{refSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='fileId != null and fileId != ""'>
+			AND AA.FILE_ID = #{fileId, jdbcType=VARCHAR}
+		</if>
+
+		<if test='fileIds != null'>
+    		<foreach item="item" index="index" collection="fileIds"
+    			open="AND AA.FILE_ID in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+    	</if>
+
+    	<if test='fileExt != null and fileExt != ""'>
+			AND AA.FILE_EXT = #{fileExt, jdbcType=VARCHAR}
+		</if>
+
+		<if test='fileExts != null'>
+    		<foreach item="item" index="index" collection="fileExts"
+    			open="AND AA.FILE_EXT in (" separator="," close=")">#{item, jdbcType=VARCHAR}</foreach>
+    	</if>
+
+    </sql>
+
+    <select id="getList"
+    		parameterType="com.erns.coching.common.file.domain.FileSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.common.file.mapper.FileDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_FILE_INF AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+					AND AA.DEL_YN = 'N'
+				</where>
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.common.file.domain.FileSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.common.file.mapper.FileDAO.getListCount */
+
+    	SELECT
+			COUNT(*)
+		FROM T_FILE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+			AND AA.DEL_YN = 'N'
+		</where>
+    </select>
+
+    <select id="selectByRefId"
+		parameterType	="com.erns.coching.common.file.domain.FileSearchDTO"
+		resultType		="camelMap">
+		/* com.erns.coching.common.file.mapper.FileDAO.selectByRefId */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_FILE_INF AA
+		<where>
+			AND AA.REF_CODE = #{refCode	, jdbcType=VARCHAR}
+			AND AA.REF_SEQ 	= #{refSeq	, jdbcType=INTEGER}
+			AND AA.DEL_YN 	= 'N'
+		</where>
+		ORDER BY AA.SORT_ORD
+	</select>
+
+    <select id="load"
+    	parameterType="com.erns.coching.common.file.domain.FileSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.common.file.mapper.FileDAO.load */
+
+    	SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_FILE_INF AA
+		<where>
+			AND AA.FILE_ID = #{fileId , jdbcType=VARCHAR}
+		</where>
+    </select>
+
+		<select id="loadVo"
+    	parameterType="String"
+    	resultType="com.erns.coching.common.file.domain.FileVO">
+    	/* com.erns.coching.common.file.mapper.FileDAO.loadVo */
+
+    	SELECT
+				<include refid="baseFieldsAA"/>
+			FROM T_FILE_INF AA
+			<where>
+				AND AA.FILE_ID = #{fileId , jdbcType=VARCHAR}
+			</where>
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.common.file.domain.FileVO">
+    	/* com.erns.coching.common.file.mapper.FileDAO.insert */
+
+    	<selectKey resultType="String" keyProperty="fileId" order="BEFORE">
+			SELECT encode((nextval('seq_t_file_inf')::varchar(255))::bytea, 'base64')
+		</selectKey>
+
+    	INSERT INTO T_FILE_INF (
+    		  FILE_ID
+			, REF_CODE
+			, REF_SEQ
+			, SORT_ORD
+			, FILE_NAME
+			, FILE_EXT
+			, FILE_NAME_DEST
+			, FILE_PATH
+			, FILE_SIZE
+			, DEL_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+    	) VALUES (
+			  #{fileId		, jdbcType=VARCHAR}
+			, #{refCode		, jdbcType=VARCHAR}
+			, #{refSeq		, jdbcType=INTEGER}
+			, (
+				SELECT COALESCE(MAX(ZZ.SORT_ORD), 0) +1
+				FROM T_FILE_INF ZZ
+				WHERE ZZ.REF_CODE = #{refCode, jdbcType=VARCHAR}
+				AND   ZZ.REF_SEQ  = #{refSeq , jdbcType=INTEGER}
+			)
+			, #{fileName	, jdbcType=VARCHAR}
+			, #{fileExt		, jdbcType=VARCHAR}
+			, #{fileNameDest, jdbcType=VARCHAR}
+			, #{filePath	, jdbcType=VARCHAR}
+			, #{fileSize	, jdbcType=INTEGER}
+			, COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+			, #{chnr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    <update id="update"
+    	parameterType="com.erns.coching.common.file.domain.FileVO">
+    	/* com.erns.coching.common.file.mapper.FileDAO.update */
+
+    	UPDATE T_FILE_INF SET
+			  REF_CODE       = #{refCode		, jdbcType=VARCHAR}
+			, REF_SEQ        = #{refSeq			, jdbcType=INTEGER}
+			, FILE_NAME      = #{fileName		, jdbcType=VARCHAR}
+			, FILE_EXT       = #{fileExt		, jdbcType=VARCHAR}
+			, FILE_NAME_DEST = #{fileNameDest	, jdbcType=VARCHAR}
+			, FILE_PATH      = #{filePath		, jdbcType=VARCHAR}
+			, FILE_SIZE      = #{fileSize		, jdbcType=INTEGER}
+			, DEL_YN         = COALESCE(#{delYn		, jdbcType=CHAR}, 'N')
+
+			, CHNR 			 = #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM 	 = now()
+		<where>
+			AND FILE_ID 	 = #{fileId, jdbcType=VARCHAR}
+		</where>
+    </update>
+
+
+    <update id="updateDelYn"
+		parameterType="com.erns.coching.common.file.domain.FileVO">
+		/* com.erns.coching.common.file.mapper.FileDAO.updateDelYn */
+
+		UPDATE T_FILE_INF SET
+			DEL_YN 		= #{delYn, jdbcType=CHAR}
+
+			, CHNR 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM = now()
+		<where>
+			AND FILE_ID = #{fileId, jdbcType=VARCHAR}
+		</where>
+	</update>
+
+	<update id="updateDelYnByRefId"
+		parameterType="com.erns.coching.common.file.domain.FileVO">
+		/* com.erns.coching.common.file.mapper.FileDAO.updateDelYnByRefId */
+
+		UPDATE T_FILE_INF SET
+			DEL_YN 		= #{delYn	, jdbcType=CHAR}
+
+			, CHNR 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM = now()
+		<where>
+			AND REF_CODE = #{refCode, jdbcType=VARCHAR}
+			AND REF_SEQ  = #{refSeq , jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateOrder"
+		parameterType="com.erns.coching.common.file.domain.FileVO">
+		/* com.erns.coching.common.file.mapper.FileDAO.updateOrder */
+
+		UPDATE T_FILE_INF SET
+			SORT_ORT 	= #{fileOrder, jdbcType=INTEGER}
+
+			, CHNR 		= #{chnr	 , jdbcType=INTEGER}
+			, CHNG_DTTM = now()
+		<where>
+			AND FILE_ID = #{fileId   , jdbcType=VARCHAR}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="String">
+		/* com.erns.coching.common.file.mapper.FileDAO.delete */
+
+		DELETE FROM T_FILE_INF
+        WHERE FILE_ID = #{value,jdbcType=VARCHAR}
+	</delete>
+
+	<delete id="deleteByRefId"
+		parameterType="com.erns.coching.common.file.domain.FileVO">
+		/* com.erns.coching.common.file.mapper.FileDAO.deleteByRefId */
+
+		DELETE FROM T_FILE_INF
+		<where>
+			AND REF_CODE = #{refCode, jdbcType=VARCHAR}
+			AND REF_SEQ  = #{refSeq, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+	<update id="updateRefSeq"
+		parameterType="com.erns.coching.common.file.domain.FileVO">
+		/* com.erns.coching.common.file.mapper.FileDAO.updateRefSeq */
+
+		UPDATE T_FILE_INF SET
+			REF_SEQ 	= #{refSeq, jdbcType=INTEGER}
+
+			, CHNR 		= #{chnr	 , jdbcType=INTEGER}
+			, CHNG_DTTM = now()
+		<where>
+			AND FILE_ID = #{fileId   , jdbcType=VARCHAR}
+		</where>
+	</update>
+
+</mapper>

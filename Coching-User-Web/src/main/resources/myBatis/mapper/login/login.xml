@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.login.mapper.LoginDAO">
+
+	<select id="checkPasswd"
+		parameterType="com.erns.coching.login.domain.LoginUserDTO"
+		resultType="com.erns.coching.login.domain.LoginUserDTO">
+		/* mapper.login.com.erns.coching.LoginDAO.checkPasswd */
+		SELECT
+			  AA.MEMB_SEQ 			AS SEQ
+			, AA.MEMB_NAME			AS USER_NAME
+		    , AA.MEMB_ID			AS ID
+			, AA.MEMB_TYPE			AS USER_TYPE
+
+		    , AA.EMAIL	 			AS EMAIL
+			, AA.PHONE 				AS PHONE
+
+			, AA.USE_YN		 		AS USE_YN
+			, AA.WTDR_YN		 	AS WTDR_YN
+			, AA.DORMANT_YN		 	AS DORMANT_YN
+
+			, AA.PSWD_CHNG_DTTM		AS PWD_CHANGE_DATE
+			, AA.PSWD_ERR_CNT 		AS PWD_ERR_CNT
+			, AA.PSWD_INIT_YN 		AS PWD_INIT_YN
+			, AA.PSWD_EXP_DTTM		AS PSWD_EXP_DTTM
+
+			, AA.RCT_ACS_DTTM		AS LAST_ACCESS_DATE
+			, AA.RCT_ACS_IP			AS LAST_ACCESS_IP
+
+			, CASE WHEN AA.PSWD = ENCODE(DIGEST(#{password, jdbcType=VARCHAR} || AA.SALT, 'sha512'), 'hex') THEN 'Y'
+				ELSE 'N'
+			  END AS RET_PASS_CHECK_YN
+
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.MEMB_ID 	= #{id, jdbcType=VARCHAR}
+			AND AA.MEMB_TYPE != '001'
+		</where>
+	</select>
+
+
+	<update id="updatePwdErrorCnt"
+		parameterType="Long">
+		/* mapper.login.com.erns.coching.LoginDAO.updatePwdErrorCnt */
+		UPDATE T_MEMB_INF SET
+			  PSWD_ERR_CNT   = PSWD_ERR_CNT +1
+		<where>
+			AND MEMB_SEQ = #{value, jdbcType=INTEGER}
+		</where>
+	</update>
+
+
+	<update id="updateResetPwdErrorCnt"
+		parameterType="com.erns.coching.login.domain.LoginUserDTO">
+		/* mapper.login.com.erns.coching.LoginDAO.updateResetPwdErrorCnt */
+		UPDATE T_MEMB_INF SET
+			  PSWD_ERR_CNT   = 0
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+
+	<update id="updateLoingInfo"
+		parameterType="com.erns.coching.login.domain.LoginUserDTO">
+		/* mapper.login.com.erns.coching.LoginDAO.updateLoingInfo */
+		UPDATE T_MEMB_INF SET
+			  RCT_ACS_DTTM = now()
+			, RCT_ACS_IP = #{lastAccessIp, jdbcType=VARCHAR}
+		<where>
+			AND MEMB_SEQ = #{seq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<select id="getUser"
+		parameterType="com.erns.coching.login.domain.LoginDTO"
+		resultType="com.erns.coching.login.domain.LoginUserDTO">
+		/* mapper.login.com.erns.coching.LoginDAO.loadUser */
+		SELECT
+			  AA.MEMB_SEQ 			AS SEQ
+			, AA.PTN_SEQ			AS PTN_SEQ
+			, AA.MEMB_ID			AS ID
+		    , AA.MEMB_TYPE			AS USER_TYPE
+			, AA.MEMB_NAME			AS USER_NAME
+
+		    , AA.EMAIL	 			AS EMAIL
+			, AA.PHONE 				AS PHONE
+			, AA.NICKNAME			AS NICKNAME
+
+			, AA.USE_YN		 		AS USE_YN
+			, AA.WTDR_YN		 	AS WTDR_YN
+			, AA.DORMANT_YN		 	AS DORMANT_YN
+
+			, AA.PSWD_CHNG_DTTM		AS PWD_CHANGE_DATE
+			, AA.PSWD_ERR_CNT 		AS PWD_ERR_CNT
+			, AA.PSWD_INIT_YN 		AS PWD_INIT_YN
+			, AA.PSWD_EXP_DTTM		AS PSWD_EXP_DTTM
+
+			, AA.RCT_ACS_DTTM		AS LAST_ACCESS_DATE
+			, AA.RCT_ACS_IP			AS LAST_ACCESS_IP
+
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.USE_YN = 'Y'
+			AND AA.WTDR_YN = 'N'
+			AND AA.MEMB_ID 	= #{id, jdbcType=VARCHAR}
+			<if test='email != null and email != ""'>
+				AND UPPER(AA.EMAIL) = UPPER(#{email, jdbcType=VARCHAR})
+			</if>
+		</where>
+
+	</select>
+
+	<select id="loadMembId"
+	        parameterType="com.erns.coching.login.domain.LoginDTO"
+	        resultType="com.erns.coching.login.domain.LoginUserDTO">
+		/* mapper.login.com.erns.coching.LoginDAO.loadUser */
+		SELECT
+			AA.MEMB_SEQ 			AS SEQ
+			, AA.MEMB_ID			AS ID
+			, AA.MEMB_NAME 			AS USER_NAME
+
+			, AA.PHONE 				AS PHONE
+			, AA.EMAIL 				AS EMAIL
+
+			, AA.USE_YN		 		AS USE_YN
+			, AA.PSWD_CHNG_DTTM		AS PWD_CHANGE_DATE
+			, AA.PSWD_ERR_CNT 		AS PWD_ERR_CNT
+			, AA.PSWD_INIT_YN 		AS PWD_INIT_YN
+
+		FROM T_MEMB_INF AA
+		<where>
+			AND AA.EMAIL = #{email, jdbcType=VARCHAR}
+		</where>
+
+	</select>
+
+</mapper>

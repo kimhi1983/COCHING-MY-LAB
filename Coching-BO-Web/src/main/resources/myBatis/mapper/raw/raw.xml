@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.raw.mapper.RawDAO">
+
+	<!-- T_RAW_MST -->
+	<sql id="baseFieldsAA">
+		AA.RAW_SEQ
+		, AA.PTN_SEQ
+		, AA.RAW_NAME
+		, AA.PROD_COMPANY
+		, AA.PROD_COUNTRY
+		, AA.SUPPLIER
+		, AA.WEIGHT
+		, AA.USE_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<!-- T_RAW_ELEMENT_INF -->
+	<sql id="baseFieldsBB">
+		BB.RAW_ELM_SEQ
+		, BB.RAW_SEQ
+		, BB.RAW_ELM_ID
+		, BB.RGTR
+		, BB.RGT_DTTM
+	</sql>
+
+	<!-- T_RAW_TYPE_INF -->
+	<sql id="baseFieldsCC">
+		CC.RAW_SEQ
+		, CC.GRP_CODE
+		, CC.CODE
+		, CC.RGTR
+		, CC.RGT_DTTM
+	</sql>
+
+	<!-- T_RAW_DOC -->
+	<sql id="baseFieldsDD">
+		DD.RAW_SEQ
+		, DD.DOC_CODE
+		, DD.DOC_FILE_ID
+		, DD.RGTR
+		, DD.RGT_DTTM
+	</sql>
+
+	<!-- T_RAW_MANAGER -->
+	<sql id="baseFieldsEE">
+		EE.RAW_SEQ
+		, EE.MEMB_SEQ
+		, EE.RGTR
+		, EE.RGT_DTTM
+	</sql>
+
+	<!-- T_RAW_DETAIL -->
+	<sql id="baseFieldsFF">
+		FF.RAW_DETAIL_SEQ
+		, FF.RAW_SEQ
+		, FF.MEMB_SEQ
+		, FF.TITLE
+		, FF.HASHTAG
+		, FF.FILE_ID
+		, FF.RAW_DESC
+		, FF.RAW_DETAIL
+		, FF.VIEW_CNT
+		, FF.REQUEST_CNT
+		, FF.PERMIT_YN
+		, FF.USE_YN
+		, FF.DEL_YN
+		, FF.RGTR
+		, FF.RGT_DTTM
+		, FF.CHNR
+		, FF.CHNG_DTTM
+		, FF.DLTR
+		, FF.DLT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='allSrch != null and allSrch != ""'>
+				AND
+				(
+				REPLACE(UPPER(AA.RAW_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+				OR
+				REPLACE(UPPER(PI.PTN_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+				OR
+				REPLACE(UPPER(MI.MEMB_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+				)
+		</if>
+		<if test='rawNameL != null and rawNameL != ""'>
+			AND REPLACE(UPPER(AA.RAW_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{rawNameL, jdbcType=VARCHAR})), ' ', '') || '%'
+		</if>
+		<if test='ptnNameL != null and ptnNameL != ""'>
+			AND REPLACE(UPPER(PI.PTN_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{ptnNameL, jdbcType=VARCHAR})), ' ', '') || '%'
+		</if>
+		<if test='membNameL != null and membNameL != ""'>
+			AND REPLACE(UPPER(MI.MEMB_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{membNameL, jdbcType=VARCHAR})), ' ', '') || '%'
+		</if>
+		<if test='rawName != null and rawName != ""'>
+			AND UPPER(AA.RAW_NAME) LIKE UPPER('%' || #{rawName, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='ptnName != null and ptnName != ""'>
+			AND PI.PTN_NAME = #{ptnName, jdbcType=VARCHAR}
+		</if>
+		<if test='membName != null and membName != ""'>
+			AND MI.MEMB_NAME = #{membName, jdbcType=VARCHAR}
+		</if>
+		<if test='rawSeq != null and rawSeq &gt; 0'>
+			AND AA.RAW_SEQ = #{rawSeq, jdbcType=INTEGER}
+		</if>
+		<if test='ptnSeq != null and ptnSeq &gt; 0'>
+			AND AA.PTN_SEQ = #{ptnSeq, jdbcType=INTEGER}
+		</if>
+		<if test='prodCompany != null and prodCompany != ""'>
+			AND UPPER(AA.PROD_COMPANY) LIKE UPPER('%' || #{prodCompany, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='prodCountry != null and prodCountry != ""'>
+			AND UPPER(AA.PROD_COUNTRY) LIKE UPPER('%' || #{prodCountry, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='supplier != null and supplier != ""'>
+			AND UPPER(AA.SUPPLIER) LIKE UPPER('%' || #{supplier, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=VARCHAR}
+		</if>
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND EE.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+		<if test='exclude != null and exclude != ""'>
+			AND FF.RAW_DETAIL_SEQ IS NOT NULL
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getList */
+
+		<if test='incIngNameYn != null and incIngNameYn == "Y"'>
+			WITH rep AS (
+			SELECT
+					bb.raw_seq,
+					COUNT(DISTINCT id.id) AS rep_cnt,
+					string_agg(DISTINCT id.rep_name    , ', ' ORDER BY id.rep_name)     AS rep_name_join,
+					string_agg(DISTINCT id.rep_name_en , ', ' ORDER BY id.rep_name_en)  AS rep_name_en_join
+			FROM T_RAW_ELEMENT_INF bb
+			JOIN T_INGD_DIC id
+				ON bb.RAW_ELM_ID = id.ID
+			GROUP BY bb.raw_seq
+		)
+		</if>		
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+			SELECT
+				<include refid="baseFieldsAA"/>
+				, <include refid="baseFieldsFF"/>
+				<if test='incIngNameYn != null and incIngNameYn == "Y"'>
+					, COALESCE(R.rep_cnt, 0) AS ingd_cnt
+					, COALESCE(R.rep_name_join, '-')   AS ingd_names
+					, COALESCE(R.rep_name_en_join, '-') AS ingd_names_en
+				</if>
+				, PI.PTN_NAME
+				, MI.MEMB_NAME
+				, EE.MEMB_SEQ AS MANAGER_SEQ
+				, MI.USE_YN AS MEMB_USE_YN
+			FROM  T_RAW_MST AA
+				INNER JOIN T_RAW_MANAGER EE
+					ON AA.RAW_SEQ = EE.RAW_SEQ
+				LEFT OUTER JOIN T_RAW_DETAIL FF
+					ON AA.RAW_SEQ = FF.RAW_SEQ AND EE.MEMB_SEQ = FF.MEMB_SEQ AND FF.DEL_YN = 'N'
+				INNER JOIN T_PARTNER_INF PI
+					ON AA.PTN_SEQ = PI.PTN_SEQ
+				INNER JOIN T_MEMB_INF MI
+					ON EE.MEMB_SEQ = MI.MEMB_SEQ
+				<if test='incIngNameYn != null and incIngNameYn == "Y"'>
+					LEFT OUTER JOIN rep R ON AA.RAW_SEQ = R.RAW_SEQ
+				</if>
+			<where>
+				<include refid="baseSearchConditionAA"/>
+			</where>
+			order by AA.RAW_SEQ desc, MI.MEMB_TYPE, MI.MEMB_SEQ
+			) A
+		) B
+		<if test='rowSize &gt; 0'>
+			WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="int">
+		/* com.erns.coching.raw.mapper.RawDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_RAW_MST AA
+		INNER JOIN T_RAW_MANAGER EE
+		ON AA.RAW_SEQ = EE.RAW_SEQ
+		LEFT OUTER JOIN T_RAW_DETAIL FF
+		ON AA.RAW_SEQ = FF.RAW_SEQ AND EE.MEMB_SEQ = FF.MEMB_SEQ AND FF.DEL_YN = 'N'
+		INNER JOIN T_PARTNER_INF PI
+		ON AA.PTN_SEQ = PI.PTN_SEQ
+		INNER JOIN T_MEMB_INF MI
+		ON EE.MEMB_SEQ = MI.MEMB_SEQ
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.load */
+
+		SELECT
+		<include refid="baseFieldsAA"/>
+		FROM T_RAW_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="getElmList"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getElmList */
+
+		SELECT
+			<include refid="baseFieldsBB"/>
+		    , ID.REP_NAME AS ELM_NAME
+			, ID.REP_NAME_EN AS ELM_NAME_EN
+			, ID.CAS_NO
+		FROM  T_RAW_ELEMENT_INF BB
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = BB.RAW_SEQ
+		INNER JOIN T_INGD_DIC ID
+		ON BB.RAW_ELM_ID = ID.ID
+		<where>
+			AND BB.RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getDocList"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getDocList */
+
+		SELECT
+		<include refid="baseFieldsDD"/>
+		FROM  T_RAW_DOC DD
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = DD.RAW_SEQ
+		<where>
+			AND DD.RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getTypeList"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getTypeList */
+		SELECT
+			<include refid="baseFieldsCC"/>
+		    , CT.CODE_NM_KO
+			, CT.CODE_NM_EN
+		FROM  T_RAW_TYPE_INF CC
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = CC.RAW_SEQ
+	   	INNER JOIN T_CM_RAW_TYPE CT
+	   	ON CC.GRP_CODE = CT.GRP_CODE AND CC.CODE = CT.CODE
+		<where>
+			AND CC.RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getManagerList"
+			parameterType="com.erns.coching.raw.domain.RawManagerSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getManagerList */
+
+		SELECT
+			<include refid="baseFieldsEE"/>
+			, MI.MEMB_NAME
+		FROM  T_RAW_MANAGER EE
+		INNER JOIN T_RAW_MST AA
+			ON AA.RAW_SEQ = EE.RAW_SEQ
+		INNER JOIN T_MEMB_INF MI
+			ON EE.MEMB_SEQ = MI.MEMB_SEQ
+		<where>
+			AND EE.RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getManager"
+			parameterType="com.erns.coching.raw.domain.RawManagerSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getManager */
+
+		SELECT
+		<include refid="baseFieldsEE"/>
+		FROM  T_RAW_MANAGER EE
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = EE.RAW_SEQ
+		<where>
+			AND EE.RAW_SEQ 	= #{rawSeq	, jdbcType=INTEGER}
+			AND EE.MEMB_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getDetail"
+			parameterType="com.erns.coching.raw.domain.RawDetailSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getDetail */
+		SELECT
+			<include refid="baseFieldsFF"/>
+		FROM  T_RAW_DETAIL FF
+		INNER JOIN T_RAW_MANAGER EE
+		ON EE.RAW_SEQ = FF.RAW_SEQ AND EE.MEMB_SEQ = FF.MEMB_SEQ
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = FF.RAW_SEQ
+		<where>
+			AND FF.DEL_YN = 'N'
+			AND FF.RAW_DETAIL_SEQ 	= #{rawDetailSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="loadDetail"
+			parameterType="com.erns.coching.raw.domain.RawDetailSearchDTO"
+			resultType="com.erns.coching.raw.domain.RawDetailVO">
+		/* com.erns.coching.raw.mapper.RawDAO.getDetail */
+		SELECT
+		<include refid="baseFieldsFF"/>
+		FROM  T_RAW_DETAIL FF
+		INNER JOIN T_RAW_MANAGER EE
+		ON EE.RAW_SEQ = FF.RAW_SEQ AND EE.MEMB_SEQ = FF.MEMB_SEQ
+		INNER JOIN T_RAW_MST AA
+		ON AA.RAW_SEQ = FF.RAW_SEQ
+		<where>
+			AND FF.RAW_DETAIL_SEQ = #{rawDetailSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="getGarbageList"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getGarbageList */
+
+		SELECT B.* FROM (
+		SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+		SELECT
+		<include refid="baseFieldsAA"/>
+		FROM  T_RAW_MST AA
+		INNER JOIN T_MEMB_INF MI
+		ON AA.RGTR = MI.MEMB_SEQ
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		order by AA.CHNG_DTTM desc
+		) A
+		) B
+		<if test='rowSize &gt; 0'>
+			WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getGarbageListCount"
+			parameterType="com.erns.coching.raw.domain.RawMasterSearchDTO"
+			resultType="int">
+		/* com.erns.coching.raw.mapper.RawDAO.getGarbageListCount */
+
+		SELECT COUNT(*)
+		FROM  T_RAW_MST AA
+		INNER JOIN T_MEMB_INF MI
+		ON AA.RGTR = MI.MEMB_SEQ
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+
+	<select id="getCmTypeList"
+			resultType="camelMap">
+		/* com.erns.coching.raw.mapper.RawDAO.getCmTypeList */
+		SELECT
+		GRP_CODE,
+		CODE,
+		CODE_NM_KO,
+		CODE_NM_EN,
+		INPT_TYPE,
+		SORT_ORD
+		FROM  T_CM_RAW_TYPE
+		<where>
+			AND  USE_YN	= 'Y'
+		</where>
+		ORDER BY GRP_CODE, CODE, SORT_ORD ASC
+	</select>
+	
+	<update id="updateState"
+		parameterType="com.erns.coching.raw.domain.RawMasterVO">
+		/* com.erns.coching.raw.mapper.RawDAO.updateState */
+
+    	UPDATE T_RAW_MST SET
+				USE_YN 	 = #{useYn, jdbcType=CHAR}
+				
+				, CHNR		= #{chnr, jdbcType=INTEGER}
+				, CHNG_DTTM	= now()
+		<where>
+			AND RAW_SEQ 	= #{rawSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+</mapper>

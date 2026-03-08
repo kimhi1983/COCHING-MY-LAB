@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.member.mapper.MemberWithdrawInfoDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.WTHDR_SEQ		AS 	SEQ
+		, AA.MEMB_SEQ		AS	MEMB_SEQ
+		, AA.WTHDR_RSN		AS	WITHDRAW_REASON
+		, AA.DEL_ACNT		AS	DEL_ACCOUNT_AGREE_YN
+		, AA.DEL_INTRL		AS	DEL_LINK_INFO_YN
+		, AA.RGTR  			AS	RGTR
+		, AA.RGT_DTTM		AS	RGT_DTTM
+		, AA.WTHDR_RSN_TXT	AS	WITHDRAW_REASON_TXT
+	</sql>
+
+	<select id="getList"
+		resultType="com.erns.coching.member.domain.MemberWithdrawInfoVO">
+		/* mapper.member.com.erns.coching.MemberWithdrawInfoDAO.getList */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_WTHDR_INF AA
+	</select>
+
+	<select id="load"
+		parameterType="Long"
+		resultType="com.erns.coching.member.domain.MemberWithdrawInfoVO">
+		/* mapper.member.com.erns.coching.MemberWithdrawInfoDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_WTHDR_INF AA
+		<where>
+			AND AA.WTHDR_SEQ	= #{value	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<select id="loadByMembSeq"
+		parameterType="Long"
+		resultType="com.erns.coching.member.domain.MemberWithdrawInfoVO">
+		/* mapper.member.com.erns.coching.MemberWithdrawInfoDAO.loadByMembSeq */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_WTHDR_INF AA
+		<where>
+			AND AA.MEMB_SEQ 	= #{value	, jdbcType=INTEGER}
+			AND ROWNUM = 1
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.member.domain.MemberWithdrawInfoVO">
+		/* mapper.member.com.erns.coching.MemberWithdrawInfoDAO.insert */
+
+		<selectKey resultType="long" keyProperty="seq" order="BEFORE">
+			SELECT nextval('seq_t_memb_wthdr_inf')
+		</selectKey>
+
+		INSERT INTO T_MEMB_WTHDR_INF (
+			  WTHDR_SEQ
+			, MEMB_SEQ
+
+			, WTHDR_RSN
+			, WTHDR_RSN_TXT
+			, DEL_ACNT
+			, DEL_INTRL
+
+			, RGTR
+			, RGT_DTTM
+		)
+		VALUES (
+			  #{seq		, jdbcType=INTEGER}
+			, #{membSeq	, jdbcType=INTEGER}
+
+			, #{withdrawReason		, jdbcType=VARCHAR}
+			, #{withdrawReasonTxt	, jdbcType=VARCHAR}
+			, #{delAccountAgreeYn	, jdbcType=CHAR}
+			, #{delLinkInfoYn		, jdbcType=CHAR}
+
+			, #{rgtr	, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+</mapper>

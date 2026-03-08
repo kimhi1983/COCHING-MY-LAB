@@ -1,0 +1,487 @@
+{
+    "resultData": {
+        "total": 1,
+        "maxScore": 3.8233042,
+        "list": [
+            {
+                "rawSeq": 27,
+                "rawName": "세번째 테스트",
+                "prodCompany": "",
+                "prodCountry": "",
+                "supplier": "",
+                "weight": null,
+                "rgtDttm": "2024-12-19 15:29:27",
+                "ptnName": "ER&S",
+                "nation": "001",
+                "ptnLic": "1131113131",
+                "docinfo": [
+                    {
+                        "rawSeq": 27,
+                        "docCode": "001",
+                        "yn": "N",
+                        "nameKo": "MSDS_영문",
+                        "nameEn": "MSDS_영문"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "002",
+                        "yn": "N",
+                        "nameKo": "MSDS_한글",
+                        "nameEn": "MSDS_한글"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "003",
+                        "yn": "N",
+                        "nameKo": "CoA",
+                        "nameEn": "CoA"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "004",
+                        "yn": "N",
+                        "nameKo": "Composition Data Sheet",
+                        "nameEn": "Composition Data Sheet"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "005",
+                        "yn": "N",
+                        "nameKo": "NMPA",
+                        "nameEn": "NMPA"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "006",
+                        "yn": "N",
+                        "nameKo": "Certificate of origin",
+                        "nameEn": "Certificate of origin"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "007",
+                        "yn": "N",
+                        "nameKo": "TDS",
+                        "nameEn": "TDS"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "008",
+                        "yn": "N",
+                        "nameKo": "Allergens Statement",
+                        "nameEn": "Allergens Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "009",
+                        "yn": "N",
+                        "nameKo": "BSE_TSE Statement",
+                        "nameEn": "BSE_TSE Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "010",
+                        "yn": "N",
+                        "nameKo": "California Proposition 65 statement",
+                        "nameEn": "California Proposition 65 statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "011",
+                        "yn": "N",
+                        "nameKo": "Certificate of Application Fields",
+                        "nameEn": "Certificate of Application Fields"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "012",
+                        "yn": "N",
+                        "nameKo": "Certificate of presence of potential fragrance allergens",
+                        "nameEn": "Certificate of presence of potential fragrance allergens"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "013",
+                        "yn": "N",
+                        "nameKo": "CITES Statement",
+                        "nameEn": "CITES Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "014",
+                        "yn": "N",
+                        "nameKo": "CMR Statement",
+                        "nameEn": "CMR Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "015",
+                        "yn": "N",
+                        "nameKo": "D4,D5,D6 Free Statement",
+                        "nameEn": "D4,D5,D6 Free Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "016",
+                        "yn": "N",
+                        "nameKo": "Country of Origin Certificate",
+                        "nameEn": "Country of Origin Certificate"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "017",
+                        "yn": "Y",
+                        "nameKo": "Global compliance statement",
+                        "nameEn": "Global compliance statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "018",
+                        "yn": "Y",
+                        "nameKo": "Gluten Free statement",
+                        "nameEn": "Gluten Free statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "019",
+                        "yn": "Y",
+                        "nameKo": "GMO Free Statement",
+                        "nameEn": "GMO Free Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "020",
+                        "yn": "N",
+                        "nameKo": "Halal Statement",
+                        "nameEn": "Halal Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "021",
+                        "yn": "N",
+                        "nameKo": "Impurity Statement",
+                        "nameEn": "Impurity Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "022",
+                        "yn": "N",
+                        "nameKo": "KORHER Statement",
+                        "nameEn": "KORHER Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "023",
+                        "yn": "N",
+                        "nameKo": "Manufacturing Flow Chart",
+                        "nameEn": "Manufacturing Flow Chart"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "024",
+                        "yn": "N",
+                        "nameKo": "Microplastic Free Statement",
+                        "nameEn": "Microplastic Free Statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "025",
+                        "yn": "N",
+                        "nameKo": "Non Animal Testing Certificate",
+                        "nameEn": "Non Animal Testing Certificate"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "026",
+                        "yn": "N",
+                        "nameKo": "Non-nano size statement",
+                        "nameEn": "Non-nano size statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "027",
+                        "yn": "N",
+                        "nameKo": "Residual solvents statement",
+                        "nameEn": "Residual solvents statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "028",
+                        "yn": "N",
+                        "nameKo": "Vegan statement",
+                        "nameEn": "Vegan statement"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "029",
+                        "yn": "N",
+                        "nameKo": "원산지포괄확인서",
+                        "nameEn": "원산지포괄확인서"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "030",
+                        "yn": "N",
+                        "nameKo": "원산지증명서(나고야의정서)",
+                        "nameEn": "원산지증명서(나고야의정서)"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "031",
+                        "yn": "N",
+                        "nameKo": "RSPO",
+                        "nameEn": "RSPO"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "032",
+                        "yn": "N",
+                        "nameKo": "방사능확인서",
+                        "nameEn": "방사능확인서"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "033",
+                        "yn": "N",
+                        "nameKo": "Heavy Metals",
+                        "nameEn": "Heavy Metals"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "docCode": "034",
+                        "yn": "N",
+                        "nameKo": "REACH Statement",
+                        "nameEn": "REACH Statement"
+                    }
+                ],
+                "rawTypeInfo": [
+                    {
+                        "rawSeq": 27,
+                        "codes": "001:007",
+                        "grpCode": "001",
+                        "code": "007",
+                        "nameKo": "롱래쉬",
+                        "nameEn": "E롱래쉬"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "codes": "002:005",
+                        "grpCode": "002",
+                        "code": "005",
+                        "nameKo": "결합제",
+                        "nameEn": "E결합제"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "codes": "003:003",
+                        "grpCode": "003",
+                        "code": "003",
+                        "nameKo": "에센스/앰플/세럼",
+                        "nameEn": "E에센스/앰플/세럼"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "codes": "004:004",
+                        "grpCode": "004",
+                        "code": "004",
+                        "nameKo": "왁스",
+                        "nameEn": "E왁스"
+                    },
+                    {
+                        "rawSeq": 27,
+                        "codes": "005:005",
+                        "grpCode": "005",
+                        "code": "005",
+                        "nameKo": "바이오테크 원료",
+                        "nameEn": "E바이오테크 원료"
+                    }
+                ],
+                "rawElemInfo": [
+                    {
+                        "rawSeq": 27,
+                        "rawElmSeq": 112,
+                        "id": 4,
+                        "repNameKo": "루핀아미노산",
+                        "repNameEn": "Lupine Amino Acids",
+                        "kcaiId": 4,
+                        "ewgId": 720405,
+                        "hwIngdId": null,
+                        "inci": [
+                            "Lupine Amino Acids"
+                        ],
+                        "namesKo": [
+                            "루핀아미노산"
+                        ],
+                        "namesEn": [
+                            "Lupine Amino Acids"
+                        ],
+                        "casNo": [],
+                        "ecNo": []
+                    },
+                    {
+                        "rawSeq": 27,
+                        "rawElmSeq": 113,
+                        "id": 58,
+                        "repNameKo": "마그네슘카보네이트하이드록사이드",
+                        "repNameEn": "Magnesium Carbonate Hydroxide",
+                        "kcaiId": 58,
+                        "ewgId": 703686,
+                        "hwIngdId": 1733,
+                        "inci": [
+                            "Magnesium Carbonate Hydroxide"
+                        ],
+                        "namesKo": [
+                            "마그네슘카보네이트하이드록사이드"
+                        ],
+                        "namesEn": [
+                            "Magnesium Carbonate Hydroxide"
+                        ],
+                        "casNo": [
+                            "7760-50-1",
+                            "39409-82-0",
+                            "12125-28-9"
+                        ],
+                        "ecNo": [
+                            "231-851-8(I)",
+                            "235-192-7(I)"
+                        ]
+                    },
+                    {
+                        "rawSeq": 27,
+                        "rawElmSeq": 114,
+                        "id": 42,
+                        "repNameKo": "마그네슘락테이트",
+                        "repNameEn": "Magnesium Lactate",
+                        "kcaiId": 42,
+                        "ewgId": 729686,
+                        "hwIngdId": 1719,
+                        "inci": [
+                            "Magnesium Lactate"
+                        ],
+                        "namesKo": [
+                            "마그네슘락테이트"
+                        ],
+                        "namesEn": [
+                            "Magnesium Lactate"
+                        ],
+                        "casNo": [
+                            "18917-93-6"
+                        ],
+                        "ecNo": [
+                            "242-671-4(I)"
+                        ]
+                    }
+                ],
+                "rawDetailInfo": [
+                    {
+                        "rawSeq": 27,
+                        "rawDetailSeq": 26,
+                        "title": "",
+                        "rawDesc": "",
+                        "rawDetail": "",
+                        "fileContent": null,
+                        "viewCnt": 0,
+                        "requestCnt": 0,
+                        "chngDttm": "2024-12-31 00:25:39",
+                        "files": [
+                            {
+                                "fileId": "MTM=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 26,
+                                "fileName": "test5.jpg",
+                                "fileExt": "jpg",
+                                "fileSize": 305911,
+                                "chngDttm": "2024-12-31 00:25:39"
+                            }
+                        ]
+                    },
+                    {
+                        "rawSeq": 27,
+                        "rawDetailSeq": 23,
+                        "title": "타이틀입니다.",
+                        "rawDesc": "",
+                        "rawDetail": "",
+                        "fileContent": null,
+                        "viewCnt": 0,
+                        "requestCnt": 0,
+                        "chngDttm": "2024-12-31 00:32:59",
+                        "files": [
+                            {
+                                "fileId": "MTQ=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 23,
+                                "fileName": "test5.jpg",
+                                "fileExt": "jpg",
+                                "fileSize": 305911,
+                                "chngDttm": "2024-12-31 00:32:59"
+                            }
+                        ]
+                    },
+                    {
+                        "rawSeq": 27,
+                        "rawDetailSeq": 28,
+                        "title": "",
+                        "rawDesc": "",
+                        "rawDetail": "",
+                        "fileContent": null,
+                        "viewCnt": 0,
+                        "requestCnt": 0,
+                        "chngDttm": "2025-01-13 17:31:50",
+                        "files": null
+                    },
+                    {
+                        "rawSeq": 27,
+                        "rawDetailSeq": 16,
+                        "title": "원료 자료 테스트",
+                        "rawDesc": "",
+                        "rawDetail": "ㄱ가나다라 마바사",
+                        "fileContent": null,
+                        "viewCnt": 0,
+                        "requestCnt": 0,
+                        "chngDttm": "2025-01-14 10:55:22",
+                        "files": [
+                            {
+                                "fileId": "MjM=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 16,
+                                "fileName": "architecture-g2121da6e6_1920.jpg",
+                                "fileExt": "jpg",
+                                "fileSize": 450553,
+                                "chngDttm": "2025-01-14 10:05:37"
+                            },
+                            {
+                                "fileId": "MjQ=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 16,
+                                "fileName": "penguin.png",
+                                "fileExt": "png",
+                                "fileSize": 50219,
+                                "chngDttm": "2025-01-14 10:05:37"
+                            },
+                            {
+                                "fileId": "MjU=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 16,
+                                "fileName": "architecture-g2121da6e6_1920.jpg",
+                                "fileExt": "jpg",
+                                "fileSize": 450553,
+                                "chngDttm": "2025-01-14 10:05:41"
+                            },
+                            {
+                                "fileId": "MjY=",
+                                "refCode": "FT_RAW",
+                                "rawDetailSeq": 16,
+                                "fileName": "penguin.png",
+                                "fileExt": "png",
+                                "fileSize": 50219,
+                                "chngDttm": "2025-01-14 10:05:41"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "resultCode": "0000",
+    "resultFailMessage": "OK"
+}

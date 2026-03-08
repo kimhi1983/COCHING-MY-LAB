@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.rawType.mapper.RawTypeDAO">
+
+	<!-- T_RAW_MST -->
+	<sql id="baseFieldsAA">
+		  AA.TYPE_SEQ
+		, AA.GRP_CODE
+		, AA.CODE
+		, AA.CODE_NM_KO
+		, AA.CODE_NM_EN
+		, AA.INPT_TYPE
+		, AA.USE_YN
+		, AA.SORT_ORD
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='allSrch != null and allSrch != ""'>
+    		AND
+    		(
+    			REPLACE(UPPER(BB.CODE_NAME), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.CODE_NM_KO), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.CODE_NM_EN), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    		)
+    	</if>
+		<if test='typeSeq != null and typeSeq &gt; 0'>
+			AND AA.TYPE_SEQ = #{typeSeq, jdbcType=INTEGER}
+		</if>
+    	<if test='grpCodeNm != null and grpCodeNm != ""'>
+    		AND UPPER(BB.CODE_NAME) LIKE UPPER('%' || #{grpCodeNm, jdbcType=VARCHAR} || '%')
+    	</if>
+		<if test='codeNmKo != null and codeNmKo != ""'>
+			AND UPPER(AA.CODE_NM_KO) LIKE UPPER('%' || #{codeNmKo, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='codeNmEn != null and codeNmEn != ""'>
+			AND UPPER(AA.CODE_NM_EN) LIKE UPPER('%' || #{codeNmEn, jdbcType=VARCHAR} || '%')
+		</if>
+    	<if test='useYn != null and useYn != ""'>
+    		AND AA.USE_YN = #{useYn}
+    	</if>
+		<if test='grpCode != null and grpCode != ""'>
+			AND AA.GRP_CODE = #{grpCode, jdbcType=VARCHAR}
+		</if>
+    </sql>
+
+
+	<select id="getList"
+    		parameterType="com.erns.coching.rawType.domain.RawTypeSearchDTO"
+    		resultType="camelMap">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() AS TOTAL FROM (
+					SELECT
+						<include refid="baseFieldsAA"/>
+					    , BB.CODE_NAME AS GRP_CODE_NM
+				    FROM  T_CM_RAW_TYPE AA
+					INNER JOIN T_CODE_INF BB
+						ON AA.GRP_CODE = BB.CODE AND BB.GRP_CODE ='CH001'
+				 <where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.GRP_CODE, AA.SORT_ORD
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.rawType.domain.RawTypeSearchDTO"
+    		resultType="int">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_CM_RAW_TYPE AA
+		INNER JOIN T_CODE_INF BB
+			ON AA.GRP_CODE = BB.CODE AND BB.GRP_CODE ='CH001'
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="load"
+    	parameterType="com.erns.coching.rawType.domain.RawTypeSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.load */
+
+    	SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_CM_RAW_TYPE AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.rawType.domain.RawTypeVO">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.insert */
+
+    	<selectKey resultType="com.erns.coching.rawType.domain.RawTypeVO"
+				   keyProperty="typeSeq,code,sortOrd" keyColumn="typeSeq,code,sortOrd" order="BEFORE">
+			WITH max_code AS (
+				SELECT
+					LPAD(CAST(COALESCE(MAX(CAST(code AS INTEGER)), 0) + 1 AS TEXT), 3, '0') AS next_code,
+					COALESCE(MAX(sort_ord), 0) + 1 as next_ord
+				FROM T_CM_RAW_TYPE
+				WHERE GRP_CODE = #{grpCode}
+			)
+			SELECT
+				nextval('seq_t_cm_raw_type') AS typeSeq,
+				next_code AS code,
+				next_ord AS sortOrd
+			FROM max_code
+		</selectKey>
+
+    	INSERT INTO T_CM_RAW_TYPE (
+    		  TYPE_SEQ
+			, GRP_CODE
+			, CODE
+			, CODE_NM_KO
+			, CODE_NM_EN
+			, INPT_TYPE
+			, USE_YN
+			, SORT_ORD
+			, RGTR
+			, RGT_DTTM
+    	) VALUES (
+			  #{typeSeq		, jdbcType=INTEGER}
+			, #{grpCode		, jdbcType=VARCHAR}
+			, #{code		, jdbcType=VARCHAR}
+			, #{codeNmKo	, jdbcType=VARCHAR}
+			, #{codeNmEn	, jdbcType=VARCHAR}
+			, #{inptType	, jdbcType=VARCHAR}
+			, COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+			, #{sortOrd		, jdbcType=VARCHAR}
+			, #{rgtr		, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    <update id="update"
+    	parameterType="com.erns.coching.rawType.domain.RawTypeVO">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.update */
+
+    	UPDATE T_CM_RAW_TYPE SET
+			  CODE_NM_KO      	= #{codeNmKo	, jdbcType=VARCHAR}
+			, CODE_NM_EN        = #{codeNmEn	, jdbcType=VARCHAR}
+			, USE_YN        	= COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+
+			, CHNR 		 		= #{chnr, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		where
+			TYPE_SEQ 		= #{typeSeq		, jdbcType=INTEGER}
+    </update>
+
+    <update id="updateUseYn"
+    	parameterType="com.erns.coching.rawType.domain.RawTypeVO">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.updateUseYn */
+
+    	UPDATE T_RAW_MST SET
+			  USE_YN            = COALESCE(#{useYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND RAW_SEQ 		= #{rawSeq	, jdbcType=INTEGER}
+		</where>
+    </update>
+    
+    <update id="updateState"
+    	parameterType="com.erns.coching.rawType.domain.RawTypeVO">
+    	/* com.erns.coching.rawType.mapper.RawTypeDAO.updateState */
+
+    	UPDATE T_CM_RAW_TYPE SET
+			  USE_YN        	= COALESCE(#{useYn	, jdbcType=CHAR}, 'Y')
+
+			, CHNR 		 		= #{chnr, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			TYPE_SEQ 		= #{typeSeq		, jdbcType=INTEGER}
+		</where>
+    </update>
+</mapper>

@@ -1,0 +1,35 @@
+{
+  "header": {
+    "sid": "0105001",
+    "trDtm": "20190619163528",
+    "gubun": "R",
+    "resCode": "0000",
+    "resMsg": ""
+  },
+  "body": {
+    "mid": "sjhsjh001m",
+    "subId": "1251216623",
+    "reqType": "0",
+    "reqInfo": {
+      "header": {
+        "sid": "0105001",
+        "trDtm": "20190619163525",
+        "gubun": "S",
+        "resCode": "",
+        "resMsg": ""
+      },
+      "body": {
+        "mid": "sjhsjh001m",
+        "encKey": "b52ccf46cd4335b41073a4dc8a9b5e717b4ad86924f02fc9dad8ee  df2a6e617e",
+        "subId": "1251216623",
+        "subNm": "테스트22",
+        "subCoNo": "1268262702",
+        "accntNm": "테스트  ",
+        "bankCd": "034",
+        "accntNo": "1251252121126",
+        "memo": "테스트11",
+        "reqType": "0"
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+    "resultData": {
+        "id": 18,
+        "repName": "리놀레익애씨드",
+        "repNameEn": "Linoleic Acid",
+        "kcaiId": 18,
+        "ewgId": 703578,
+        "hwIngdId": 1684,
+        "inci": [
+            "Linoleic Acid"
+        ],
+        "namesKo": [
+            "리놀레익애씨드"
+        ],
+        "namesEn": [
+            "Linoleic Acid"
+        ],
+        "purposes": [
+            "착향제",
+            "헤어컨디셔닝제",
+            "피부컨디셔닝제(기타)",
+            "계면활성제(세정제)"
+        ],
+        "casNo": [
+            "342889-37-6",
+            "60-33-3"
+        ],
+        "ecNo": [
+            "200-470-9(I)"
+        ],
+        "formula": null,
+        "expUrl1": "https://pubchem.ncbi.nlm.nih.gov/image/imagefly.cgi?cid=5280450&width=420&height=300",
+        "expUrl2": "https://kcia.or.kr/inc/down.php?dir=INGD&file_name=201812_1510.gif",
+        "ewgScoreMin": 1,
+        "ewgScore": 1,
+        "ewgDataLebel": "good",
+        "ewgRawcnoId": "703578-LINOLEIC_ACID",
+        "ewgUrl": "https://www.ewg.org/skindeep/ingredients/eData.703578-LINOLEIC_ACID",
+        "detailJson": null,
+        "rgtDttm": "2024-12-06T11:35:48.261+00:00",
+        "chngDttm": "2024-12-06T11:35:48.261+00:00"
+    },
+    "resultCode": "0000",
+    "resultFailMessage": "OK"
+}

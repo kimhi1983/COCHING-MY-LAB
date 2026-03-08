@@ -1,0 +1,223 @@
+@import './transition.scss';
+/*================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+:root {
+    --color--wh: #ffffff;
+}
+
+.erns-filter-div{    
+    padding-top:0.26rem;
+}
+
+.date-range.input-group-text{
+    border-radius: 0;
+    border-left-width: 0px;
+    border-right-width: 0px;
+}
+
+.erns-table-buttons{
+    .btn + .btn {
+        margin-left : 0.5rem;
+    }
+}
+
+.swal2-container{
+    z-index: 20000 !important;
+}
+
+
+.vue-dropzone > .dz-preview {
+    .dz-progress{
+        display: none;
+    }
+
+    .dz-image img{
+        width: 200px;      
+        height: 200px;
+        max-width: 200px;
+        max-height: 200px;
+    }
+}
+
+
+.table-responsive .table {
+    th[role=columnheader] div{
+        white-space : nowrap;
+    }
+    
+    td[role=cell] {
+        white-space : nowrap;
+    }
+}  
+
+.radio-inline-spacing {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top:0.6rem;
+}
+
+.input-group{
+    label.form-control.text-break.text-wrap.bg-transparent.text-muted{
+        font-size: 90%;
+        overflow: hidden;
+    }
+
+    input::placeholder {
+        font-size: 95%;        
+    }
+
+    /* 라디오 버튼 그룹*/
+    .custom-radio{
+        input[type=radio].custom-control-input + label.custom-control-label{
+        margin-left: 0.2rem;
+        }
+    }
+}
+
+body.swal2-height-auto {
+    height: inherit !important;
+}
+
+.text-pink {
+    color: #FF5470 !important;
+}
+
+a.onClick {
+    color: #ff385c;
+
+    &:hover {
+        color: #ff385c;
+    }
+}
+
+//검색 input x 버튼
+.search-input-container .input-group {
+  position: relative;
+}
+
+.search-input-clear-btn {
+    position: absolute;
+    right: 7rem; /* 검색 버튼과 겹치지 않게 조절 */
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    color: #6c757d;
+    z-index: 10;
+    height: 24px;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+
+    &.t45 {
+        top: 45%;
+    }
+
+    &.t55 {
+        top: 55%;
+    }
+
+    &:hover {
+        color: #555;
+    }
+}
+
+// v-select placeholder 스타일 지정
+.select-placeholder-gray {
+    // 드롭다운이 열렸을 때 검색 input의 placeholder
+    .vs__search::placeholder {
+        color: #ccc;
+    }
+
+    // single select 모드에서 placeholder 텍스트 색상 (값이 없을 때)
+    &.vs--single:not(.has-value) .vs__selected {
+        color: #ccc;
+    }
+
+    // 값이 선택된 상태에서는 원래 색상 유지
+    &.has-value .vs__selected {
+        color: inherit;
+    }
+}
+
+//AG Grid
+.erns-ag-grid-vue{
+    min-height: 500px;    
+    display: flex;
+    flex: 1;    
+
+    em {
+        // background-color: rgba(255, 56, 92, 0.2) !important;
+        background-color: rgba(255, 234, 0, 0.433) !important;
+        font-weight: inherit;
+        font-style: inherit;
+    }
+
+    .ag-cell.selectable-text {
+        user-select: text !important;
+    }
+
+    .ag-cell.flex-center {
+        //셀 수직 수평 중앙
+        display: flex;
+        align-items: center;
+        justify-content: center;        
+        line-height: 1.7;
+    }
+      
+    .ag-cell.flex-left {
+        display: flex;        
+        align-items: center; /* 수직 중앙 */
+        justify-content: flex-start; /* 수평 좌측 정렬 */
+        line-height: 1.7;
+      }
+      
+    .ag-cell.flex-right {
+        display: flex;
+        align-items: center; /* 수직 중앙 */
+        justify-content: flex-end; /* 수평 우측 정렬 */
+        line-height: 1.7;
+    }
+
+    .ag-header-cell.text-center{
+        .ag-header-cell-label {
+            justify-content: center !important;
+        }
+    }
+
+    .erns-agGrid-edit-cell{
+        background-color: #ffc5d0;
+    }
+
+    .ag-cell-value.text-center{
+        .ag-checkbox-cell{
+            justify-content: center !important;
+        }
+    }
+
+    .ag-theme-quartz{
+        flex-grow: 1;
+
+        --ag-font-size: 12px; /* 폰트 크기 조정 */                
+        --ag-value-change-value-highlight-background-color: #cc222244;
+    }
+    
+    .ag-theme-balham{
+        flex-grow: 1;
+
+        --ag-value-change-value-highlight-background-color: #cc222244;
+    }
+}
+

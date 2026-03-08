@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.CochingEsRawDAO">
+
+	<!-- T_ES_RAW -->
+	<sql id="baseFieldsAA">
+			AA.RAW_SEQ
+		, AA.RAW_NAME
+		, AA.PROD_COMPANY
+		, AA.PROD_COUNTRY
+		, AA.PROD_COUNTRY_NAME
+		, AA.SUPPLIER
+		, AA.WEIGHT
+		, AA.RGT_DTTM
+		, AA.PTN_NAME
+		, AA.PTN_SEQ
+		, AA.PTN_MEMB_PROFILE_ID
+		, AA.NATION
+		, AA.PTN_LIC
+		, AA.RAW_ELEM_INFO_COUNT
+		, AA.VIEW_SUM_CNT
+		, AA.THUMBNAIL_ID
+		, AA.DOCINFO AS DOCINFO
+		, AA.RAW_TYPE_INFO AS RAW_TYPE_INFO
+		, AA.RAW_ELEM_INFO AS RAW_ELEM_INFO
+		, AA.RAW_DETAIL_INFO AS RAW_DETAIL_INFO		
+	</sql>
+
+
+	<sql id="baseSearchConditionAA">
+		<if test='rawSeq != null and rawSeq != ""'>
+			AND AA.RAW_SEQ = #{rawSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='rawNameL != null and rawNameL != ""'>
+			AND UPPER(AA.RAW_NAME) LIKE UPPER('%' || #{rawNameL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.search.domain.CochingEsRawSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>					
+				FROM T_ES_RAW AA					
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.RAW_SEQ
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListVo"
+			parameterType="com.erns.coching.search.domain.CochingEsRawSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsRawVO">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.getListVo */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>					
+				FROM T_ES_RAW AA					
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.RAW_SEQ
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.search.domain.CochingEsRawSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.search.mapper.CochingEsRawDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_ES_RAW AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+  </select>
+
+
+	<select id="load"
+    	parameterType="long"
+    	resultType="com.erns.coching.search.domain.CochingEsRawVO">
+    	/* com.erns.coching.search.mapper.CochingEsRawDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_ES_RAW AA
+		<where>
+			AND AA.RAW_SEQ = #{value, jdbcType=INTEGER}
+		</where>
+
+	</select>
+
+
+	<update id="dropTable">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.dropTable */
+
+    DROP TABLE IF EXISTS t_es_raw;
+
+		commit;
+	</update>
+
+	<sql id="selectRawEsData">
+		SELECT 
+			RAW_MST.raw_seq
+			, RAW_MST.raw_name
+			, RAW_MST.prod_company
+			, RAW_MST.prod_country
+			, COALESCE(
+				(SELECT code_name 
+				 FROM T_CODE_INF 
+				 WHERE GRP_CODE='CH014' AND ETC5='KO' AND ETC1 = RAW_MST.prod_country
+				 LIMIT 1
+				 ), RAW_MST.prod_country) 
+				AS prod_country_name
+			, RAW_MST.supplier
+			, RAW_MST.weight
+			, RAW_MST.thumbnail_id
+			, TO_CHAR(RAW_MST.rgt_dttm, 'YYYY-MM-DD HH24:MI:SS') as rgt_dttm
+			
+			, PI.ptn_name
+			, PI.ptn_seq as ptn_seq
+			, (SELECT FF.file_id 
+			  FROM t_memb_inf TMI
+			  	JOIN t_file_inf FF ON FF.ref_seq = TMI.memb_seq 
+				  	AND FF.ref_code = 'FT_PROFILE' AND COALESCE(FF.del_yn, 'N') = 'N'
+			  WHERE PI.ptn_seq = TMI.ptn_seq
+					AND TMI.memb_type = '002'
+			  LIMIT 1
+			  ) AS ptn_memb_profile_id /* 파트너사 관리자 프로필 이미지 */
+			, PI.nation
+			, PI.ptn_lic			
+			
+			, SUB_INFO.docInfo
+			, SUB_INFO.raw_type_info
+			, SUB_INFO.raw_elem_info
+			, json_array_length(SUB_INFO.raw_elem_info::json) AS raw_elem_info_count
+			, SUB_INFO.raw_detail_info
+			, SUB_INFO.view_sum_cnt	
+
+		FROM T_RAW_MST RAW_MST /* 원료 마스터 */	
+			JOIN T_PARTNER_INF PI /* 파트너사 */
+				ON RAW_MST.ptn_seq = PI.ptn_seq
+			JOIN (
+				SELECT
+					RM.raw_seq
+					
+					,(	SELECT jsonb_agg (sub)
+						FROM (
+							SELECT
+								RM.raw_seq AS "rawSeq"
+								, DL.doc_code AS "docCode"
+								, (CASE WHEN RD.doc_code IS NULL THEN 'N' ELSE 'Y' END)
+									AS "yn"
+								, DL.name_ko AS "nameKo"
+								, DL.name_en AS "nameEn"
+							FROM DOC_LIST DL
+							LEFT OUTER JOIN T_RAW_DOC RD
+								ON RM.raw_seq = RD.raw_seq AND DL.doc_code = RD.doc_code
+							ORDER BY DL.doc_code
+						) sub
+					) AS docInfo /* 첨부파일 유무 리스트 */
+					, ( SELECT jsonb_agg (sub)
+						FROM (
+							SELECT
+								RM.raw_seq AS "rawSeq"
+								, (CRT.grp_code || ':' || CRT.code) AS "codes"
+								, CRT.grp_code AS "grpCode"
+								, CRT.code	AS "code"
+								, CRT.code_nm_ko AS "nameKo"
+								, CRT.code_nm_en AS "nameEn"
+							FROM T_RAW_TYPE_INF RTI
+							JOIN T_CM_RAW_TYPE CRT
+								ON RM.raw_seq = RTI.raw_seq AND RTI.grp_code = CRT.grp_code AND RTI.code = CRT.code
+							WHERE COALESCE(CRT.USE_YN, 'Y') = 'Y'
+							ORDER BY CRT.grp_code, CRT.sort_ord
+						) sub
+					) AS raw_type_info /* 원료 구분 */
+					, ( 
+						SELECT jsonb_agg (sub)
+						FROM (
+							SELECT
+								RM.raw_seq AS "rawSeq"
+								, REI.raw_elm_seq AS "rawElmSeq"
+								, INGD.id AS "id"
+								, INGD.rep_name AS "repNameKo"
+								, INGD.rep_name_en As "repNameEn"
+								, INGD.kcai_id AS "kcaiId"
+								, INGD.ewg_id AS "ewgId"
+								, INGD.hw_ingd_id AS "hwIngdId"
+								, INGD.inci AS "inci"
+								, INGD.names_ko AS "namesKo"
+								, INGD.names_en AS "namesEn"
+								, INGD.nick_name AS "nickName"
+								, INGD.cas_no AS "casNo"
+								, INGD.ec_no AS "ecNo"
+								, INGD.formula AS "formula"
+								, INGD.exp_url1 AS "expUrl1"
+								, INGD.exp_url2 AS "expUrl2"
+								, INGD.ewg_score_min AS "ewgScoreMin"
+								, INGD.ewg_score AS "ewgScore"
+								, INGD.ewg_data_label AS "ewgDataLabel"
+								, INGD.ewg_url AS "ewgUrl"
+								, REI.sort_ord AS "sortOrd"
+								, TO_CHAR(INGD.ewg_chng_dttm, 'YYYY-MM-DD HH24:MI:SS') AS "ewgChngDttm"
+							FROM T_RAW_ELEMENT_INF REI
+							JOIN T_INGD_DIC INGD
+								ON RM.raw_seq = REI.raw_seq AND REI.raw_elm_id = INGD.id
+							ORDER BY REI.sort_ord
+						) sub
+					) AS raw_elem_info /* 원료 성분 목록 */
+
+					, (
+						SELECT jsonb_agg (sub)
+						FROM (
+							SELECT
+								RM.raw_seq AS "rawSeq"
+								, RAW_DTL.raw_detail_seq AS "rawDetailSeq"
+								, MI.memb_seq AS "membSeq"
+								, MI.memb_name AS "membName"
+								, (SELECT FF.file_id 
+										FROM t_file_inf FF 
+										WHERE
+												FF.ref_seq = MI.memb_seq
+												AND FF.ref_code = 'FT_PROFILE'
+												AND COALESCE(FF.del_yn, 'N') = 'N'
+										LIMIT 1
+										) AS "membProfileId"
+								, MI.nickname AS "nickname"
+								, RAW_DTL.title AS "title"
+								, RAW_DTL.raw_desc AS "rawDesc"
+								, RAW_DTL.hashtag AS "hashtag"
+								, RAW_DTL.raw_detail_text AS "rawDetail"
+								, RAW_DTL.file_content AS "fileContent"
+								, RAW_DTL.view_cnt AS "viewCnt"
+								, RAW_DTL.request_cnt AS "requestCnt"
+								, TO_CHAR(RAW_DTL.rgt_dttm, 'YYYY-MM-DD HH24:MI:SS') AS "rgtDttm"
+								, TO_CHAR(RAW_DTL.chng_dttm, 'YYYY-MM-DD HH24:MI:SS') AS "chngDttm"
+								,(
+									SELECT jsonb_agg (file_sub)
+									FROM (
+										SELECT
+											FI.file_id AS "fileId"
+											, FI.ref_code AS "refCode"
+											, RAW_DTL.raw_detail_seq AS "rawDetailSeq"
+											, FI.file_name AS "fileName"
+											, FI.file_ext AS "fileExt"
+											, FI.file_size AS "fileSize"
+											, TO_CHAR(FI.chng_dttm, 'YYYY-MM-DD HH24:MI:SS') AS "chngDttm"
+										FROM T_FILE_INF FI 
+										WHERE
+											FI.ref_code = 'FT_RAW'
+											AND FI.ref_seq = RAW_DTL.raw_detail_seq 
+											AND COALESCE(FI.DEL_YN, 'N') = 'N'				
+										ORDER BY FI.sort_ord								
+									) file_sub
+								) AS files /* 원료 상세 파일 목록 */					
+							FROM T_RAW_DETAIL RAW_DTL /* 원료 상세 */
+								JOIN T_MEMB_INF MI 
+									ON RAW_DTL.memb_seq = MI.memb_seq						
+							WHERE
+								RM.raw_seq = RAW_DTL.raw_seq 
+								AND COALESCE(RAW_DTL.USE_YN, 'Y') = 'Y'
+								AND COALESCE(RAW_DTL.DEL_YN, 'N') = 'N'
+								AND COALESCE(MI.USE_YN, 'Y') = 'Y'
+							ORDER BY 
+								RAW_DTL.view_cnt DESC, RAW_DTL.chng_dttm ASC
+						) sub
+					) AS raw_detail_info /* 원료 상세 목록 */
+
+					, (SELECT count(*) 
+						FROM T_RAW_DETAIL RAW_DTL
+						WHERE RM.raw_seq = RAW_DTL.raw_seq 
+							AND COALESCE(RAW_DTL.USE_YN, 'Y') = 'Y'
+							AND COALESCE(RAW_DTL.DEL_YN, 'N') = 'N'
+					) AS raw_detail_info_cnt /* raw_detail_info_cnt 계산 */
+
+					, (SELECT SUM(RAW_DTL.view_cnt)
+						FROM T_RAW_DETAIL RAW_DTL
+						WHERE RM.raw_seq = RAW_DTL.raw_seq 
+							AND COALESCE(RAW_DTL.USE_YN, 'Y') = 'Y'
+					) AS view_sum_cnt /* view_sum_cnt 계산 */
+
+				FROM T_RAW_MST RM
+				WHERE 
+					COALESCE(RM.USE_YN, 'Y') = 'Y'
+					AND COALESCE(RM.DEL_YN, 'N') = 'N'
+				GROUP BY RM.raw_seq
+
+			) SUB_INFO
+				ON RAW_MST.raw_seq = SUB_INFO.raw_seq
+	</sql>
+
+
+	<update id="createTable">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.createTable */
+
+    CREATE TABLE IF NOT EXISTS t_es_raw AS
+
+		WITH DOC_LIST AS (
+			/* 문서 코드 리스트 */
+			SELECT
+				DC.etc1 AS doc_code,
+				MAX(KCD.code_name) AS name_ko,
+				MAX(ECD.code_name) AS name_en
+			FROM (
+				SELECT DISTINCT	
+					grp_code, etc1
+				FROM T_CODE_INF
+				WHERE grp_code = 'CH003'
+			) DC
+			LEFT OUTER JOIN T_CODE_INF KCD 
+				ON DC.grp_code = KCD.grp_code AND DC.etc1 = KCD.etc1
+			LEFT OUTER JOIN T_CODE_INF ECD 
+				ON DC.grp_code = ECD.grp_code AND DC.etc1 = ECD.etc1
+			GROUP BY DC.etc1
+			ORDER BY DC.etc1
+		)
+		<include refid="selectRawEsData"/>
+		<where>
+			AND COALESCE(RAW_MST.USE_YN, 'Y') = 'Y'
+			AND COALESCE(RAW_MST.DEL_YN, 'N') = 'N'
+			AND COALESCE(PI.DEL_YN, 'N') = 'N'
+			AND SUB_INFO.raw_detail_info_cnt &gt; 0 /* 원료 상세가 없는거 필터링 */
+		</where>						
+	</update>
+
+	<select id="getListVoForEsRenewIndexItems"
+			parameterType="com.erns.coching.search.domain.CochingEsRawSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsRawVO">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.getListVoForEsRenewIndexItems */
+
+		<!--Index 대상 -->
+		WITH DOC_LIST AS (
+			/* 문서 코드 리스트 */
+			SELECT
+				DC.etc1 AS doc_code,
+				MAX(KCD.code_name) AS name_ko,
+				MAX(ECD.code_name) AS name_en
+			FROM (
+				SELECT DISTINCT	
+					grp_code, etc1
+				FROM T_CODE_INF
+				WHERE grp_code = 'CH003'
+			) DC
+			LEFT OUTER JOIN T_CODE_INF KCD 
+				ON DC.grp_code = KCD.grp_code AND DC.etc1 = KCD.etc1
+			LEFT OUTER JOIN T_CODE_INF ECD 
+				ON DC.grp_code = ECD.grp_code AND DC.etc1 = ECD.etc1
+			GROUP BY DC.etc1
+			ORDER BY DC.etc1
+		)
+		<include refid="selectRawEsData"/>
+		<where>
+			<!-- <if test='rawSeqs != null'> -->
+			<!-- 무조건 있어야 함 -->
+    		<foreach item="item" index="index" collection="rawSeqs"
+    			open="AND RAW_MST.raw_seq in (" separator="," close=")">#{item, jdbcType=INTEGER}</foreach>
+    	<!-- </if> -->	
+
+			AND COALESCE(RAW_MST.USE_YN, 'Y') = 'Y'
+			AND COALESCE(RAW_MST.DEL_YN, 'N') = 'N'
+			AND COALESCE(PI.DEL_YN, 'N') = 'N'
+			AND SUB_INFO.raw_detail_info_cnt &gt; 0 /* 원료 상세가 없는거 필터링 */
+		</where>
+	</select>
+
+	<select id="getListVoForEsRenewDeleteItems"
+			parameterType="com.erns.coching.search.domain.CochingEsRawSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsRawVO">
+		/* com.erns.coching.search.mapper.CochingEsRawDAO.getListVoForEsRenewDeleteItems */
+
+		<!--delete 대상 -->
+		SELECT
+				'delete' AS job
+			, RAW_MST.raw_seq
+			, RAW_MST.DEL_YN
+			, RAW_MST.USE_YN
+			, PI.DEL_YN 
+			, count(RAW_DTL.raw_detail_seq) as detailCount
+		FROM T_RAW_MST RAW_MST /* 원료 마스터 */	
+			LEFT OUTER JOIN T_PARTNER_INF PI /* 파트너사 */
+				ON RAW_MST.ptn_seq = PI.ptn_seq
+			LEFT OUTER JOIN T_RAW_DETAIL RAW_DTL 
+				ON RAW_MST.raw_seq = RAW_DTL.raw_seq AND COALESCE(RAW_DTL.USE_YN, 'Y') = 'Y'
+		<where>
+			<!-- <if test='rawSeqs != null'> -->
+			<!-- 무조건 있어야 함 -->
+    		<foreach item="item" index="index" collection="rawSeqs"
+    			open="AND RAW_MST.raw_seq in (" separator="," close=")">#{item, jdbcType=INTEGER}</foreach>
+    	<!-- </if> -->			
+		</where>			
+		GROUP BY 
+			  RAW_MST.raw_seq	
+			, RAW_MST.DEL_YN
+			, RAW_MST.USE_YN
+			, PI.DEL_YN
+		HAVING 
+			NOT (
+				    COALESCE(RAW_MST.USE_YN, 'Y') = 'Y'
+				AND COALESCE(RAW_MST.DEL_YN, 'N') = 'N'
+				AND COALESCE(PI.DEL_YN, 'N') = 'N'
+				AND count(RAW_DTL.raw_detail_seq) &gt; 0 /* 원료 상세가 없는거 필터링 */
+			)
+		/* ORDER BY RAW_MST.raw_seq	*/
+	</select>
+    
+</mapper>

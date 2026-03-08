@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.login.mapper.RefreshTokenDAO">
+
+	<sql id="baseFieldsAA">
+		AA.TOKEN
+		, AA.SITE_TYPE
+		, AA.DEVICE_KEY
+		, AA.MEMB_SEQ 	AS USER_SEQ
+		, AA.EXP_DATE
+		, AA.RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchCondition">
+		<if test='token != null and token != ""'>
+			AND AA.TOKEN = #{token, jdbcType=VARCHAR}
+		</if>
+
+		<if test='userSeq != null and userSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{userSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='siteType != null and siteType != ""'>
+			AND AA.SITE_TYPE = #{siteType, jdbcType=VARCHAR}
+		</if>
+
+		<if test='deviceKey != null and deviceKey != ""'>
+			AND AA.DEVICE_KEY = #{deviceKey, jdbcType=VARCHAR}
+		</if>
+
+		<if test='isExpired != null and isExpired'>
+			<![CDATA[ AND AA.EXP_DATE < now() ]]>
+        </if>
+	</sql>
+
+	<select id="selectList"
+		parameterType="com.erns.coching.login.domain.AclTokenSearchDTO"
+		resultType="com.erns.coching.login.domain.AclTokenVO">
+		/* mapper.login.com.erns.coching.RefreshTokenDAO.selectList */
+
+		SELECT * FROM (
+			SELECT A.*,ROWNUM RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_TOKEN_REFRESH AA
+				<where>
+					<include refid="baseSearchCondition"/>
+				</where>
+				ORDER BY RGT_DTTM DESC
+		    ) A
+	    <if test='rowSize &gt; 0'>
+	    ) WHERE RN BETWEEN #{offset} AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="com.erns.coching.login.domain.AclTokenVO">
+		/* mapper.login.com.erns.coching.RefreshTokenDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_TOKEN_REFRESH AA
+		<where>
+			AND AA.TOKEN = #{value, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.login.domain.AclTokenVO">
+		/* com.erns.coching.login.mapper.RefreshTokenDAO.insert */
+
+		INSERT INTO T_TOKEN_REFRESH (
+			TOKEN, SITE_TYPE, DEVICE_KEY
+			, MEMB_SEQ, EXP_DATE, RGT_DTTM
+		)
+		VALUES (
+			  #{token	, jdbcType=VARCHAR}
+			, #{siteType, jdbcType=VARCHAR}
+			, #{deviceKey, jdbcType=VARCHAR}
+			, #{userSeq	, jdbcType=INTEGER}
+			, #{expDate	, jdbcType=TIMESTAMP}
+			, now()
+		)
+	</insert>
+
+	<delete id="delete"
+		parameterType="String">
+		/* mapper.login.com.erns.coching.RefreshTokenDAO.delete */
+
+		DELETE FROM T_TOKEN_REFRESH
+		<where>
+			AND TOKEN = #{value, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+
+	<delete id="deleteExpiredTokens">
+		/* mapper.login.com.erns.coching.RefreshTokenDAO.deleteExpiredTokens */
+
+		DELETE FROM T_TOKEN_REFRESH
+		<where>
+			<![CDATA[ AND EXP_DATE < now() ]]>
+		</where>
+	</delete>
+
+</mapper>

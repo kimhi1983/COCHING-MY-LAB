@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.favorite.mapper.FavoriteDAO">
+
+	<!-- T_FAVORITE_INF -->
+	<sql id="baseFieldsAA">
+		  AA.MEMB_SEQ
+		, AA.REF_CODE
+		, AA.REF_SEQ
+		, AA.RGT_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+		<if test='refCode != null and refCode != ""'>
+			AND AA.REF_CODE = #{refCode, jdbcType=VARCHAR}
+		</if>
+		<if test='refSeq != null and refSeq &gt; 0'>
+			AND AA.REF_SEQ = #{refSeq, jdbcType=INTEGER}
+		</if>
+		<if test='refSeqs != null'>
+			<foreach item="item" index="index" collection="refSeqs"
+				open="AND AA.REF_SEQ in (" separator="," close=")">#{item}</foreach>
+		</if>
+	</sql>
+
+	<select id="load"
+			parameterType="com.erns.coching.favorite.domain.FavoriteVO"
+			resultType="com.erns.coching.favorite.domain.FavoriteVO">
+		/* com.erns.coching.favorite.mapper.FavoriteDAO.load */
+
+		SELECT
+		  	<include refid="baseFieldsAA"/>		
+		FROM T_FAVORITE_INF AA
+		<where>
+			AND MEMB_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+			AND REF_CODE 	= #{refCode	, jdbcType=VARCHAR}
+			AND REF_SEQ 	= #{refSeq	, jdbcType=INTEGER}
+		</where>		
+	</select>
+
+	<select id="getListVo"
+			parameterType="com.erns.coching.favorite.domain.FavoriteSearchDTO"
+			resultType="com.erns.coching.favorite.domain.FavoriteVO">
+		/* com.erns.coching.favorite.mapper.FavoriteDAO.getListVo */
+
+		SELECT
+		  	<include refid="baseFieldsAA"/>		
+		FROM T_FAVORITE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getList"
+			parameterType="com.erns.coching.favorite.domain.FavoriteSearchDTO"
+			resultType="camelMap">
+    	/* com.erns.coching.favorite.mapper.FavoriteDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+					<choose>
+						<!-- <when test='refCode == "raw'></when> -->
+						<otherwise>
+							, RM.raw_seq
+							, RM.raw_name							
+							, RDT.title
+							, RDMI.memb_name AS MANAGER_NAME
+						</otherwise>
+					</choose>
+				FROM T_FAVORITE_INF AA
+					<choose>
+						<!-- <when test='refCode == "raw'></when> -->
+						<otherwise>
+							JOIN T_RAW_DETAIL RDT ON AA.ref_seq = RDT.raw_detail_seq
+							JOIN T_RAW_MST RM ON RDT.raw_seq = RM.raw_seq
+							JOIN T_MEMB_INF RDMI ON RDT.memb_seq = RDMI.memb_seq
+						</otherwise>
+					</choose>
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.RGT_DTTM DESC	
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.favorite.domain.FavoriteSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.favorite.mapper.FavoriteDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_FAVORITE_INF AA
+			<choose>
+				<!-- <when test='refCode == "raw'></when> -->
+				<otherwise>
+					JOIN T_RAW_DETAIL RDT ON AA.ref_seq = RDT.raw_detail_seq
+					JOIN T_RAW_MST RM ON RDT.raw_seq = RM.raw_seq
+					JOIN T_MEMB_INF RDMI ON RDT.memb_seq = RDMI.memb_seq
+				</otherwise>
+			</choose>
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+		
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.favorite.domain.FavoriteVO">
+    	/* com.erns.coching.favorite.mapper.FavoriteDAO.insert */
+    	
+		INSERT INTO T_FAVORITE_INF (
+				MEMB_SEQ
+			, REF_CODE
+			, REF_SEQ
+			, RGT_DTTM
+
+		) VALUES (
+
+				#{membSeq		, jdbcType=INTEGER}
+			, #{refCode		, jdbcType=VARCHAR}
+			, #{refSeq		, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+    
+	<delete id="delete"
+			parameterType="com.erns.coching.favorite.domain.FavoriteVO">
+			/* com.erns.coching.favorite.mapper.FavoriteDAO.delete */
+
+		DELETE FROM T_FAVORITE_INF
+		<where>
+			AND MEMB_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+			AND REF_CODE 	= #{refCode	, jdbcType=VARCHAR}
+			AND REF_SEQ 	= #{refSeq	, jdbcType=INTEGER}
+		</where>
+	</delete>
+    
+</mapper>

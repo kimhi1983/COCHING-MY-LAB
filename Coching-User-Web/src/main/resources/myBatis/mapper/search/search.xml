@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.SearchDAO">
+
+	<!-- T_INGD_DIC -->
+	<sql id="baseIngredientsDictionary">
+		SELECT
+			'ingd' 								AS "dataType",
+			LEAST(
+				NULLIF(STRPOS(UPPER(INGD.rep_name), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(INGD.rep_name_en), UPPER(#{keyword, jdbcType=VARCHAR})), 0)
+			) AS matchPos,
+			INGD.id								AS "data1",
+			INGD.rep_name					AS "data2",
+			INGD.rep_name_en			AS "data3",
+			COALESCE(array_to_string(INGD.cas_no, ','), '')			AS "data4",
+			COALESCE(array_to_string(INGD.ec_no, ','), '')			AS "data5",
+			COALESCE(array_to_string(INGD.names_ko, ','), '') 	AS "data6",
+			COALESCE(array_to_string(INGD.names_en, ','), '')		AS "data7",
+			INGD.kcai_id					AS "data8"
+		FROM T_INGD_DIC INGD
+	</sql>
+
+	<sql id="baseSearchConditionIngredientsDictionary">
+		<if test='keyword != null and keyword != ""'>
+			AND (
+						UPPER(INGD.rep_name) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				OR 	UPPER(INGD.rep_name_en) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				OR EXISTS (
+					SELECT 1 FROM unnest(INGD.cas_no) AS cas
+					WHERE UPPER(cas) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				)
+				OR EXISTS (
+					SELECT 1 FROM unnest(INGD.ec_no) AS ec
+					WHERE UPPER(ec) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				)
+				<if test="searchIngdNamesKo == true">
+					OR EXISTS (
+						SELECT 1 FROM unnest(INGD.names_ko) AS nko
+						WHERE UPPER(nko) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+					)
+				</if>
+				<if test="searchIngdNamesEn == true">
+					OR EXISTS (
+						SELECT 1 FROM unnest(INGD.names_en) AS nen
+						WHERE UPPER(nen) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+					)
+				</if>
+			)
+		</if>
+	</sql>
+
+	<!-- T_ES_RAW -->
+	<sql id="baseRawsDictionary">
+		SELECT
+			'raw' 						AS "dataType",
+			LEAST(
+				NULLIF(STRPOS(UPPER(ER.raw_name), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(ER.supplier), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(ER.ptn_name), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(ER.prod_company), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(ER.prod_country_name), UPPER(#{keyword, jdbcType=VARCHAR})), 0)
+			) AS matchPos,
+			ER.raw_seq 				AS "data1",	
+			ER.raw_name 			AS "data2",	
+			ER.prod_company 	AS "data3",	
+			ER.supplier 			AS "data4",	
+			ER.ptn_name 			AS "data5",			
+			ER.prod_country 			AS "data6",	
+			'' || ER.raw_elem_info_count 	AS "data7",
+			ER.ptn_seq 				AS "data8"
+		FROM T_ES_RAW ER		
+	</sql>
+
+	<sql id="baseSearchConditionRawsDictionary">
+		<if test='keyword != null and keyword != ""'>
+			AND (
+						UPPER(ER.raw_name) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				OR	UPPER(ER.supplier) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				OR 	UPPER(ER.ptn_name) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				<if test="searchRawProdCompany == true">
+					OR 	UPPER(ER.prod_company) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				</if>				
+				<if test="searchRawProdCountryName == true">
+					OR 	UPPER(ER.prod_country_name) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				</if>				
+			)
+		</if>
+	</sql>
+
+	<!-- T_HW_BRAND -->
+	<sql id="baseHwBrandDictionary">
+		SELECT
+			'hw_brand' 					AS "dataType",
+			LEAST(
+				NULLIF(STRPOS(UPPER(HB.brand_ko), UPPER(#{keyword, jdbcType=VARCHAR})), 0),
+				NULLIF(STRPOS(UPPER(HB.brand_en), UPPER(#{keyword, jdbcType=VARCHAR})), 0)
+			) AS matchPos,
+			HB.seq 							AS "data1",	
+			HB.brand_full_name 	AS "data2",	
+			HB.brand_ko 				AS "data3",	
+			HB.brand_en 				AS "data4",	
+			'' 			 			 			AS "data5",			
+			'' 			 			 			AS "data6",	
+			'' 			 			 			AS "data7",
+			HB.count 			 			AS "data8"
+		FROM T_HW_BRAND HB		
+	</sql>
+
+	<sql id="baseSearchConditionHwBrandDictionary">
+		<if test='keyword != null and keyword != ""'>
+			AND (
+						UPPER(HB.brand_ko) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+				OR 	UPPER(HB.brand_en) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')				
+			)
+		</if>
+	</sql>
+
+	<!-- T_PT_NAME -->
+	<sql id="basePtNameDictionary">
+		SELECT
+			'pt_name' 					AS "dataType",
+			LEAST(
+				NULLIF(STRPOS(UPPER(PT.ptn_name), UPPER(#{keyword, jdbcType=VARCHAR})), 0)
+			) AS matchPos,
+			PT.ptn_seq 					AS "data1",
+			PT.ptn_name 				AS "data2",
+			'' 									AS "data3",
+			'' 									AS "data4",
+			'' 									AS "data5",
+			'' 									AS "data6",
+			'' 									AS "data7",
+			0 								 	AS "data8"
+		FROM T_PARTNER_INF PT
+	</sql>
+
+	<sql id="baseSearchConditionPtNameDictionary">
+		AND COALESCE(PT.del_yn, 'N') = 'N'
+		<if test='keyword != null and keyword != ""'>
+			AND (
+				UPPER(PT.ptn_name) LIKE UPPER('%' || #{keyword, jdbcType=VARCHAR} || '%')
+			)			
+		</if>
+	</sql>
+
+	<select id="getSuggetionList"
+			parameterType="com.erns.coching.search.domain.SuggestionSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.search.mapper.SearchDAO.getSuggetionList */
+
+		WITH 
+			ingd_part AS (
+				<include refid="baseIngredientsDictionary"/>
+				<where>
+					<include refid="baseSearchConditionIngredientsDictionary"/>
+				</where>
+				ORDER BY matchPos ASC
+				LIMIT #{limitIngd}
+			)
+		<if test="searchRaw == true">
+			, raw_part AS (
+				<include refid="baseRawsDictionary"/>
+				<where>
+					<include refid="baseSearchConditionRawsDictionary"/>
+				</where>
+				ORDER BY matchPos ASC
+				LIMIT #{limitRaw}			
+			)
+		</if>
+		<if test="searchProdBrand == true">
+			, pd_brand_part AS (
+				<include refid="baseHwBrandDictionary"/>
+				<where>
+					<include refid="baseSearchConditionHwBrandDictionary"/>
+				</where>
+				ORDER BY matchPos ASC
+				LIMIT #{limitProdBrand}
+			)
+		</if>
+		<if test="searchPtName == true">
+			, pt_name_part AS (
+				<include refid="basePtNameDictionary"/>
+				<where>
+					<include refid="baseSearchConditionPtNameDictionary"/>
+				</where>
+				ORDER BY matchPos ASC
+				LIMIT #{limitPtName}
+			)
+		</if>
+
+		SELECT * FROM ingd_part
+		<if test="searchRaw == true">
+			UNION
+			SELECT * FROM raw_part
+		</if>
+		<if test="searchProdBrand == true">
+			UNION
+			SELECT * FROM pd_brand_part
+		</if>
+		<if test="searchPtName == true">
+			UNION
+			SELECT * FROM pt_name_part
+		</if>
+		
+	</select>
+	
+	<select id="getNationLmitListForIngredient"
+		parameterType="com.erns.coching.search.domain.IngredientNationLimitSearchDTO"
+			resultType="camelMap"
+	>
+		/* com.erns.coching.search.mapper.SearchDAO.getNationLmitListForIngredient */
+
+		SELECT
+			AA.ingd_id
+			, AA.eu
+			, AA.usa
+			, AA.china
+			, AA.japan
+			, AA.korea
+			, TO_CHAR(AA.rgt_dttm, 'YYYY.MM.DD') AS rgt_dttm
+		FROM t_ingd_nation_regu_inf AA
+		WHERE AA.ingd_id::text = #{ingdId}
+		ORDER BY ingd_id
+	</select>
+	
+	<select id="getNationExpLmitListForIngredient"
+		parameterType="com.erns.coching.search.domain.IngredientNationLimitSearchDTO"
+			resultType="camelMap"
+	>
+		/* com.erns.coching.search.mapper.SearchDAO.getNationExpLmitListForIngredient */
+
+		SELECT
+			AA.ingd_id
+			, AA.eu
+			, AA.usa
+			, AA.china
+			, AA.japan
+			, AA.korea
+			, AA.un_no
+			, TO_CHAR(AA.rgt_dttm, 'YYYY.MM.DD') AS rgt_dttm
+		FROM t_ingd_nation_exp_regu_inf AA
+		WHERE AA.ingd_id::text = #{ingdId}
+		ORDER BY ingd_id;
+	</select>
+	
+	<!-- 
+	<select id="getNationLmitListForIngredient"
+		parameterType="com.erns.coching.search.domain.IngredientNationLimitSearchDTO"
+			resultType="camelMap"
+	>
+		/* com.erns.coching.search.mapper.SearchDAO.getNationLmitListForIngredient */
+
+		SELECT DISTINCT
+			INGD.id AS iid,
+			AA.nation_ko,
+			AA.name_ko,
+			AA.name_en,
+			AA.cas_no,
+			AA.limit_ko,
+			'25.07.05 17:00' AS update_date  
+		FROM temp_ingd_nation_limit AA
+		JOIN t_ingd_dic INGD
+			ON INGD.rep_name_en = AA.name_en
+		WHERE INGD.id::text = #{ingdId}
+		ORDER BY iid, name_ko, nation_ko
+		
+	</select>
+ 	-->
+</mapper>

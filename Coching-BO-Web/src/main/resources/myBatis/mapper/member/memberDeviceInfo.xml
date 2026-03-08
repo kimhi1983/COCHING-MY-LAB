@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.member.mapper.MemberDeviceInfoDAO">
+
+	<sql id="baseFieldsAA">
+		  AA.APP_ID
+		, AA.MEMB_SEQ
+		, AA.DEV_TYPE 		AS DEVICE_TYPE
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:mi:SS') AS CHNG_DTTM
+
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='appId != null and appId != ""'>
+			AND AA.APP_ID = #{appId , jdbcType=VARCHAR}
+		</if>
+		<if test='membSeq != null and membSeq &gt; 0'>
+			AND AA.MEMB_SEQ = #{membSeq , jdbcType=INTEGER}
+		</if>
+		<if test='deviceType != null and deviceType != ""'>
+			AND AA.DEV_TYPE = #{deviceType, jdbcType=VARCHAR}
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.coching.member.domain.MemberDeviceInfoSearchDTO"
+		resultType="com.erns.coching.member.domain.MemberDeviceInfoVO">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.getList */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_DEVICE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.member.domain.MemberDeviceInfoSearchDTO"
+		resultType="int">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.getListCount */
+		SELECT COUNT(*)
+		FROM T_MEMB_DEVICE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="com.erns.coching.member.domain.MemberDeviceInfoVO">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MEMB_DEVICE_INF AA
+		<where>
+			AND AA.APP_ID 	= #{appId	, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.member.domain.MemberDeviceInfoVO">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.insert */
+
+		INSERT INTO T_MEMB_DEVICE_INF(
+			APP_ID, MEMB_SEQ, DEV_TYPE, CHNG_DTTM
+		)
+		VALUES (
+			  #{appId		, jdbcType=VARCHAR}
+			, #{membSeq		, jdbcType=INTEGER}
+			, #{deviceType	, jdbcType=VARCHAR}
+			, now()
+		)
+	</insert>
+
+	<insert id="update"
+		parameterType="com.erns.coching.member.domain.MemberDeviceInfoVO">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.update */
+
+		UPDATE T_USER_DEVICE
+			   USER_SEQ 	= #{membSeq	, jdbcType=INTEGER}
+			 , CHNG_DTTM	= now()
+		<where>
+			AND APP_ID 	= #{value	, jdbcType=VARCHAR}
+		</where>
+	</insert>
+
+	<delete id="delete"
+		parameterType="String">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.delete */
+
+		DELETE FROM T_MEMB_DEVICE_INF
+		<where>
+			AND APP_ID 	= #{value	, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+	<delete id="deleteWhere"
+		parameterType="com.erns.coching.member.domain.MemberDeviceInfoSearchDTO">
+		/* com.erns.coching.member.mapper.MemberDeviceInfoDAO.deleteWhere */
+
+		DELETE FROM T_MEMB_DEVICE_INF AA
+		<where>
+			AND AA.MEMB_SEQ = #{userSeq , jdbcType=INTEGER}
+			<include refid="baseFieldsAA"/>
+		</where>
+	</delete>
+</mapper>

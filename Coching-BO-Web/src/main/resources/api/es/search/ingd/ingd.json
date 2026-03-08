@@ -1,0 +1,100 @@
+{
+    "resultData": {
+        "id": 18629,
+        "repName": "1-나프톨",
+        "kdata": {
+            "id": 18629,
+            "korean": "1-나프톨",
+            "english": "1-Naphthol",
+            "korean_old": "α-나프톨",
+            "english_old": null,
+            "korean_keywords": [
+                "1-나프톨"
+            ],
+            "english_keywords": [
+                "1-Naphthol"
+            ],
+            "casNo_keywords": [
+                "90-15-3"
+            ],
+            "ecNo_keywords": [
+                "201-969-4(I)"
+            ],
+            "ms_exp": null,
+            "ms_exp_url": "https://kcia.or.kr/inc/down.php?dir=INGD&file_name=201812_1-Naphthol.gif",
+            "msd_formula": "C10H8O",
+            "origin": "이 원료는 다음의 구조를 갖는 바이사이클릭 페놀이다.",
+            "mixing_purpose": "염모제",
+            "regulation_ko": "구분\n단서조항 있는 배합금지, 배합한도, 기능성화장품\n고시명\n1-나프톨 및 그 염류(다만, 1-나프톨은 산화염모제에서 용법·용량에 따른 혼합물의 염모성분으로서 2.0 % 이하는 제외)\n1-나프톨(α-나프톨)\n단서 조항\n산화 염모제에 2.0 %\n기타 제품에는 사용금지\n관련 성분\n1-나프톨",
+            "name_his": null
+        },
+        "edata": {
+            "rawcno_id": "700010-1NAPHTHOL",
+            "id": 700010,
+            "name_en": "1 Naphthol",
+            "score_min": 5,
+            "score": 8,
+            "score_data_level": "GOOD",
+            "chemical_img_url": "https://pubchem.ncbi.nlm.nih.gov/image/imagefly.cgi?cid=7005&width=290&height=290",
+            "chemical_img_src": "<a href=\"https://pubchem.ncbi.nlm.nih.gov/compound/7005\">PubChem</a>",
+            "chemical_about": "Petroleum-derived ingredient; used in hair color and bleaching products.",
+            "synonyms": [
+                "EBD2205191",
+                "SBB040845",
+                "BBL011611",
+                "ANW-75304",
+                "1-NAPHTHOL, >=98.0% (GC)",
+                "TOX21_302768",
+                "MCULE-2825050946",
+                "TOX21_202120",
+                "1-NAPHTHOL; 1-NAPHTHALENOL; 1-HYDROXYNAPHTHALENE; 1-NAPHTHYL ALCOHOL; HYDROXYNAPHTHALENE",
+                "50356-21-3"
+            ],
+            "common_concerns": [
+                {
+                    "level": "LOW",
+                    "concern": "Cancer",
+                    "open": ""
+                },
+                {
+                    "level": "MODERATE",
+                    "concern": "Allergies & Immunotoxicity",
+                    "open": ""
+                },
+                {
+                    "level": "LOW",
+                    "concern": "Developmental and Reproductive Toxicity",
+                    "open": ""
+                },
+                {
+                    "level": "HIGH",
+                    "concern": "Use Restrictions",
+                    "open": ""
+                }
+            ],
+            "productScoreRaw": "score=8&score_min=5",
+            "productScoreDataLevel": "Data: Good"
+        },
+        "hdata": {
+            "id": 3,
+            "korean": "1-나프톨, α-나프톨(구명칭)",
+            "english": "1-Naphthol",
+            "ewg": "6_8",
+            "ewg_data_availability_text": "데이터 등급: 적당함(Fair)",
+            "is_allergy": false,
+            "is_twenty": false,
+            "twenty_detail": "해당 없음",
+            "skin_type": null,
+            "skin_remark_good": null,
+            "skin_remark_bad": null,
+            "purpose": "염모제",
+            "purposes": [],
+            "cosmedical": null,
+            "limitation": "산화 염모제에 2.0 %;기타 제품에는 사용금지",
+            "forbidden": "금지 (1-나프톨 및 그 염류(다만, 1-나프톨은 산화염모제에서 용법·용량에 따른 혼합물의 염모성분으로서 2.0 % 이하는 제외);1-나프톨(α-나프톨))",
+            "concentration_info": null
+        }
+    },
+    "resultCode": "0000",
+    "resultFailMessage": "OK"
+}

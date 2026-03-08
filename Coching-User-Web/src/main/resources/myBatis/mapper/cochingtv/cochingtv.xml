@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.cochingtv.mapper.CochigtvDAO">
+
+
+	<sql id="baseFieldsAA">
+		AA.TV_SEQ
+		, AA.YT_URL
+		, AA.SORT_ORD
+		, AA.TITLE
+		, AA.HASHTAG
+		, AA.VIEWS
+		, AA.YT_DTTM
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.CONTENT
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+		, AA.CATEGORY
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+	
+		<if test='delYn != null and delYn != ""'>
+			AND AA.DEL_YN = #{delYn, jdbcType=CHAR}
+		</if>
+		
+		<if test='category != null and category != ""'>
+			AND UPPER(AA.CATEGORY) LIKE UPPER('%' || #{category, jdbcType=VARCHAR} || '%')
+		</if>
+		
+		<if test='excludeSeq != null and excludeSeq != ""'>
+			AND AA.TV_SEQ != #{excludeSeq, jdbcType=INTEGER}
+		</if>
+	</sql>
+	
+	<select id="load"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_CH_TV AA			
+		<where>
+			AND AA.TV_SEQ = #{tvSeq, jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<select id="getList"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_CH_TV AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+					AND AA.DEL_YN = 'N'
+				</where>
+				
+				<choose>
+					<when test='isRandom == "Y"'>
+						ORDER BY RANDOM()
+					</when>
+					<otherwise>
+						ORDER BY AA.SORT_ORD ASC
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.cochingtv.domain.CochingtvSearchDTO"
+		resultType="int">
+		/* com.erns.coching.cochingtv.mapper.CochingtvDAO.getListCount */
+
+		SELECT
+			COUNT(*) AS CNT
+		FROM T_CH_TV AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+</mapper>

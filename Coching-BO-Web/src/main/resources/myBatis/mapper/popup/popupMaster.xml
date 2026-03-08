@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.popup.mapper.PopupMasterDAO">
+
+    <sql id="baseFieldsAA">
+    	  AA.POPUP_MST_CD
+		, AA.POPUP_TYPE
+		, AA.POPUP_MST_NAME
+		, AA.POPUP_MST_DESC
+		, AA.USE_YN
+		, COALESCE(AA.WIDTH, 0) 	AS WIDTH
+		, COALESCE(AA.HEIGHT, 0) AS HEIGHT
+		, AA.PREVIEW_URL
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+    </sql>
+
+    <sql id="baseSearchConditionAA">
+    	<if test='useYn != null and useYn != ""'>
+    		AND AA.USE_YN = 'Y'
+    	</if>
+    	
+		<if test='allSrch != null and allSrch != ""'>
+			AND
+			(
+			REPLACE(UPPER(AA.POPUP_MST_CD), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+			OR
+			REPLACE(UPPER(AA.POPUP_TYPE), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+			OR
+			REPLACE(UPPER(AA.POPUP_MST_DESC), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+			)
+		</if>
+    	
+    	<if test='popupMstCdL != null and popupMstCdL != ""'>
+			AND UPPER(AA.POPUP_MST_CD) LIKE UPPER('%' || #{popupMstCdL, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='popupTypeL != null and popupTypeL != ""'>
+			AND UPPER(AA.POPUP_TYPE) LIKE UPPER('%' || #{popupTypeL, jdbcType=VARCHAR} || '%')
+		</if>
+		<if test='popupMstDescL != null and popupMstDescL != ""'>
+			AND UPPER(AA.POPUP_MST_DESC) LIKE UPPER('%' || #{popupMstDescL, jdbcType=VARCHAR} || '%')
+		</if>
+    </sql>
+
+	<select id="getList"
+		parameterType="com.erns.coching.popup.domain.PopupMasterSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.popup.mapper.PopupMasterDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_POPUP_MST AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.POPUP_MST_CD
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.popup.domain.PopupMasterSearchDTO"
+		resultType="int">
+		/* com.erns.coching.popup.mapper.PopupMasterDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_POPUP_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="String"
+		resultType="camelMap">
+		/* com.erns.coching.popup.mapper.PopupMasterDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_POPUP_MST AA
+
+		<where>
+			AA.POPUP_MST_CD = #{popupMstCd, jdbcType=VARCHAR}
+		</where>
+	</select>
+
+    <insert id="insert"
+    	parameterType="com.erns.coching.popup.domain.PopupMasterVO">
+    	/* com.erns.coching.popup.mapper.PopupMasterDAO.insert */
+
+    	INSERT INTO T_POPUP_MST (
+    		  POPUP_MST_CD
+			, POPUP_TYPE
+			, POPUP_MST_NAME
+			, POPUP_MST_DESC
+			, USE_YN
+			, WIDTH
+			, HEIGHT
+			, PREVIEW_URL
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+    	) VALUES (
+    		  #{popupMstCd			, jdbcType=VARCHAR}
+			, #{popupType			, jdbcType=VARCHAR}
+			, #{popupMstName		, jdbcType=VARCHAR}
+			, #{popupMstDesc		, jdbcType=VARCHAR}
+			, COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+			, COALESCE(#{width		, jdbcType=INTEGER}, 0)
+			, COALESCE(#{height		, jdbcType=INTEGER}, 0)
+			, #{previewUrl			, jdbcType=VARCHAR}
+
+			, #{rgtr				, jdbcType=INTEGER}
+			, now()
+			, #{chnr				, jdbcType=INTEGER}
+			, now()
+    	)
+    </insert>
+
+    <update id="update"
+    	parameterType="com.erns.coching.popup.domain.PopupMasterVO">
+    	/* com.erns.coching.popup.mapper.PopupMasterDAO.update */
+
+    	UPDATE T_POPUP_MST SET
+			  POPUP_TYPE  		= 	#{popupType			, jdbcType=VARCHAR}
+			, POPUP_MST_NAME  	= 	#{popupMstName		, jdbcType=VARCHAR}
+			, POPUP_MST_DESC  	= 	#{popupMstDesc		, jdbcType=VARCHAR}
+			, USE_YN         	= 	COALESCE(#{useYn	, jdbcType=CHAR}, USE_YN)
+			, WIDTH    			= 	COALESCE(#{width	, jdbcType=INTEGER}, 0)
+			, HEIGHT    		= 	COALESCE(#{height	, jdbcType=INTEGER}, 0)
+			, PREVIEW_URL    	= 	#{previewUrl		, jdbcType=VARCHAR}
+
+
+			, CHNR			 	=  #{chnr				, jdbcType=INTEGER}
+			, CHNG_DTTM		 	=  now()
+		<where>
+			POPUP_MST_CD 		= #{popupMstCd, jdbcType=VARCHAR}
+		</where>
+    </update>
+
+    <update id="updateUseYn"
+    	parameterType="com.erns.coching.popup.domain.PopupMasterVO">
+    	/* com.erns.coching.popup.mapper.PopupMasterDAO.updateUseYn */
+
+    	UPDATE T_POPUP_MST SET
+			  USE_YN         = 	COALESCE(#{useYn, jdbcType=CHAR}, 'N')
+
+			, CHNR			 =  #{chnr	   		, jdbcType=INTEGER}
+			, CHNG_DTTM		 =  now()
+		<where>
+			POPUP_MST_CD = #{popupMstCd, jdbcType=VARCHAR}
+		</where>
+    </update>
+    
+	<update id="updateState"
+		parameterType="com.erns.coching.popup.domain.PopupMasterVO">
+		/* com.erns.coching.popup.mapper.PopupMasterDAO.updateState */
+
+    	UPDATE T_POPUP_MST SET
+			  USE_YN         = 	COALESCE(#{useYn, jdbcType=CHAR}, 'N')
+			, POPUP_MST_DESC  	= 	#{popupMstDesc		, jdbcType=VARCHAR}
+			
+			, CHNR			 =  #{chnr	   		, jdbcType=INTEGER}
+			, CHNG_DTTM		 =  now()
+		<where>
+			POPUP_MST_CD = #{popupMstCd, jdbcType=VARCHAR}
+		</where>
+	</update>
+
+    
+    <delete id="delete"
+		parameterType="String">
+		/* com.erns.coching.popup.mapper.PopupMasterDAO.delete */
+
+		DELETE FROM T_POPUP_MST
+		<where>
+			AND BANNER_MST_CD = #{popupMstCd, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.es.code.mapper.CodeDAO">
+
+
+	<sql id="baseFieldsAA">
+			AA.CODE
+		, AA.GRP_CODE
+		, AA.CODE_NAME
+		, AA.ETC1
+		, AA.ETC2
+		, AA.ETC3
+		, AA.ETC4
+		, AA.ETC5
+		, AA.ETC_CMMT
+		, AA.CODE_DESC
+		, AA.SORT_ORD
+		, AA.USE_YN
+
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn, jdbcType=CHAR}
+		</if>
+
+		<if test='grpCode != null and grpCode != ""'>
+			AND UPPER(AA.GRP_CODE) = UPPER(#{grpCode, jdbcType=VARCHAR})
+		</if>
+
+		<if test='code != null and code != ""'>
+			AND UPPER(AA.CODE) = UPPER(#{code, jdbcType=VARCHAR})
+		</if>
+
+		<if test='etc1 != null and etc1 != ""'>
+			AND AA.ETC1 = #{etc1, jdbcType=VARCHAR}
+		</if>
+
+		<if test='etc2 != null and etc2 != ""'>
+			AND AA.ETC2 = #{etc2, jdbcType=VARCHAR}
+		</if>
+
+		<if test='etc3 != null and etc3 != ""'>
+			AND AA.ETC3 = #{etc3, jdbcType=VARCHAR}
+		</if>
+
+		<if test='etc4 != null and etc4 != ""'>
+			AND AA.ETC4 = #{etc4, jdbcType=VARCHAR}
+		</if>
+
+		<if test='etc5 != null and etc5 != ""'>
+			AND UPPER(AA.ETC5) = UPPER(#{etc5, jdbcType=VARCHAR})
+		</if>
+
+		<if test='searchText != null and searchText != ""'>
+			AND (UPPER(AA.CODE) 	 LIKE UPPER('%' || #{searchText, jdbcType=VARCHAR} || '%')
+				OR UPPER(AA.CODE_NAME) LIKE UPPER('%' || #{searchText, jdbcType=VARCHAR} || '%'))
+		</if>
+
+	</sql>
+
+	<select id="selectCodeList"
+		parameterType="com.erns.es.code.domain.CodeSearchDTO"
+		resultType="camelMap">
+		/* com.erns.es.code.mapper.CodeDAO.selectCodeList */
+
+		SELECT
+			AA.CODE
+			, AA.GRP_CODE
+			, AA.CODE_NAME
+			, AA.ETC1
+			, AA.ETC2
+			, AA.ETC3
+			, AA.ETC4
+			, AA.ETC5
+			, AA.CODE_DESC
+			, AA.SORT_ORD
+			, AA.USE_YN
+		FROM T_CODE_INF AA
+			JOIN T_CODE_MST CM ON AA.GRP_CODE = CM.GRP_CODE
+
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+
+		ORDER BY AA.SORT_ORD
+	</select>
+
+	<select id="getList"
+			parameterType="com.erns.es.code.domain.CodeSearchDTO"
+			resultType="camelMap">
+		/* com.erns.es.code.mapper.CodeDAO.getList */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_CODE_INF AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+			) A
+		) B
+	  <if test='rowSize &gt; 0'>
+	   	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.es.code.domain.CodeSearchDTO"
+			resultType="int">
+		/* com.erns.es.code.mapper.CodeDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_CODE_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+    	parameterType="com.erns.es.code.domain.CodeSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.es.code.mapper.CodeDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_CODE_INF AA
+		<where>
+			AND AA.CODE 	= #{code	, jdbcType=VARCHAR}
+			AND AA.GRP_CODE = #{grpCode , jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<insert id="insert"
+    	parameterType="com.erns.es.code.domain.CodeVO">
+    	/* com.erns.es.code.mapper.CodeDAO.insert */
+
+    	INSERT INTO T_CODE_INF (
+    		  CODE
+				, GRP_CODE
+				, CODE_NAME
+			    , ETC1
+			    , ETC2
+			    , ETC3
+			    , ETC4
+			    , ETC5
+				, CODE_DESC
+				, SORT_ORD
+				, USE_YN
+
+				, RGTR
+				, RGT_DTTM
+				, CHNR
+				, CHNG_DTTM
+    	) VALUES (
+					#{code	, jdbcType=VARCHAR}
+				, #{grpCode	, jdbcType=VARCHAR}
+				, #{codeName, jdbcType=VARCHAR}
+				, #{etc1, jdbcType=VARCHAR}
+				, #{etc2, jdbcType=VARCHAR}
+				, #{etc3, jdbcType=VARCHAR}
+				, #{etc4, jdbcType=VARCHAR}
+				, #{etc5, jdbcType=VARCHAR}
+				, #{codeDesc, jdbcType=VARCHAR}
+				, (
+					SELECT COALESCE(MAX(ZZ.SORT_ORD), 0) +1
+					FROM T_CODE_INF ZZ
+					WHERE ZZ.GRP_CODE = #{grpCode, jdbcType=VARCHAR}
+				)
+				, COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+
+				, #{rgtr	, jdbcType=INTEGER}
+				, now()
+				, #{chnr	, jdbcType=INTEGER}
+				, now()
+    	)
+    </insert>
+
+    <update id="update"
+    	parameterType="com.erns.es.code.domain.CodeVO">
+    	/* com.erns.es.code.mapper.CodeDAO.update */
+
+    	UPDATE T_CODE_INF SET
+					CODE_NAME  = #{codeName, jdbcType=VARCHAR}
+				, ETC1  = #{etc1, jdbcType=VARCHAR}
+				, ETC2  = #{etc2, jdbcType=VARCHAR}
+				, ETC3  = #{etc3, jdbcType=VARCHAR}
+				, ETC4  = #{etc4, jdbcType=VARCHAR}
+				, ETC5  = #{etc5, jdbcType=VARCHAR}
+				, CODE_DESC  = #{codeDesc	, jdbcType=VARCHAR}
+				, SORT_ORD 	 = #{sortOrd	, jdbcType=INTEGER}
+				, USE_YN 	 = #{useYn		, jdbcType=CHAR}
+
+				, CHNR 		 = #{chnr	, jdbcType=INTEGER}
+				, CHNG_DTTM  = now()
+			<where>
+				AND CODE 	 = #{code	, jdbcType=VARCHAR}
+				AND GRP_CODE = #{grpCode , jdbcType=VARCHAR}
+			</where>
+
+    </update>
+
+    <update id="updateUseYn"
+    	parameterType="com.erns.es.code.domain.CodeVO">
+    	/* com.erns.es.code.mapper.CodeDAO.updateUseYn */
+
+    	UPDATE T_CODE_INF SET
+					USE_YN 	 = #{useYn	, jdbcType=CHAR}
+
+				, CHNR 		 = #{chnr	, jdbcType=INTEGER}
+				, CHNG_DTTM  = now()
+			<where>
+				AND CODE 	 = #{code	, jdbcType=VARCHAR}
+				AND GRP_CODE = #{grpCode , jdbcType=VARCHAR}
+			</where>
+    </update>
+    
+    <delete id="delete"
+		parameterType="String">
+		/* com.erns.es.code.mapper.CodeDAO.delete */
+
+		DELETE FROM T_CODE_INF
+		<where>
+			AND CODE 	 = #{code	, jdbcType=VARCHAR}
+		</where>
+	</delete>
+
+</mapper>

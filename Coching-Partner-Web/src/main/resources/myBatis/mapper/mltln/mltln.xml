@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.mltln.mapper.MltlnDAO">
+
+    <sql id="baseFieldsAA">
+		  AA.CODE
+		, AA.CODE_NM_KO
+		, AA.CODE_NM_EN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+    </sql>
+
+
+    <sql id="baseSearchConditionAA">
+    <!-- allSrch로 들어오면 codeL, 코드로 들어오면 codeRL -->
+    	<if test='allSrch != null and allSrch != ""'>
+    		AND
+    		(
+    			REPLACE(UPPER(AA.CODE), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.CODE_NM_KO), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    			OR
+    			REPLACE(UPPER(AA.CODE_NM_EN), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{allSrch, jdbcType=VARCHAR})), ' ', '') || '%'
+    		)
+    	</if>
+    	<if test='codeRL != null and codeRL != ""'>
+    		AND
+    		REPLACE(UPPER(AA.CODE), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{codeRL, jdbcType=VARCHAR})), ' ', '') || '%' || '.' || '%'
+    	</if>
+    	<if test='codeNmKoL != null and codeNmKoL != ""'>
+    		AND
+    		REPLACE(UPPER(AA.CODE_NM_KO), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{codeNmKoL, jdbcType=VARCHAR})), ' ', '') || '%'
+    	</if>
+    	<if test='codeNmEnL != null and codeNmEnL != ""'>
+    		AND
+    		REPLACE(UPPER(AA.CODE_NM_EN), ' ', '') LIKE '%' || REPLACE(UPPER(TRIM(#{codeNmEnL, jdbcType=VARCHAR})), ' ', '') || '%'
+    	</if>
+    </sql>
+
+    <sql id="baseSearchCondition2">
+		<if test='code != null and code != ""'>
+			AND AA.CODE = #{codeL, jdbcType=VARCHAR}
+		</if>
+
+		<if test='codeL != null and codeL != ""'>
+			AND UPPER(AA.CODE) LIKE UPPER('%' || #{codeL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='codeRL != null and codeRL != ""'>
+			AND UPPER(AA.CODE) LIKE UPPER(#{codeRL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='codeNmKoL != null and codeNmKoL != ""'>
+			AND UPPER(AA.CODE_NM_KO) LIKE UPPER('%' || #{codeNmKoL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='codeNmEnL != null and codeNmEnL != ""'>
+			AND UPPER(AA.CODE_NM_EN) LIKE UPPER('%' || #{codeNmEnL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+    <select id="getList"
+    		parameterType="com.erns.coching.mltln.domain.MltlnSearchDTO"
+    		resultType="camelMap">
+    	/* mapper.mltln.com.erns.coching.MltlnDAO.getList */
+
+    	SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+				FROM T_MLTLN_MST AA
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				ORDER BY AA.CODE ASC
+			) A
+		) B
+	    <if test='rowSize &gt; 0'>
+	    	WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+    </select>
+
+    <select id="getListCount"
+    		parameterType="com.erns.coching.mltln.domain.MltlnSearchDTO"
+    		resultType="int">
+    	/* mapper.mltln.com.erns.coching.MltlnDAO.getListCount */
+
+    	SELECT
+			COUNT(*)
+		FROM T_MLTLN_MST AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+    </select>
+
+    <select id="getListVo"
+		parameterType="com.erns.coching.mltln.domain.MltlnSearchDTO"
+		resultType="com.erns.coching.mltln.domain.MltlnVO">
+		/* mapper.mltln.com.erns.coching.MltlnDAO.getListVo */
+
+		SELECT B.* FROM (
+			SELECT A.*,ROW_NUMBER() OVER () AS RN, COUNT(*) OVER() TOTAL FROM (
+				SELECT
+					<include refid="baseFieldsAA"/>
+
+				FROM T_MLTLN_MST AA
+
+				<where>
+					<include refid="baseSearchCondition2"/>
+				</where>
+				ORDER BY AA.code
+			) A
+	    ) B
+	    <if test='rowSize &gt; 0'>
+	    WHERE RN BETWEEN (#{offset} + 1) AND #{offset} + #{rowSize}
+		</if>
+	</select>
+	
+    <select id="load"
+    	parameterType="com.erns.coching.mltln.domain.MltlnSearchDTO"
+    	resultType="camelMap">
+    	/* com.erns.coching.mltln.mapper.MltlnDAO.load */
+
+    	SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_MLTLN_MST AA
+		<where>
+			AND AA.CODE 	= #{code	, jdbcType=VARCHAR}
+		</where>
+    </select>
+
+     <select id="isHaveCode"
+   			parameterType="com.erns.coching.mltln.domain.MltlnSearchDTO"
+    		resultType="int">
+    		/* com.erns.coching.mltln.mapper.MltlnDAO.isHaveCode */
+
+    		SELECT COUNT(*) FROM T_MLTLN_MST AA
+			WHERE
+			AA.CODE = REPLACE(TRIM(#{code, jdbcType=VARCHAR}), ' ', '')
+    </select>	
+
+</mapper>

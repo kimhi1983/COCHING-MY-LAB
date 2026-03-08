@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta content="images/og-img.jpg" property="og:image" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta name="og:title" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>COCHING</title>
+  </head>
+
+  <body>
+    <!--header-->
+    <header>
+      <div class="inner">
+        <div class="container">
+          <!--left-->
+          <div class="left flex">
+            <div class="ic-wrap menu-wrap m-none">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+            <!--logo-->
+            <a href="index.html" class="logo">
+              <img src="images/logo.svg" alt="COCHING" />
+            </a>
+          </div>
+          <!--right-->
+          <div class="right">
+            <!--login-->
+            <div class="login flex m-none">
+              <button type="button" class="btn btn-sm btn-primary">로그인</button>
+              <button type="button" class="btn btn-sm btn-primary-outline">회원가입</button>
+            </div>
+            <!--mobile menu-->
+            <div class="ic-wrap menu-wrap pc-none">
+              <div class="ic-lg ic-menu"></div>
+            </div>
+          </div>
+        </div>
+        <!--search-->
+        <div class="main-search">
+          <form>
+            <!--search-wrap-->
+            <div class="search-wrap">
+              <button type="button" class="ic-lg ic-arrow-left-long"></button>
+              <!--input-->
+              <div class="search-input-wrap">
+                <input type="search" placeholder="글리세린(glycerin)" id="searchInput" />
+              </div>
+              <!--btn-->
+              <div class="btn-wrap">
+                <button type="submit" class="ic-lg ic-search"></button>
+                <button type="button" class="ic-lg ic-hash"></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+    <!--wrap-->
+    <div class="wrap">
+      <!--nav-->
+      <nav class="scroller m-none">
+        <!--lg-->
+        <div class="lg">
+          <!--gnb-->
+          <div class="gnb">
+            <!--group-->
+            <div class="group">
+              <!--해당 페이지 active-->
+              <a href="javascript:;" class="ic-home-lg">홈</a>
+              <a href="javascript:;" class="ic-tv-lg">코칭 TV</a>
+            </div>
+            <!--group-->
+            <div class="group gnb-acd block">
+              <div class="title">알림함</div>
+              <div class="gnb-wrap">
+                <a href="javascript:;" class="ic-noti-lg">알림함</a>
+                <a href="javascript:;" class="ic-list-lg">원료요청</a>
+                <a href="javascript:;" class="ic-message-lg active">쪽지함</a>
+              </div>
+            </div>
+
+            <!--group-->
+            <div class="group">
+              <a href="javascript:;" class="ic-drop-lg">원료소싱</a>
+              <a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+              <a href="javascript:;" class="ic-book-lg">사용자 매뉴얼</a>
+              <a href="javascript:;" class="ic-chats-lg">1:1 문의하기</a>
+            </div>
+          </div>
+          <!--footer-->
+          <div class="footer">
+            <div class="top">
+              <div>이용약관</div>
+              <div>개인정보처리방침</div>
+            </div>
+            <div class="info">
+              <ul>
+                <li>경기도 광명시 일직로 43, GIDC A2 602호</li>
+                <li>대표 : 오원석</li>
+                <li>사업자등록번호 : 316-81-29819</li>
+                <li>통신판매업 신고번호 : 2000-광명일직A-0000호</li>
+              </ul>
+            </div>
+            <div class="info">© COCHING All rights reserved.</div>
+          </div>
+        </div>
+        <!--sm-->
+        <div class="sm">
+          <!--해당 페이지 active-->
+          <a href="javascript:;" class="ic-home-lg">홈</a>
+          <a href="javascript:;" class="ic-tv-lg">코칭 TV</a> <a href="javascript:;" class="ic-noti-lg">알림함</a> <a href="javascript:;" class="ic-drop-lg">원료소싱</a><a href="javascript:;" class="ic-speaker-lg">공지사항</a>
+          <a href="javascript:;" class="ic-chats-lg">문의하기</a>
+        </div>
+      </nav>
+      <!--section은 3가지 타입 full, main-->
+      <section>
+        <div class="container h-100">
+          <!--content-->
+          <div class="content">
+            <!--common-content-->
+            <div class="common-content">
+              <!--title-wrap-->
+              <div class="title-wrap">
+                <div class="h1 text-center">쪽지함</div>
+                <!--link-box-wrap-->
+                <div class="link-box-wrap m-none">
+                  <!--해당 페이지 btn-gray->btn-bk-->
+                  <button type="button" class="btn btn-sm btn-gray">원료요청</button>
+                  <button type="button" class="btn btn-sm btn-bk">쪽지함</button>
+                </div>
+              </div>
+              <!--tabs-->
+              <div class="tabs style-box">
+                <!--탭네비-->
+                <div class="tabs-nav">
+                  <ul>
+                    <li class="active"><a href="#get">받은 쪽지함</a></li>
+                    <li><a href="#send">보낸 쪽지함</a></li>
+                  </ul>
+                </div>
+                <!--컨텐츠-->
+                <div class="tabs-content board-tabs-content">
+                  <!--받은 쪽지함-->
+                  <div id="get" class="tabs-panel active">
+                    <!--board-wrap-->
+                    <div class="board-wrap">
+                      <!--total-wrap-->
+                      <div class="total-wrap">
+                        <!--check-total-wrap-->
+                        <div class="check-total-wrap">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-checkall-board" class="checkall-board" type="checkbox" />
+                            <label for="tab1-checkall-board" class="checkbox-label"></label>
+                          </div>
+                          <div class="total-num">총<span>82</span></div>
+                        </div>
+                        <div class="right">
+                          <!--button-->
+                          <button type="button" class="btn btn-sm btn-gray-outline">삭제</button>
+                        </div>
+                      </div>
+                      <!--board-list-->
+                      <div class="board-list">
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-01" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-01" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-02" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-02" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-03" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-03" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-04" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-04" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-05" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-05" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-06" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-06" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-07" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-07" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-08" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-08" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-09" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-09" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab1-board-10" name="" class="chk-board" type="checkbox" />
+                            <label for="tab1-board-10" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                      </div>
+                      <!--pagenation-->
+                      <div class="pagenation">
+                        <a href="javascript:;" class="ic double-prev"></a>
+                        <a href="javascript:;" class="ic prev"></a>
+                        <a href="javascript:;" class="active">1</a>
+                        <a href="javascript:;">2</a>
+                        <a href="javascript:;">3</a>
+                        <a href="javascript:;">4</a>
+                        <a href="javascript:;">5</a>
+                        <a href="javascript:;" class="ic next"></a>
+                        <a href="javascript:;" class="ic double-next"></a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--보낸 쪽지함 모든-->
+                  <div id="send" class="tabs-panel">
+                    <!--board-wrap-->
+                    <div class="board-wrap">
+                      <!--total-wrap-->
+                      <div class="total-wrap">
+                        <!--check-total-wrap-->
+                        <div class="check-total-wrap">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-checkall-board" class="checkall-board" type="checkbox" />
+                            <label for="tab2-checkall-board" class="checkbox-label"></label>
+                          </div>
+                          <div class="total-num">총<span>16</span></div>
+                        </div>
+                        <div class="right">
+                          <!--button-->
+                          <button type="button" class="btn btn-sm btn-gray-outline">삭제</button>
+                        </div>
+                      </div>
+                      <!--board-list-->
+                      <div class="board-list">
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-01" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-01" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-02" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-02" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-03" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-03" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-04" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-04" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-05" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-05" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-06" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-06" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-07" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-07" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-08" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-08" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-09" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-09" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                        <a href="javascript:;">
+                          <!--checkbox-->
+                          <div class="checkbox only">
+                            <input id="tab2-board-10" name="" class="chk-board" type="checkbox" />
+                            <label for="tab2-board-10" class="checkbox-label"></label>
+                          </div>
+                          <!--content-wrap-->
+                          <div class="content-wrap">
+                            <div class="title-wrap">
+                              <div class="title">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            </div>
+                            <div class="info">찾으시는 원료는 저희 원료사에서 보유하고 있는 원료입니다.</div>
+                            <div class="date"><span>Kpros</span><span>2025.03.04</span></div>
+                          </div>
+                        </a>
+                      </div>
+                      <!--pagenation-->
+                      <div class="pagenation">
+                        <a href="javascript:;" class="ic double-prev"></a>
+                        <a href="javascript:;" class="ic prev"></a>
+                        <a href="javascript:;" class="active">1</a>
+                        <a href="javascript:;">2</a>
+                        <a href="javascript:;">3</a>
+                        <a href="javascript:;">4</a>
+                        <a href="javascript:;">5</a>
+                        <a href="javascript:;" class="ic next"></a>
+                        <a href="javascript:;" class="ic double-next"></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!--back-to-top-->
+    <div id="back-to-top"></div>
+
+    <!-- script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <!-- scroll -->
+    <script src="js/jquery.nicescroll.min.js"></script>
+
+    <!-- scroller-x -->
+    <script src="js/scroller-x.js"></script>
+  </body>
+</html>

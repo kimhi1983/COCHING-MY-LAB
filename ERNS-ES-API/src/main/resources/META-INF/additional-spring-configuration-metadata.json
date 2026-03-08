@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "system.file.uploadpath",
+    "type": "java.lang.String",
+    "description": "A description for 'system.file.uploadpath'"
+  },
+  {
+    "name": "system.fcm.isTestMode",
+    "type": "java.lang.String",
+    "description": "A description for 'system.fcm.isTestMode'"
+  }
+]}

@@ -1,0 +1,10 @@
+#RSA 키생성
+
+#비밀키
+openssl genrsa -out nice_coching_private_key.pem 4096
+
+#비밀키 pkcs8 로 변환
+openssl pkcs8 -topk8 -nocrypt -in nice_coching_private_key.pem -out nice_coching_private_key_pkcs8.pem
+
+#공개키 생성
+openssl rsa -in nice_coching_private_key_pkcs8.pem -out nice_coching_public_key.pem -pubout

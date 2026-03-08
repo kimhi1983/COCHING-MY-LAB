@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.RecommendKeywordDAO">
+
+	<!-- T_RECOMMEND_KEYWORD -->
+	<sql id="baseFieldsAA">
+			AA.SEQ
+		, AA.NAME
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.SORT_ORD
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='delYn != null and delYn != ""'>
+			AND COALESCE(AA.DEL_YN, 'N') = #{delYn, jdbcType=VARCHAR}
+		</if>
+		
+		<if test='useYn != null and useYn != ""'>
+			AND COALESCE(AA.USE_YN, 'N') = #{useYn, jdbcType=VARCHAR}
+		</if>
+		
+		<if test='nameL != null and nameL != ""'>
+			AND UPPER(AA.NAME) LIKE UPPER('%' || #{nameL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.search.domain.RecommendKeywordSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.search.mapper.RecommendKeywordDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>
+					, A1.MEMB_SEQ 	AS MEMB_SEQ
+					, A1.MEMB_ID 		AS MEMB_ID
+					, A1.MEMB_NAME	AS MEMB_NAME
+				FROM T_RECOMMEND_KEYWORD AA
+					LEFT OUTER JOIN T_MEMB_INF A1 ON AA.CHNR = A1.MEMB_SEQ
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.SORT_ORD ASC, AA.SEQ ASC
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+  <select id="getListCount"
+			parameterType="com.erns.coching.search.domain.RecommendKeywordSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_RECOMMEND_KEYWORD AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+  </select>
+
+	<select id="load"
+    	parameterType="long"
+    	resultType="com.erns.coching.search.domain.RecommendKeywordVO">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_RECOMMEND_KEYWORD AA
+		<where>
+			AND COALESCE(AA.DEL_YN, 'N') = 'N'
+			AND AA.SEQ = #{value, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+			parameterType="com.erns.coching.search.domain.RecommendKeywordVO">
+			/* com.erns.coching.search.mapper.RecommendKeywordDAO.insert */
+
+		<selectKey resultType="long" keyProperty="seq" order="BEFORE">
+			SELECT nextval('seq_t_recommend_keyword')
+		</selectKey>
+
+		INSERT INTO T_RECOMMEND_KEYWORD (
+			  SEQ
+			, NAME
+			, USE_YN
+			, DEL_YN
+			, SORT_ORD
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+
+		) VALUES (
+			  #{seq							, jdbcType=INTEGER}
+			, #{name						, jdbcType=VARCHAR}
+			, COALESCE(#{useYn	, jdbcType=VARCHAR}, 'Y')
+			, COALESCE(#{delYn	, jdbcType=VARCHAR}, 'N')
+			<choose>
+				<when test='sortOrd != null and sortOrd &gt; 0'>
+					, #{sortOrd	, jdbcType=INTEGER}
+				</when>
+				<otherwise>
+					, 9999
+				</otherwise>
+			</choose>
+			, #{rgtr						, jdbcType=INTEGER}
+			, now() 
+			, #{chnr						, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+    	parameterType="com.erns.coching.search.domain.RecommendKeywordVO">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.update */
+
+		UPDATE T_RECOMMEND_KEYWORD SET
+				NAME 				= #{name	, jdbcType=VARCHAR}
+			, USE_YN			= COALESCE(#{useYn	, jdbcType=VARCHAR}, 'Y')
+			, DEL_YN			= COALESCE(#{delYn	, jdbcType=VARCHAR}, 'Y')
+			<if test='sortOrd != null and sortOrd &gt; 0'>
+				, SORT_ORD			= #{sortOrd	, jdbcType=INTEGER}
+			</if>
+			, CHNR 				= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM		= now()
+		<where>
+			AND seq		= #{seq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateSortOrder"
+    	parameterType="com.erns.coching.search.domain.RecommendKeywordVO">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.updateSortOrder */
+
+		UPDATE T_RECOMMEND_KEYWORD SET
+				SORT_ORD 			= #{sortOrd	, jdbcType=INTEGER}			
+		<where>
+			AND seq		= #{seq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateUseYn"
+    	parameterType="com.erns.coching.search.domain.RecommendKeywordVO">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.updateUseYn */
+
+		UPDATE T_RECOMMEND_KEYWORD SET
+				USE_YN 			= #{useYn	, jdbcType=CHAR}
+			, CHNR 				= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM		= now()
+		<where>
+			AND seq		= #{seq	, jdbcType=INTEGER}
+		</where>
+	</update>
+    
+	<update id="updateDelYn"
+    	parameterType="com.erns.coching.search.domain.RecommendKeywordVO">
+    	/* com.erns.coching.search.mapper.RecommendKeywordDAO.updateDelYn */
+
+		UPDATE T_RECOMMEND_KEYWORD SET
+				DEL_YN 			= #{delYn	, jdbcType=CHAR}
+			, CHNR 				= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM		= now()
+		<where>
+			AND seq		= #{seq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.search.mapper.RecommendKeywordDAO.delete */
+
+		DELETE FROM T_RECOMMEND_KEYWORD
+		<where>
+			AND SEQ 	= #{value	, jdbcType=INTEGER}
+		</where>
+	</delete>
+    
+</mapper>

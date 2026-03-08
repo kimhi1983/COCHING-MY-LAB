@@ -1,0 +1,262 @@
+@import './transition.scss';
+
+/*
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+.vm--container{
+  .vm--overlay {
+    background: rgba(0,0,0, .7);
+  }
+
+  .vm--modal {
+    border-radius: 0px;
+  }
+}
+
+.vld-overlay .vld-background {
+  background: rgba(0,0,0, .7);
+  opacity: 0.3;
+}
+
+.swal2-container{
+  z-index: 20000 !important;
+
+  .btn-lg {
+    font-size: 16px;
+    height: 40px;
+    max-width: inherit;
+  }
+}
+
+
+.article{
+  
+  .article-h2 {
+    line-height: 1.2rem;
+  }
+  .article-p ul li {
+    padding-top: 0.175rem;
+  }
+  
+  .article .text-indent {
+    text-indent: -20px;
+    padding-left: 20px;
+  }
+  
+  .article .text-indent2 {
+    padding-left: 20px;
+  }
+  
+  .p-t-32 {
+    padding-top: 32px !important;
+  }
+}
+
+.auto-box-wrap {
+  display: block;
+}
+
+
+.attached-files-mltln:after {
+  content: attr(data-content) !important;
+}
+
+/*.add-wrap 원료 자료 에러*/
+.add-wrap .info {
+  font-size: 0.875rem;
+  color: var(--color--gray-666);
+  padding-top: 0.5rem;
+  font-weight: 600;
+}
+.add-wrap .info:nth-child(n + 3) {
+  padding-top: 0.25rem;
+}
+.add-wrap .info.error,
+.add-wrap .info.success {
+  display: flex;
+  display: none;
+  padding-left: 1.4rem;
+  text-indent: -0.375rem;
+}
+
+.add-wrap .info.error {
+  color: #f43333;
+}
+
+.add-wrap .info.success {
+  color: #00b24d;
+}
+.add-wrap .info.success.disabled {
+  color: #aaaaaa;
+}
+.add-wrap .info.error:before,
+.add-wrap .info.success:before {
+  content: "";
+  display: inline-block;
+  width: 1.125rem;
+  height: 1.125rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-left: -1.125rem;
+  margin-right: 0.375rem;
+  margin-top: -0.15rem;
+  vertical-align: middle;
+}
+
+.add-wrap .info.error:before {
+  background-image: url("../images/ic-error-red-md.svg");
+}
+
+.add-wrap .info.success:before {
+  background-image: url("../images/ic-success-green-md.svg");
+}
+.add-wrap .info.success.disabled:before {
+  background-image: url("../images/ic-success-gray-md.svg");
+}
+
+// 로그인 화면
+.login-wrap .bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+}
+.login-wrap .id-pw-find {
+  color: var(--color--gray-999);
+  font-size: .875rem;
+}
+
+//AG Grid
+.erns-ag-grid-vue{
+  min-height: 500px;    
+  display: flex;
+  flex: 1;    
+
+  .ag-cell.flex-center {
+      //셀 수직 수평 중앙
+      display: flex;
+      align-items: center;
+      justify-content: center;        
+      line-height: 1.7;
+  }
+    
+  .ag-cell.flex-left {
+      display: flex;        
+      align-items: center; /* 수직 중앙 */
+      justify-content: flex-start; /* 수평 좌측 정렬 */
+      line-height: 1.7;
+    }
+    
+  .ag-cell.flex-right {
+      display: flex;
+      align-items: center; /* 수직 중앙 */
+      justify-content: flex-end; /* 수평 우측 정렬 */
+      line-height: 1.7;
+  }
+
+  .ag-header-cell.text-center{
+      .ag-header-cell-label {
+          justify-content: center !important;
+      }
+  }
+
+  .erns-agGrid-edit-cell{
+      background-color: #ffc5d0;
+  }
+
+  .ag-cell-value.text-center{
+      .ag-checkbox-cell{
+          justify-content: center !important;
+      }
+  }
+
+  .ag-theme-quartz{
+      flex-grow: 1;
+
+      --ag-font-size: 12px; /* 폰트 크기 조정 */                
+      --ag-value-change-value-highlight-background-color: #cc222244;
+  }
+  
+  .ag-theme-balham{
+      flex-grow: 1;
+
+      --ag-value-change-value-highlight-background-color: #cc222244;
+  }
+
+  .btn-sm { /* 그리드 안 버튼 크기 */
+    font-size: 0.875rem;
+    height: 2.0rem;
+    font-weight: 600;
+    padding: 0 1rem;
+    margin: 0.25rem;
+  }
+
+  .ag-disabled {
+    pointer-events: none; /* 클릭 및 입력 차단 */
+    opacity: 0.6; /* 반투명하게 처리 */
+  }
+}
+
+// Quill Editor
+.ql-editor {
+  img {
+    display: inline-block !important;
+    margin: initial !important;
+    padding: initial !important;
+  }
+
+  .ql-video {
+    width: 50%;
+    aspect-ratio: 6 / 3.55;
+  }
+} 
+
+//vue-multiselect
+.multiselect__tag {
+  background: #3d44ea!important;
+}
+.multiselect__option--highlight {
+    outline: none;
+    color: #3d44ea!important;
+    background-color: rgba(61, 68, 234, .08)!important; 
+}
+.multiselect__option--highlight:after {
+    background-color: #3d44eaaa!important; 
+}
+.multiselect__option--selected.multiselect__option--highlight:after {
+    background-color: #ff6a6a !important;
+}
+.multiselect__tag-icon{
+  background-color: #3d44ea !important;
+}
+.multiselect__tag-icon:after{
+  color: #fff !important;
+}
+.multiselect__select::before {
+  color: #3d44ea !important;
+}
+
+//pagenation
+.pagenation a{
+  cursor: pointer; 
+}
+
+
+//grid renderer
+//button
+.gridbtnbox {
+  display: flex;
+  align-items: center; /* ✅ 세로 중앙 정렬 */
+  justify-content: center; /* ✅ 가로 중앙 정렬 (선택) */
+  height: 100%; /* 부모 요소 높이 지정 */
+}
+//switch
+.gridswitchbox {
+  display: flex;
+  align-items: center; /* ✅ 세로 중앙 정렬 */
+  justify-content: center; /* ✅ 가로 중앙 정렬 (선택) */
+  height: 100%; /* 부모 요소 높이 지정 */
+}

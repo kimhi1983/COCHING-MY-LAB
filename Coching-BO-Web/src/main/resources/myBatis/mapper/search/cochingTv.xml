@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.search.mapper.CochingEsTvDAO">
+
+	<!-- T_ES_TV -->
+	<sql id="baseFieldsAA">
+			AA.TV_SEQ
+		, AA.YT_URL
+		, AA.SORT_ORD
+		, AA.TITLE
+		, AA.HASHTAG
+		, AA.VIEWS
+		, AA.YT_DTTM
+		, AA.RGTR
+		, AA.RGT_DTTM
+		, AA.CONTENT
+	</sql>
+
+
+	<sql id="baseSearchConditionAA">
+		<if test='tvSeq != null and tvSeq != ""'>
+			AND AA.TV_SEQ = #{tvSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='titleL != null and titleL != ""'>
+			AND UPPER(AA.TITLE) LIKE UPPER('%' || #{titleL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='contentL != null and contentL != ""'>
+			AND UPPER(AA.CONTENT) LIKE UPPER('%' || #{contentL, jdbcType=VARCHAR} || '%')
+		</if>
+	</sql>
+
+
+	<select id="getList"
+			parameterType="com.erns.coching.search.domain.CochingEsTvSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>					
+				FROM T_ES_TV AA					
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.TV_SEQ
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListVo"
+			parameterType="com.erns.coching.search.domain.CochingEsTvSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsTvVO">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.getListVo */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(	
+				SELECT
+					<include refid="baseFieldsAA"/>					
+				FROM T_ES_TV AA					
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+				
+				<choose>
+					<otherwise>
+						ORDER BY AA.TV_SEQ
+					</otherwise>
+				</choose>			
+			) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.search.domain.CochingEsTvSearchDTO"
+			resultType="int">
+    	/* com.erns.coching.search.mapper.CochingEsTvDAO.getListCount */
+
+		SELECT COUNT(*)
+		FROM T_ES_TV AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+  </select>
+
+
+	<select id="load"
+    	parameterType="long"
+    	resultType="com.erns.coching.search.domain.CochingEsTvVO">
+    	/* com.erns.coching.search.mapper.CochingEsTvDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+		FROM T_ES_TV AA
+		<where>
+			AND AA.TV_SEQ = #{value, jdbcType=INTEGER}
+		</where>
+
+	</select>
+
+
+	<update id="dropTable">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.dropTable */
+
+    DROP TABLE IF EXISTS T_ES_TV;
+
+		commit;
+	</update>
+
+	<sql id="selectTvEsData">
+		SELECT 
+				CTV.tv_seq
+			, CTV.yt_url
+			, CTV.sort_ord
+			, CTV.title
+			, CTV.hashtag
+			, CTV.views
+			, TO_CHAR((CTV.yt_dttm::timestamptz AT TIME ZONE 'Asia/Seoul'), 'YYYY-MM-DD HH24:MI:SS') AS yt_dttm
+			, CTV.rgtr
+			, TO_CHAR(CTV.rgt_dttm, 'YYYY-MM-DD HH24:MI:SS') AS rgt_dttm
+			, CTV.content
+		FROM T_CH_TV CTV		
+	</sql>
+
+
+	<update id="createTable">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.createTable */
+
+    CREATE TABLE IF NOT EXISTS T_ES_TV AS
+
+		<include refid="selectTvEsData"/>
+		<where>
+			AND COALESCE(CTV.USE_YN, 'Y') = 'Y'
+			AND COALESCE(CTV.DEL_YN, 'N') = 'N'
+		</where>						
+	</update>
+
+	<select id="getListVoForEsRenewIndexItems"
+			parameterType="com.erns.coching.search.domain.CochingEsTvSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsTvVO">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.getListVoForEsRenewIndexItems */
+
+		<!--Index 대상 -->
+		<include refid="selectTvEsData"/>
+		<where>
+			<!-- <if test='tvSeqs != null'> -->
+			<!-- 무조건 있어야 함 -->
+    		<foreach item="item" index="index" collection="tvSeqs"
+    			open="AND CTV.tv_seq in (" separator="," close=")">#{item, jdbcType=INTEGER}</foreach>
+    	<!-- </if> -->	
+
+			AND COALESCE(CTV.USE_YN, 'Y') = 'Y'
+			AND COALESCE(CTV.DEL_YN, 'N') = 'N'
+		</where>
+	</select>
+
+	<select id="getListVoForEsRenewDeleteItems"
+			parameterType="com.erns.coching.search.domain.CochingEsTvSearchDTO"
+			resultType="com.erns.coching.search.domain.CochingEsTvVO">
+		/* com.erns.coching.search.mapper.CochingEsTvDAO.getListVoForEsRenewDeleteItems */
+
+		<!--delete 대상 -->
+		SELECT
+				'delete' AS job
+			, CTV.tv_seq
+			, CTV.DEL_YN
+			, CTV.USE_YN						
+		FROM T_CH_TV CTV	 /* TV 마스터 */				
+		<where>
+			<!-- <if test='tvSeqs != null'> -->
+			<!-- 무조건 있어야 함 -->
+    		<foreach item="item" index="index" collection="tvSeqs"
+    			open="AND CTV.tv_seq in (" separator="," close=")">#{item, jdbcType=INTEGER}</foreach>
+    	<!-- </if> -->			
+		</where>			
+		GROUP BY 
+			  CTV.tv_seq	
+			, CTV.DEL_YN
+			, CTV.USE_YN
+		HAVING 
+			NOT (
+				    COALESCE(CTV.USE_YN, 'Y') = 'Y'
+				AND COALESCE(CTV.DEL_YN, 'N') = 'N'
+			)
+		/* ORDER BY CTV.tv_seq	*/
+	</select>
+    
+</mapper>

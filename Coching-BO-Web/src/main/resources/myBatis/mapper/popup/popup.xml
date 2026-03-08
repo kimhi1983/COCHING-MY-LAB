@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.popup.mapper.PopupDAO">
+
+	<sql id="baseFieldsAA">
+			AA.POPUP_SEQ
+		, AA.POPUP_MST_CD
+		, AA.POPUP_NAME
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.POPUP_DESC
+		, AA.CLOSE_OPT
+		, AA.POPUP_URL
+		, AA.POPUP_WIDTH
+		, AA.POPUP_HEIGHT
+		, AA.CLICKS
+		, AA.SORT_ORD
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+	</sql>
+
+	<sql id="baseSearchConditionAA">
+		<if test='popupMstCd != null and popupMstCd != ""'>
+			AND AA.POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+		</if>
+
+		<if test='popupNameL != null and popupNameL != ""'>
+			AND UPPER(AA.POPUP_NAME) LIKE UPPER('%' || #{popupNameL, jdbcType=VARCHAR} || '%')
+		</if>
+
+		<if test='useYn != null and useYn != ""'>
+			AND AA.USE_YN = #{useYn }
+		</if>
+
+		<if test='delYn != null and delYn != ""'>
+			AND AA.DEL_YN = #{delYn }
+		</if>
+
+		<if test='popupSeq &gt; 0'>
+			AND AA.POPUP_SEQ 	= #{popupSeq	, jdbcType=INTEGER}
+		</if>
+	</sql>
+
+	<select id="getList"
+			parameterType="com.erns.coching.popup.domain.PopupSearchDTO"
+			resultType="camelMap">
+		/* com.erns.coching.popup.mapper.PopupDAO.getList */
+
+		SELECT 
+			ZZ.*
+		FROM 
+			(					
+				SELECT
+					<include refid="baseFieldsAA"/>
+					,	A1.MEMB_SEQ 	AS MEMB_SEQ	
+					, A1.MEMB_ID 		AS MEMB_ID
+					, A1.MEMB_NAME	AS MEMB_NAME
+				FROM T_POPUP_INF AA
+					LEFT OUTER JOIN T_MEMB_INF A1 ON AA.CHNR = A1.MEMB_SEQ
+				<where>
+					<include refid="baseSearchConditionAA"/>
+				</where>
+
+				<choose>
+					<otherwise>
+						ORDER BY AA.SORT_ORD, AA.POPUP_SEQ DESC
+					</otherwise>
+				</choose>	
+		) ZZ
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+			parameterType="com.erns.coching.popup.domain.PopupSearchDTO"
+			resultType="int">
+		/* com.erns.coching.popup.mapper.PopupDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_POPUP_INF AA
+		<where>
+			<include refid="baseSearchConditionAA"/>
+		</where>
+	</select>
+
+	<select id="load"
+		parameterType="com.erns.coching.popup.domain.PopupSearchDTO"
+		resultType="camelMap">
+		/* com.erns.coching.popup.mapper.PopupDAO.load */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			, BM.POPUP_TYPE
+			, BM.POPUP_MST_NAME
+		FROM T_POPUP_INF AA
+			JOIN T_POPUP_MST BM ON AA.POPUP_MST_CD = BM.POPUP_MST_CD
+		<where>
+			AND AA.POPUP_SEQ 	= #{popupSeq	, jdbcType=INTEGER}
+		</where>
+	</select>
+
+	<insert id="insert"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.insert */
+
+		<selectKey resultType="long" keyProperty="popupSeq" order="BEFORE">
+			SELECT nextval('seq_t_popup_inf')
+		</selectKey>	
+
+		INSERT INTO T_POPUP_INF (
+			POPUP_SEQ
+			, POPUP_MST_CD
+			, POPUP_NAME
+			, FROM_DATE
+			, TO_DATE
+			, POPUP_DESC
+			, CLOSE_OPT
+			, POPUP_URL
+			, POPUP_WIDTH
+			, POPUP_HEIGHT
+			, CLICKS
+			, USE_YN
+			, DEL_YN
+
+			, RGTR
+			, RGT_DTTM
+			, CHNR
+			, CHNG_DTTM
+			) VALUES (
+				#{popupSeq			, jdbcType=INTEGER}
+			, #{popupMstCd 			, jdbcType=VARCHAR}
+			, #{popupName			, jdbcType=VARCHAR}
+			, #{fromDate			, jdbcType=VARCHAR}
+			, #{toDate				, jdbcType=VARCHAR}
+			, #{popupDesc			, jdbcType=VARCHAR}
+			, COALESCE(#{closeOpt	, jdbcType=CHAR}, '1')
+			, #{popupUrl			, jdbcType=VARCHAR}
+			, #{popupWidth			, jdbcType=INTEGER}
+			, #{popupHeight			, jdbcType=INTEGER}
+			, #{clicks				, jdbcType=INTEGER}
+			, COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+			, COALESCE(#{delYn		, jdbcType=CHAR}, 'N')
+
+			, #{rgtr	, jdbcType=INTEGER}
+			, now()
+			, #{chnr	, jdbcType=INTEGER}
+			, now()
+		)
+	</insert>
+
+	<update id="update"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.update */
+
+		UPDATE T_POPUP_INF SET
+				POPUP_MST_CD     	= #{popupMstCd 			, jdbcType=VARCHAR}
+			, POPUP_NAME       	= #{popupName			, jdbcType=VARCHAR}
+			, FROM_DATE        	= #{fromDate			, jdbcType=VARCHAR}
+			, TO_DATE          	= #{toDate				, jdbcType=VARCHAR}
+			, POPUP_DESC       	= #{popupDesc			, jdbcType=VARCHAR}
+			, CLOSE_OPT			= COALESCE(#{closeOpt	, jdbcType=CHAR}, '1')
+			, POPUP_URL        	= #{popupUrl			, jdbcType=VARCHAR}
+			, POPUP_WIDTH      	= #{popupWidth			, jdbcType=INTEGER}
+			, POPUP_HEIGHT     	= #{popupHeight			, jdbcType=INTEGER}
+			, CLICKS            = #{clicks				, jdbcType=INTEGER}
+			, USE_YN            = COALESCE(#{useYn		, jdbcType=CHAR}, 'Y')
+			, DEL_YN            = COALESCE(#{delYn		, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr				, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND POPUP_SEQ 		= #{popupSeq			, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateUseYn"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.updateUseYn */
+
+		UPDATE T_POPUP_INF SET
+				USE_YN            = COALESCE(#{useYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr		, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+			AND POPUP_SEQ 		= #{popupSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateDelYn"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.updateDelYn */
+
+		UPDATE T_POPUP_INF SET
+				DEL_YN            = COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr		, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+			AND POPUP_SEQ 		= #{popupSeq	, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateOrder"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.updateOrder */
+
+		UPDATE T_POPUP_INF SET
+				SORT_ORD      = #{sortOrd	, jdbcType=INTEGER}
+
+			, CHNR 		 	= #{chnr	, jdbcType=INTEGER}
+			, CHNG_DTTM  	= now()
+		<where>
+			AND POPUP_SEQ 	= #{popupSeq, jdbcType=INTEGER}
+		</where>
+	</update>
+
+	<update id="updateState"
+		parameterType="com.erns.coching.popup.domain.PopupVO">
+		/* com.erns.coching.popup.mapper.PopupDAO.updateState */
+
+		UPDATE T_POPUP_INF SET
+				USE_YN            = COALESCE(#{useYn	, jdbcType=CHAR}, 'N')
+			,	DEL_YN            = COALESCE(#{delYn	, jdbcType=CHAR}, 'N')
+
+			, CHNR 		 		= #{chnr		, jdbcType=INTEGER}
+			, CHNG_DTTM  		= now()
+		<where>
+			AND POPUP_SEQ 	= #{popupSeq, jdbcType=INTEGER}
+			AND POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+		</where>
+	</update>
+
+	<delete id="delete"
+		parameterType="long">
+		/* com.erns.coching.popup.mapper.PopupDAO.delete */
+
+		DELETE FROM T_POPUP_INF
+		<where>
+			AND POPUP_SEQ = #{popupSeq, jdbcType=INTEGER}
+		</where>
+	</delete>
+
+</mapper>

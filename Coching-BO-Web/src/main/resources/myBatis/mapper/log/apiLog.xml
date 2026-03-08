@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.log.mapper.ApiLogDAO">
+
+	<sql id="baseFieldsAA">
+		  TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.SITE_TYPE
+		, AA.MEMB_SEQ
+		, AA.LOG_TYPE
+		, AA.ROUTER_NM
+		, AA.ACCESS_IP
+		, AA.PROC_STATUS
+		, AA.API_URI
+		, AA.API_PARAMS
+		, AA.API_RES
+		
+	</sql>
+
+	<sql id="baseSearchCondition">
+		<if test='fromDate != null and fromDate != ""'>
+			AND AA.RGT_DTTM &gt;= #{fromDate, jdbcType=VARCHAR}::timestamp
+		</if>
+
+		<if test='toDate != null and toDate != ""'>
+			AND AA.RGT_DTTM &lt;= (#{toDate, jdbcType=VARCHAR}::timestamp + interval '1 day')
+		</if>
+
+		<if test='siteType != null and siteType != ""'>
+			AND AA.SITE_TYPE = #{siteType, jdbcType=VARCHAR}
+		</if>
+
+		<if test='membSeq != null and membSeq &gt; -1'>
+			AND AA.MEMB_SEQ = #{membSeq, jdbcType=INTEGER}
+		</if>
+
+		<if test='logType != null and logType != ""'>
+			AND AA.LOG_TYPE = #{logType, jdbcType=VARCHAR}
+		</if>
+
+		<if test='logTypeRL != null and logTypeRL != ""'>
+			AND AA.LOG_TYPE LIKE #{logTypeRL, jdbcType=VARCHAR} || '%'
+		</if>
+
+		<if test='routerNm != null and routerNm != ""'>
+			AND AA.ROUTER_NM = #{routerNm, jdbcType=VARCHAR}
+		</if>
+
+		<if test='routerNmL != null and routerNmL != ""'>
+			AND AA.ROUTER_NM LIKE '%'	|| #{routerNmL, jdbcType=VARCHAR} || '%'
+		</if>
+
+		<if test='accessIp != null and accessIp != ""'>
+			AND AA.ACCESS_IP = #{accessIp, jdbcType=VARCHAR}
+		</if>
+
+		<if test='accessIpL != null and accessIpL != ""'>
+			AND AA.ACCESS_IP LIKE '%'	|| #{accessIpL, jdbcType=VARCHAR} || '%'
+		</if>
+
+		<if test='procStatus != null and procStatus != ""'>
+			AND AA.PROC_STATUS = #{logTypeRL, jdbcType=CHAR}
+		</if>
+
+		<if test='apiUri != null and apiUri != ""'>
+			AND AA.API_URI = #{accessIp, jdbcType=VARCHAR}
+		</if>
+
+		<if test='apiUriL != null and apiUriL != ""'>
+			AND AA.API_URI LIKE '%'	|| #{apiUriL, jdbcType=VARCHAR} || '%'
+		</if>
+	</sql>
+
+	<select id="getList"
+		parameterType="com.erns.coching.log.domain.ApiLogSearchDTO"
+		resultType="camelMap">
+		/* mapper.log.com.erns.coching.ApiLogDAO.getList */
+
+		SELECT
+			<include refid="baseFieldsAA"/>
+			,MB.MEMB_ID
+			,MB.MEMB_NAME
+		FROM T_API_LOG_H AA
+			LEFT JOIN T_MEMB_INF MB ON AA.memb_seq = MB.memb_seq
+		<where>
+			<include refid="baseSearchCondition"/>
+			<if test='membIdL != null and membIdL != ""'>
+				AND MB.MEMB_ID LIKE '%'	|| #{membIdL, jdbcType=VARCHAR} || '%' 
+			</if>
+			<if test='membNameL != null and membNameL != ""'>
+				AND MB.MEMB_NAME LIKE '%'	|| #{membNameL, jdbcType=VARCHAR} || '%' 
+			</if>
+			<if test='userSearch != null and userSearch != ""'>
+				AND	(
+					MB.MEMB_ID LIKE '%'	|| #{userSearch, jdbcType=VARCHAR} || '%' 
+					OR
+					MB.MEMB_NAME LIKE '%'	|| #{userSearch, jdbcType=VARCHAR} || '%' 
+				)
+			</if>
+		</where>
+		ORDER BY AA.RGT_DTTM DESC
+		<if test='rowSize &gt; 0'>
+			OFFSET #{offset} LIMIT #{rowSize} 
+		</if>
+	</select>
+
+	<select id="getListCount"
+		parameterType="com.erns.coching.log.domain.ApiLogSearchDTO"
+		resultType="int">
+		/* mapper.log.com.erns.coching.ApiLogDAO.getListCount */
+
+		SELECT
+			COUNT(*)
+		FROM T_API_LOG_H AA
+			LEFT JOIN T_MEMB_INF MB ON AA.memb_seq = MB.memb_seq
+		<where>
+			<include refid="baseSearchCondition"/>
+			<if test='membIdL != null and membIdL != ""'>
+				AND MB.MEMB_ID LIKE '%'	|| #{membIdL, jdbcType=VARCHAR} || '%' 
+			</if>
+			<if test='membNameL != null and membNameL != ""'>
+				AND MB.MEMB_NAME LIKE '%'	|| #{membNameL, jdbcType=VARCHAR} || '%' 
+			</if>
+			<if test='userSearch != null and userSearch != ""'>
+				AND	(
+					MB.MEMB_ID LIKE '%'	|| #{userSearch, jdbcType=VARCHAR} || '%' 
+					OR
+					MB.MEMB_NAME LIKE '%'	|| #{userSearch, jdbcType=VARCHAR} || '%' 
+				)
+			</if>
+		</where>
+	</select>
+
+
+	<insert id="insert"
+		parameterType="com.erns.coching.log.domain.ApiLogVO">
+		/* mapper.log.com.erns.coching.ApiLogDAO.insert */
+
+		<selectKey resultType="String" keyProperty="tempKey" order="BEFORE">
+			SELECT coching.create_monthly_partition('t_api_log_h', 'coching', now()::TIMESTAMP);
+		</selectKey>
+
+		INSERT INTO coching.t_api_log_h (
+				RGT_DTTM
+			, SITE_TYPE
+			, MEMB_SEQ
+			, LOG_TYPE
+			, ROUTER_NM
+			, ACCESS_IP
+			, PROC_STATUS
+			, API_URI
+			, API_PARAMS
+			, API_RES
+		)
+		VALUES(
+    		now()::TIMESTAMP
+			, COALESCE(#{siteType		,jdbcType=VARCHAR}, 'ADMIN_WEB')
+    	, COALESCE(#{membSeq		,jdbcType=INTEGER}, 0)
+			, COALESCE(#{logType		,jdbcType=VARCHAR}, '000_000000')
+			, #{routerNm		,jdbcType=VARCHAR}
+			, #{accessIp		,jdbcType=VARCHAR}
+			, #{procStatus	,jdbcType=CHAR}
+			, #{apiUri			,jdbcType=VARCHAR}
+			,
+			<if test='apiParams != null and apiParams != ""'>
+					CAST(#{apiParams} AS jsonb)
+			</if>
+			<if test='apiParams == null or apiParams == ""'>
+					NULL
+			</if>
+			,
+			<if test='apiRes != null and apiRes != ""'>
+					CAST(#{apiRes} AS jsonb)
+			</if>
+			<if test='apiRes == null or apiRes == ""'>
+					NULL
+			</if>		
+    	)
+	</insert>
+
+
+</mapper>

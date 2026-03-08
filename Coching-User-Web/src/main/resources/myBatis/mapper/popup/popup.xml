@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erns.coching.popup.mapper.PopupDAO">
+
+    <sql id="baseFieldsAA">
+    	  AA.POPUP_SEQ
+		, AA.POPUP_MST_CD
+		, AA.POPUP_NAME
+		, AA.FROM_DATE
+		, AA.TO_DATE
+		, AA.POPUP_DESC
+		, AA.CLOSE_OPT
+		, AA.POPUP_URL
+		, AA.POPUP_WIDTH
+		, AA.POPUP_HEIGHT
+		, AA.CLICKS
+		, AA.SORT_ORD
+		, AA.USE_YN
+		, AA.DEL_YN
+		, AA.RGTR
+		, TO_CHAR(AA.RGT_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS RGT_DTTM
+		, AA.CHNR
+		, TO_CHAR(AA.CHNG_DTTM, 'YYYY-MM-DD HH24:MI:SS') AS CHNG_DTTM
+    </sql>
+
+    <sql id="baseSearchConditionAA">
+    	<if test='popupMstCd != null and popupMstCd != ""'>
+    		AND AA.POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+    	</if>
+
+    	<if test='useYn != null and useYn != ""'>
+    		AND AA.USE_YN = #{useYn }
+    	</if>
+
+    	<if test='delYn != null and delYn != ""'>
+    		AND AA.DEL_YN = #{delYn }
+    	</if>
+
+    	<if test='popupSeq &gt; 0'>
+    		AND AA.POPUP_SEQ 	= #{popupSeq	, jdbcType=INTEGER}
+    	</if>
+    </sql>
+
+    <select id="getList"
+    		parameterType="com.erns.coching.popup.domain.PopupSearchDTO"
+    		resultType="camelMap">
+    	/* mapper.popup.com.erns.coching.PopupDAO.getList */
+
+    	SELECT
+    		<include refid="baseFieldsAA"/>
+
+		    , FI.FILE_ID
+		    , FI.REF_CODE
+		    , FI.REF_SEQ
+		    , FI.FILE_SIZE
+
+		FROM T_POPUP_INF AA
+    		JOIN T_FILE_INF FI ON FI.REF_CODE = 'FT_POPUP' AND AA.POPUP_SEQ = FI.REF_SEQ
+		<where>
+			AND AA.POPUP_MST_CD 	= #{popupMstCd	, jdbcType=VARCHAR}
+		    AND AA.DEL_YN = 'N'
+		    AND AA.USE_YN = 'Y'
+		    AND FI.DEL_YN = 'N'
+
+			AND CURRENT_DATE BETWEEN
+    			COALESCE(AA.FROM_DATE, '2000-01-01')::DATE AND COALESCE(AA.TO_DATE, '3000-12-31')::DATE
+		</where>
+
+		ORDER BY AA.SORT_ORD ASC, AA.RGT_DTTM DESC
+    </select>
+
+
+    <update id="updateClickCnt" parameterType="long">
+    	/* mapper.popup.com.erns.coching.PopupDAO.updateClickCnt */
+
+    	UPDATE T_POPUP_INF SET
+    		CLICKS = CLICKS + 1
+    	<where>
+    		AND POPUP_SEQ 	= #{value	, jdbcType=INTEGER}
+    	</where>
+    </update>
+
+</mapper>
