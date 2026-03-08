@@ -1,14 +1,98 @@
 # COCHING 프로젝트 — CLAUDE.md
 
 ## 프로젝트 개요
-[COCHING 프로젝트 설명을 여기에 작성]
+화장품 원료 매칭 플랫폼. 원료사(Partner)와 화장품 개발사(User)를 연결하고,
+AI가 화장품 처방(Formula)을 자동 생성한다. 3-Tier 구조(관리자/사용자/원료사)로 운영.
 
 ## 기술 스택
-- Frontend: [확정 후 기입]
-- Backend: [확정 후 기입]
-- Database: [확정 후 기입]
-- 배포: [확정 후 기입]
-- 외부연동: [확정 후 기입]
+
+### Frontend (Vue 2 × 3개 앱)
+- **Framework**: Vue 2.6 + Vue CLI 4.5 + Vuex 3 + Vue Router 3
+- **빌드**: Webpack 4, Babel
+- **UI**: Bootstrap-Vue, AG-Grid (데이터 테이블), ApexCharts (차트)
+- **에디터**: vue-quill-editor (리치 텍스트)
+- **기타**: Swiper, Lottie, Cropper.js, vue-pdf, vue-i18n (다국어)
+
+### Backend (Spring Boot × 3개 서버 + ES API)
+- **Framework**: Spring Boot 2.5.4 + Java 8
+- **빌드**: Gradle → WAR 배포
+- **ORM**: MyBatis (SQL 매퍼)
+- **인증**: Spring Security + JWT + JWE (Nimbus JOSE + BouncyCastle)
+- **보안**: Naver XSS 필터 (lucy-xss-servlet)
+- **기타**: Apache POI (엑셀), JavaMail, Google OAuth
+
+### Database
+- **PostgreSQL** (3개 백엔드 공유)
+
+### 검색 엔진
+- **Elasticsearch 8.15** (ERNS-ES-API)
+- 원료 성분 색인 + 전문 검색
+
+### AI (화장품 처방 생성)
+- **Python FastAPI** + Uvicorn
+- **LangChain** + OpenAI GPT
+- Elasticsearch 성분 DB 기반 처방 자동 생성
+
+### 문서 처리 (ERNS-ES-API)
+- Apache POI (xlsx/docx), PDFBox, HWP/HWPX (hwplib)
+- Google Cloud Vision API (OCR)
+- JodConverter (LibreOffice 연동)
+
+## 핵심 디렉토리 구조
+```
+E:\COCHING\
+├── Coching-BO-Vue/           # 관리자 프론트엔드 (Vue 2)
+├── Coching-BO-Web/           # 관리자 백엔드 (Spring Boot, cochingAdm.war)
+├── Coching-User-Vue/         # 사용자 프론트엔드 (Vue 2)
+├── Coching-User-Web/         # 사용자 백엔드 (Spring Boot, cochingUser.war)
+├── Coching-Partner-Vue/      # 원료사 프론트엔드 (Vue 2)
+├── Coching-Partner-Web/      # 원료사 백엔드 (Spring Boot, cochingPrt.war)
+├── Coching-Cosmetic-AI-V1/   # AI 처방 생성 (Python FastAPI + LangChain)
+│   └── demo-v1/              # FastAPI 서버 (main.py)
+├── ERNS-ES-API/              # 원료 검색 엔진 (Spring Boot + Elasticsearch)
+├── .claude/
+│   ├── agents/               # 12-Agent Ultimate Team (11개 파일)
+│   └── commands/             # 슬래시 커맨드 (4개)
+├── docs/                     # 문서
+└── CLAUDE.md                 # 이 파일
+```
+
+## 시스템 아키텍처
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  사용자 (User)   │  │  원료사 (Partner)│  │  관리자 (BO)     │
+│  User-Vue       │  │  Partner-Vue    │  │  BO-Vue         │
+│       ↕         │  │       ↕         │  │       ↕         │
+│  User-Web       │  │  Partner-Web    │  │  BO-Web         │
+└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
+         └────────────────────┼─────────────────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    │   PostgreSQL DB    │
+                    └─────────┬─────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼                               ▼
+    ┌──────────────────┐           ┌──────────────────┐
+    │  ERNS-ES-API     │           │ Cosmetic-AI-V1   │
+    │  Elasticsearch   │◄──────────│ FastAPI+LangChain│
+    │  OCR/문서처리     │           │ AI 처방 생성      │
+    └──────────────────┘           └──────────────────┘
+```
+
+## 주요 기능 모듈
+
+| 모듈 | BO (관리) | User (사용자) | Partner (원료사) |
+|------|-----------|-------------|----------------|
+| 회원관리 | 전체 회원 조회/수정 | 가입/프로필 | 계정 관리 |
+| 원료관리 | 원료 목록/성분 구분 | 원료 검색/조회 | 원료 등록/수정/삭제 |
+| 계약 | 계약 목록/정산 | — | — |
+| 게시판 | FAQ/공지/뉴스 관리 | 공지/FAQ 조회 | 파트너 게시판 |
+| AI 처방 | R&D 처방 데모 | — | — |
+| 코칭TV | 영상 관리 | 영상 시청 | — |
+| 검색 | 검색 설정 | 원료 검색 | 원료 검색 |
+| 다국어 | 문자열 관리 | 한/영 UI | 한/영 UI |
+| 알림 | — | 알림/쪽지 | — |
 
 ---
 
@@ -141,11 +225,34 @@
 ---
 
 ## 코딩 규칙
-<!-- 프로젝트 코딩 컨벤션 확정 후 여기에 작성 -->
-- TypeScript strict mode
-- 한국어 UI
+
+### Frontend (Vue 2)
+- Vue 2 Options API 패턴 (Composition API 아님)
+- Vuex로 상태 관리 (store/modules/ 구조)
+- SCSS 사용, Bootstrap-Vue 컴포넌트 우선
+- 라우트: `src/router/routes/coching-{bo|user|partner}/` 모듈별 파일
+- 권한: `@casl/ability` + 라우트 meta로 RBAC 제어
+- i18n: `vue-i18n` 다국어 (한국어/영어)
+- HTTP: Axios (인터셉터로 JWT 자동 첨부)
+
+### Backend (Spring Boot)
+- Java 8, Spring Boot 2.5.4
+- MyBatis SQL 매퍼 (`resources/myBatis/mapper/`)
+- Controller → Service → Mapper 3계층 구조
+- JWT + JWE 토큰 인증 (Spring Security)
+- WAR 배포 (Gradle)
+- SQL: PreparedStatement 필수 (MyBatis #{} 바인딩)
+
+### AI (Python)
+- FastAPI + Pydantic v2 모델
+- LangChain + OpenAI GPT 호출
+- Elasticsearch 연동으로 성분 데이터 조회
+
+### 공통
+- 한국어 UI 유지
 - 환경변수로 시크릿 관리 (하드코딩 금지)
-- SQL Prepared Statement 필수
+- `.env` 파일 커밋 금지
+- Google Cloud 키 파일 커밋 금지
 
 ## 커밋 메시지 규칙
 ```
@@ -160,6 +267,10 @@ chore: 설정/빌드 변경
 
 ## 주의사항
 - `.env` 파일은 절대 커밋하지 않는다
+- Google Cloud 키 파일(`*.json` in `resources/key/`) 커밋 금지
 - 사용자 확인 없이 배포/삭제 실행 금지
 - API 키는 환경변수로만 관리
 - 한국어 UI 유지
+- WAR 배포 이름: BO=`cochingAdm.war`, User=`cochingUser.war`, Partner=`cochingPrt.war`
+- DB 스키마 변경 시 반드시 MyBatis 매퍼 XML도 동시 수정
+- Vue 2 → Vue 3 마이그레이션 시 사전 승인 필수
