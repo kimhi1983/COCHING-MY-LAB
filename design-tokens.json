@@ -1,37 +1,133 @@
 {
   "global": {
     "color": {
-      "bg":         { "value": "#f8f7f5",  "type": "color", "description": "페이지 배경" },
-      "surface":    { "value": "#ffffff",  "type": "color", "description": "카드/패널 배경" },
-      "sidebar":    { "value": "#fafaf8",  "type": "color", "description": "사이드바 배경" },
-      "border":     { "value": "#ece9e3",  "type": "color", "description": "기본 테두리" },
-      "borderMid":  { "value": "#d8d4cc",  "type": "color", "description": "중간 테두리" },
-      "accent":     { "value": "#b8935a",  "type": "color", "description": "골든 브라운 강조색" },
-      "accentLt":   { "value": "#f0e8d8",  "type": "color", "description": "강조색 연한 배경" },
-      "accentDim":  { "value": "#e8dece",  "type": "color", "description": "강조색 중간 배경" },
-      "text":       { "value": "#1a1814",  "type": "color", "description": "기본 텍스트" },
-      "textSub":    { "value": "#6b6560",  "type": "color", "description": "보조 텍스트" },
-      "textDim":    { "value": "#aba59d",  "type": "color", "description": "비활성 텍스트" },
-      "green":      { "value": "#3a9068",  "type": "color", "description": "성공/긍정" },
-      "greenBg":    { "value": "#f0f8f4",  "type": "color", "description": "성공 배경" },
-      "red":        { "value": "#c44e4e",  "type": "color", "description": "오류/위험" },
-      "redBg":      { "value": "#fdf2f2",  "type": "color", "description": "오류 배경" },
-      "amber":      { "value": "#b07820",  "type": "color", "description": "경고" },
-      "amberBg":    { "value": "#fdf8f0",  "type": "color", "description": "경고 배경" },
-      "blue":       { "value": "#3a6fa8",  "type": "color", "description": "정보" },
-      "blueBg":     { "value": "#f0f4fb",  "type": "color", "description": "정보 배경" },
-      "purple":     { "value": "#7c5cbf",  "type": "color", "description": "AI/특수" },
-      "purpleBg":   { "value": "#f6f2fd",  "type": "color", "description": "AI/특수 배경" }
+      "bg": {
+        "value": "#f8f7f5",
+        "type": "color",
+        "description": "페이지 배경"
+      },
+      "surface": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "카드/패널 배경"
+      },
+      "sidebar": {
+        "value": "#fafaf8",
+        "type": "color",
+        "description": "사이드바 배경"
+      },
+      "border": {
+        "value": "#ece9e3",
+        "type": "color",
+        "description": "기본 테두리"
+      },
+      "borderMid": {
+        "value": "#d8d4cc",
+        "type": "color",
+        "description": "중간 테두리"
+      },
+      "accent": {
+        "value": "#b8935a",
+        "type": "color",
+        "description": "골든 브라운 강조색"
+      },
+      "accentLt": {
+        "value": "#f0e8d8",
+        "type": "color",
+        "description": "강조색 연한 배경"
+      },
+      "accentDim": {
+        "value": "#e8dece",
+        "type": "color",
+        "description": "강조색 중간 배경"
+      },
+      "text": {
+        "value": "#1a1814",
+        "type": "color",
+        "description": "기본 텍스트"
+      },
+      "textSub": {
+        "value": "#6b6560",
+        "type": "color",
+        "description": "보조 텍스트"
+      },
+      "textDim": {
+        "value": "#aba59d",
+        "type": "color",
+        "description": "비활성 텍스트"
+      },
+      "green": {
+        "value": "#3a9068",
+        "type": "color",
+        "description": "성공/긍정"
+      },
+      "greenBg": {
+        "value": "#f0f8f4",
+        "type": "color",
+        "description": "성공 배경"
+      },
+      "red": {
+        "value": "#c44e4e",
+        "type": "color",
+        "description": "오류/위험"
+      },
+      "redBg": {
+        "value": "#fdf2f2",
+        "type": "color",
+        "description": "오류 배경"
+      },
+      "amber": {
+        "value": "#b07820",
+        "type": "color",
+        "description": "경고"
+      },
+      "amberBg": {
+        "value": "#fdf8f0",
+        "type": "color",
+        "description": "경고 배경"
+      },
+      "blue": {
+        "value": "#3a6fa8",
+        "type": "color",
+        "description": "정보"
+      },
+      "blueBg": {
+        "value": "#f0f4fb",
+        "type": "color",
+        "description": "정보 배경"
+      },
+      "purple": {
+        "value": "#7c5cbf",
+        "type": "color",
+        "description": "AI/특수"
+      },
+      "purpleBg": {
+        "value": "#f6f2fd",
+        "type": "color",
+        "description": "AI/특수 배경"
+      }
     },
     "borderRadius": {
-      "base": { "value": "10px", "type": "borderRadius" }
+      "base": {
+        "value": "10px",
+        "type": "borderRadius"
+      }
     },
     "boxShadow": {
-      "base": { "value": "0 1px 4px rgba(0,0,0,0.04)", "type": "boxShadow" }
+      "base": {
+        "value": "0 1px 4px rgba(0,0,0,0.04)",
+        "type": "boxShadow"
+      }
     },
     "fontFamilies": {
-      "base": { "value": "Pretendard, -apple-system, Noto Sans KR, sans-serif", "type": "fontFamilies" },
-      "mono": { "value": "JetBrains Mono, Courier New, monospace", "type": "fontFamilies" }
+      "base": {
+        "value": "Pretendard, -apple-system, Noto Sans KR, sans-serif",
+        "type": "fontFamilies"
+      },
+      "mono": {
+        "value": "JetBrains Mono, Courier New, monospace",
+        "type": "fontFamilies"
+      }
     }
   }
 }
