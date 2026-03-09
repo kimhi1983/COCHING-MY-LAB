@@ -1,0 +1,26 @@
+# Cloudflare Tunnel 설정
+# ~/.cloudflared/config.yml 에 복사
+# 사용법:
+#   1. cloudflared tunnel login
+#   2. cloudflared tunnel create coching
+#   3. 아래 tunnel ID를 실제 값으로 교체
+#   4. cloudflared tunnel run coching
+
+tunnel: <YOUR_TUNNEL_ID>
+credentials-file: /home/kpros/.cloudflared/<YOUR_TUNNEL_ID>.json
+
+ingress:
+  # 사용자 서비스
+  - hostname: coching.kr
+    service: http://localhost:80
+
+  # 관리자 서비스
+  - hostname: bo.coching.kr
+    service: http://localhost:80
+
+  # 원료사 서비스
+  - hostname: partner.coching.kr
+    service: http://localhost:80
+
+  # 기본 (나머지 요청)
+  - service: http_status:404
