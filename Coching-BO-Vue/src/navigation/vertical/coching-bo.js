@@ -226,6 +226,11 @@ export default [
     icon: 'CpuIcon',
     children: [
       {
+        title: 'MY LAB',
+        icon: 'FlaskIcon',
+        route: { name: 'coching-bo-rnd-mylab'},
+      },
+      {
         title: 'AI 처방 V1',
         route: { name: 'coching-bo-rnd-lab-list'},
       }, 

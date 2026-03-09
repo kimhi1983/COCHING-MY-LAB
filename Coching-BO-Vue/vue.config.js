@@ -21,7 +21,14 @@ module.exports = {
   },
   //productionSourceMap: false,
   devServer: {
-    port: port
+    port: port,
+    proxy: {
+      "/api/ai/": {
+        target: "http://localhost:8420",
+        changeOrigin: true,
+        pathRewrite: { "^/api/ai": "" }
+      }
+    }
   },
   configureWebpack: {
     

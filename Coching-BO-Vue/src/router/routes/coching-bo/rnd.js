@@ -50,6 +50,21 @@ export default [
     },
   },
   {
+    path: `/rnd/ai/mylab`,
+    name: 'coching-bo-rnd-mylab',
+    component: () => import('@/views/coching-bo/rnd/MyLab.vue'),
+    meta: {
+      userGroups:['UGC_BO_01000'],
+      pageTitle: 'MY LAB',
+      breadcrumb: [
+        { text: '코칭 실험실' },
+        { text: 'MY LAB', active: true },
+      ],
+      contentRenderer: 'sidebar-left',
+      contentClass: 'my-lab-page',
+    },
+  },
+  {
     path: `/rnd/dev/iconList`,
     name: 'coching-bo-rnd-dev-iconList',
     component: () => import('@/views/coching-bo/rnd/IconListView.vue'),
