@@ -1,0 +1,66 @@
+name: Sync Design Tokens
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Coching-User-Vue/src/assets/scss/style.scss'
+      - 'design-tokens.json'
+
+jobs:
+  sync-tokens:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract CSS variables → design-tokens.json
+        run: |
+          node -e "
+          const fs = require('fs');
+          const scss = fs.readFileSync('Coching-User-Vue/src/assets/scss/style.scss', 'utf8');
+          const existing = JSON.parse(fs.readFileSync('design-tokens.json', 'utf8'));
+
+          // CSS 변수 파싱
+          const varMap = {};
+          const re = /--wl-([\w-]+)\s*:\s*([^;]+);/g;
+          let m;
+          while ((m = re.exec(scss)) !== null) {
+            varMap[m[1]] = m[2].trim();
+          }
+
+          // 색상 토큰 업데이트 (키 매핑)
+          const keyMap = {
+            'bg':'bg','surface':'surface','sidebar':'sidebar','border':'border',
+            'border-mid':'borderMid','accent':'accent','accent-lt':'accentLt',
+            'accent-dim':'accentDim','text':'text','text-sub':'textSub','text-dim':'textDim',
+            'green':'green','green-bg':'greenBg','red':'red','red-bg':'redBg',
+            'amber':'amber','amber-bg':'amberBg','blue':'blue','blue-bg':'blueBg',
+            'purple':'purple','purple-bg':'purpleBg'
+          };
+
+          Object.entries(keyMap).forEach(([cssKey, tokenKey]) => {
+            if (varMap[cssKey] && existing.global.color[tokenKey]) {
+              existing.global.color[tokenKey].value = varMap[cssKey];
+            }
+          });
+
+          if (varMap['radius']) existing.global.borderRadius.base.value = varMap['radius'];
+          if (varMap['shadow']) existing.global.boxShadow.base.value = varMap['shadow'];
+
+          fs.writeFileSync('design-tokens.json', JSON.stringify(existing, null, 2));
+          console.log('design-tokens.json 업데이트 완료');
+          "
+
+      - name: Commit updated tokens
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet design-tokens.json || (
+            git add design-tokens.json &&
+            git commit -m "chore: style.scss 변경으로 design-tokens.json 자동 업데이트 [skip ci]" &&
+            git push
+          )
