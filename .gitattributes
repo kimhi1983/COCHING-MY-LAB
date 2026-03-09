@@ -1,0 +1,38 @@
+# 줄바꿈 자동 정규화 — 리눅스(회사)/윈도우(집) 크로스 플랫폼
+* text=auto
+
+# 소스 코드 — 항상 LF로 저장
+*.java text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.vue text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+
+# Gradle
+*.gradle text eol=lf
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+
+# 바이너리 — 변환하지 않음
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.jar binary
+*.war binary
+*.pdf binary
