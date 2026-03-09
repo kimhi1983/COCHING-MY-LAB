@@ -1,10 +1,245 @@
 {
+  "coching": {
+    "color": {
+      "primary": {
+        "value": "#ff385c",
+        "type": "color",
+        "description": "브랜드 기본색 (COCHING 핑크레드)"
+      },
+      "primaryHover": {
+        "value": "rgba(255, 56, 92, 0.08)",
+        "type": "color",
+        "description": "프라이머리 호버/액티브 배경"
+      },
+      "primaryHoverStrong": {
+        "value": "rgba(255, 56, 92, 0.12)",
+        "type": "color",
+        "description": "프라이머리 호버 강조"
+      },
+      "white": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "기본 흰색 배경"
+      },
+      "black": {
+        "value": "#222222",
+        "type": "color",
+        "description": "기본 텍스트 (검정)"
+      },
+      "gray666": {
+        "value": "#666666",
+        "type": "color",
+        "description": "보조 텍스트 (회색)"
+      },
+      "gray999": {
+        "value": "#999999",
+        "type": "color",
+        "description": "비활성/플레이스홀더 텍스트"
+      },
+      "blue": {
+        "value": "#2455f4",
+        "type": "color",
+        "description": "링크/강조 블루"
+      },
+      "borderDdd": {
+        "value": "#dddddd",
+        "type": "color",
+        "description": "기본 테두리"
+      },
+      "borderEee": {
+        "value": "#eeeeee",
+        "type": "color",
+        "description": "연한 테두리 (사이드바 그룹 구분)"
+      },
+      "inputDisabled": {
+        "value": "#f5f5f5",
+        "type": "color",
+        "description": "비활성 입력필드 배경"
+      },
+      "bgHighlight": {
+        "value": "#fff1cf",
+        "type": "color",
+        "description": "하이라이트 배경"
+      },
+      "bgHover": {
+        "value": "rgba(0, 0, 0, 0.03)",
+        "type": "color",
+        "description": "메뉴 호버 배경"
+      },
+      "bgDim": {
+        "value": "rgba(0, 0, 0, 0.5)",
+        "type": "color",
+        "description": "오버레이/딤 배경"
+      },
+      "gradientOrange": {
+        "value": "#FD932B",
+        "type": "color",
+        "description": "로고 그라데이션 시작 (오렌지)"
+      },
+      "gradientPink": {
+        "value": "#FD3892",
+        "type": "color",
+        "description": "로고 그라데이션 끝 (핑크)"
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "value": "'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif",
+        "type": "fontFamilies",
+        "description": "기본 폰트"
+      },
+      "fontSize": {
+        "xs": {
+          "value": "0.75rem",
+          "type": "fontSizes",
+          "description": "12px"
+        },
+        "sm": {
+          "value": "0.8125rem",
+          "type": "fontSizes",
+          "description": "13px (푸터)"
+        },
+        "base": {
+          "value": "0.875rem",
+          "type": "fontSizes",
+          "description": "14px (GNB 메뉴)"
+        },
+        "md": {
+          "value": "1rem",
+          "type": "fontSizes",
+          "description": "16px (본문)"
+        },
+        "lg": {
+          "value": "1.125rem",
+          "type": "fontSizes",
+          "description": "18px"
+        },
+        "xl": {
+          "value": "1.25rem",
+          "type": "fontSizes",
+          "description": "20px"
+        }
+      }
+    },
+    "spacing": {
+      "gnbGroupPadding": {
+        "value": "0.75rem",
+        "type": "spacing",
+        "description": "GNB 그룹 내부 패딩"
+      },
+      "gnbItemPaddingX": {
+        "value": "0.75rem",
+        "type": "spacing",
+        "description": "GNB 메뉴 항목 좌우 패딩"
+      },
+      "gnbItemHeight": {
+        "value": "2.5rem",
+        "type": "spacing",
+        "description": "GNB 메뉴 항목 높이 (40px)"
+      },
+      "gnbIconSize": {
+        "value": "1.5rem",
+        "type": "spacing",
+        "description": "GNB 아이콘 크기 (24px)"
+      },
+      "gnbIconGap": {
+        "value": "1.5rem",
+        "type": "spacing",
+        "description": "GNB 아이콘-텍스트 간격"
+      },
+      "footerPadding": {
+        "value": "1rem 1.5rem",
+        "type": "spacing",
+        "description": "푸터 패딩"
+      },
+      "footerGap": {
+        "value": "0.625rem",
+        "type": "spacing",
+        "description": "푸터 항목 간격"
+      }
+    },
+    "borderRadius": {
+      "menuItem": {
+        "value": "0.5rem",
+        "type": "borderRadius",
+        "description": "GNB 메뉴 항목 라운드 (8px)"
+      },
+      "button": {
+        "value": "0.25rem",
+        "type": "borderRadius",
+        "description": "버튼 라운드 (4px)"
+      },
+      "card": {
+        "value": "0.5rem",
+        "type": "borderRadius",
+        "description": "카드 라운드 (8px)"
+      }
+    },
+    "components": {
+      "sidebar": {
+        "width": {
+          "value": "240px",
+          "type": "sizing",
+          "description": "사이드바 너비"
+        },
+        "background": {
+          "value": "#ffffff",
+          "type": "color",
+          "description": "사이드바 배경"
+        }
+      },
+      "header": {
+        "height": {
+          "value": "60px",
+          "type": "sizing",
+          "description": "헤더 높이"
+        },
+        "background": {
+          "value": "#ffffff",
+          "type": "color",
+          "description": "헤더 배경"
+        }
+      },
+      "button": {
+        "primaryBg": {
+          "value": "#ff385c",
+          "type": "color",
+          "description": "기본 버튼 배경"
+        },
+        "primaryText": {
+          "value": "#ffffff",
+          "type": "color",
+          "description": "기본 버튼 텍스트"
+        },
+        "outlineBorder": {
+          "value": "#ff385c",
+          "type": "color",
+          "description": "아웃라인 버튼 테두리"
+        },
+        "outlineText": {
+          "value": "#ff385c",
+          "type": "color",
+          "description": "아웃라인 버튼 텍스트"
+        },
+        "heightSm": {
+          "value": "2rem",
+          "type": "sizing",
+          "description": "작은 버튼 높이"
+        },
+        "heightMd": {
+          "value": "2.5rem",
+          "type": "sizing",
+          "description": "중간 버튼 높이"
+        }
+      }
+    }
+  },
   "global": {
     "color": {
       "bg": {
         "value": "#f8f7f5",
         "type": "color",
-        "description": "페이지 배경"
+        "description": "페이지 배경 (White Lab)"
       },
       "surface": {
         "value": "#ffffff",

@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'Coching-User-Vue/src/assets/css/style.css'
       - 'Coching-User-Vue/src/assets/scss/style.scss'
       - 'design-tokens.json'
 
@@ -17,50 +18,140 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extract CSS variables → design-tokens.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ── Step 1: CSS → design-tokens.json (COCHING 토큰 동기화) ──
+      - name: Extract COCHING CSS variables → design-tokens.json
         run: |
           node -e "
           const fs = require('fs');
-          const scss = fs.readFileSync('Coching-User-Vue/src/assets/scss/style.scss', 'utf8');
-          const existing = JSON.parse(fs.readFileSync('design-tokens.json', 'utf8'));
 
-          // CSS 변수 파싱
+          // COCHING User 앱의 CSS 변수 읽기
+          const css = fs.readFileSync('Coching-User-Vue/src/assets/css/style.css', 'utf8');
+          const tokens = JSON.parse(fs.readFileSync('design-tokens.json', 'utf8'));
+
+          // --color-- 변수 파싱
           const varMap = {};
-          const re = /--wl-([\w-]+)\s*:\s*([^;]+);/g;
+          const re = /--color--([\w-]+)\s*:\s*([^;]+);/g;
           let m;
-          while ((m = re.exec(scss)) !== null) {
+          while ((m = re.exec(css)) !== null) {
             varMap[m[1]] = m[2].trim();
           }
 
-          // 색상 토큰 업데이트 (키 매핑)
-          const keyMap = {
-            'bg':'bg','surface':'surface','sidebar':'sidebar','border':'border',
-            'border-mid':'borderMid','accent':'accent','accent-lt':'accentLt',
-            'accent-dim':'accentDim','text':'text','text-sub':'textSub','text-dim':'textDim',
-            'green':'green','green-bg':'greenBg','red':'red','red-bg':'redBg',
-            'amber':'amber','amber-bg':'amberBg','blue':'blue','blue-bg':'blueBg',
-            'purple':'purple','purple-bg':'purpleBg'
+          // COCHING 토큰 매핑
+          const cochingKeyMap = {
+            'primary': 'primary',
+            'wh': 'white',
+            'bk': 'black',
+            'gray-666': 'gray666',
+            'gray-999': 'gray999',
+            'blue': 'blue',
+            'border-ddd': 'borderDdd',
+            'border-eee': 'borderEee',
+            'input-disabled': 'inputDisabled',
+            'bg-highlight': 'bgHighlight'
           };
 
-          Object.entries(keyMap).forEach(([cssKey, tokenKey]) => {
-            if (varMap[cssKey] && existing.global.color[tokenKey]) {
-              existing.global.color[tokenKey].value = varMap[cssKey];
+          if (tokens.coching && tokens.coching.color) {
+            Object.entries(cochingKeyMap).forEach(([cssKey, tokenKey]) => {
+              if (varMap[cssKey] && tokens.coching.color[tokenKey]) {
+                tokens.coching.color[tokenKey].value = varMap[cssKey];
+              }
+            });
+          }
+
+          // White Lab 토큰 (style.scss에서)
+          try {
+            const scss = fs.readFileSync('Coching-User-Vue/src/assets/scss/style.scss', 'utf8');
+            const wlMap = {};
+            const wlRe = /--wl-([\w-]+)\s*:\s*([^;]+);/g;
+            while ((m = wlRe.exec(scss)) !== null) {
+              wlMap[m[1]] = m[2].trim();
             }
-          });
+            const globalKeyMap = {
+              'bg':'bg','surface':'surface','sidebar':'sidebar','border':'border',
+              'border-mid':'borderMid','accent':'accent','accent-lt':'accentLt',
+              'accent-dim':'accentDim','text':'text','text-sub':'textSub','text-dim':'textDim',
+              'green':'green','green-bg':'greenBg','red':'red','red-bg':'redBg',
+              'amber':'amber','amber-bg':'amberBg','blue':'blue','blue-bg':'blueBg',
+              'purple':'purple','purple-bg':'purpleBg'
+            };
+            if (tokens.global && tokens.global.color) {
+              Object.entries(globalKeyMap).forEach(([cssKey, tokenKey]) => {
+                if (wlMap[cssKey] && tokens.global.color[tokenKey]) {
+                  tokens.global.color[tokenKey].value = wlMap[cssKey];
+                }
+              });
+            }
+          } catch(e) { console.log('style.scss 없음, White Lab 토큰 스킵'); }
 
-          if (varMap['radius']) existing.global.borderRadius.base.value = varMap['radius'];
-          if (varMap['shadow']) existing.global.boxShadow.base.value = varMap['shadow'];
-
-          fs.writeFileSync('design-tokens.json', JSON.stringify(existing, null, 2));
-          console.log('design-tokens.json 업데이트 완료');
+          fs.writeFileSync('design-tokens.json', JSON.stringify(tokens, null, 2));
+          console.log('✅ design-tokens.json 동기화 완료');
           "
 
-      - name: Commit updated tokens
+      # ── Step 2: design-tokens.json → SCSS 변수 파일 생성 ──
+      - name: Generate SCSS variables from tokens
+        run: |
+          node -e "
+          const fs = require('fs');
+          const tokens = JSON.parse(fs.readFileSync('design-tokens.json', 'utf8'));
+
+          let scss = '// ⚠️ 이 파일은 design-tokens.json에서 자동 생성됩니다.\n';
+          scss += '// 직접 수정하지 마세요. design-tokens.json을 수정하세요.\n';
+          scss += '// Generated: ' + new Date().toISOString().split('T')[0] + '\n\n';
+
+          // COCHING 토큰 → SCSS 변수
+          if (tokens.coching) {
+            scss += '// ── COCHING Design Tokens ──\n';
+            if (tokens.coching.color) {
+              Object.entries(tokens.coching.color).forEach(([key, val]) => {
+                const cssKey = key.replace(/([A-Z])/g, '-\$1').toLowerCase();
+                scss += '\\\$coching-' + cssKey + ': ' + val.value + '; // ' + (val.description || '') + '\n';
+              });
+            }
+            scss += '\n';
+            if (tokens.coching.typography && tokens.coching.typography.fontSize) {
+              Object.entries(tokens.coching.typography.fontSize).forEach(([key, val]) => {
+                scss += '\\\$font-size-' + key + ': ' + val.value + '; // ' + (val.description || '') + '\n';
+              });
+            }
+            scss += '\n';
+            if (tokens.coching.spacing) {
+              Object.entries(tokens.coching.spacing).forEach(([key, val]) => {
+                const cssKey = key.replace(/([A-Z])/g, '-\$1').toLowerCase();
+                scss += '\\\$spacing-' + cssKey + ': ' + val.value + '; // ' + (val.description || '') + '\n';
+              });
+            }
+          }
+
+          scss += '\n// ── Global (White Lab) Tokens ──\n';
+          if (tokens.global && tokens.global.color) {
+            Object.entries(tokens.global.color).forEach(([key, val]) => {
+              const cssKey = key.replace(/([A-Z])/g, '-\$1').toLowerCase();
+              scss += '\\\$wl-' + cssKey + ': ' + val.value + '; // ' + (val.description || '') + '\n';
+            });
+          }
+
+          // 파일 저장
+          const dir = 'Coching-User-Vue/src/assets/scss';
+          if (fs.existsSync(dir)) {
+            fs.writeFileSync(dir + '/_design-tokens.scss', scss);
+            console.log('✅ _design-tokens.scss 생성 완료');
+          } else {
+            console.log('⚠️ SCSS 디렉토리 없음, 스킵');
+          }
+          "
+
+      # ── Step 3: 변경사항 커밋 ──
+      - name: Commit updated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet design-tokens.json || (
-            git add design-tokens.json &&
-            git commit -m "chore: style.scss 변경으로 design-tokens.json 자동 업데이트 [skip ci]" &&
+          git add -A
+          git diff --cached --quiet || (
+            git commit -m "chore: design-tokens 양방향 동기화 [skip ci]" &&
             git push
           )
