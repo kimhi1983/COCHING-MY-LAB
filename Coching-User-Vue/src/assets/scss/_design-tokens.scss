@@ -20,7 +20,6 @@ $coching-bg-dim: rgba(0, 0, 0, 0.5); // 오버레이/딤 배경
 $coching-gradient-orange: #FD932B; // 로고 그라데이션 시작 (오렌지)
 $coching-gradient-pink: #FD3892; // 로고 그라데이션 끝 (핑크)
 
-// Typography
 $font-size-xs: 0.75rem; // 12px
 $font-size-sm: 0.8125rem; // 13px (푸터)
 $font-size-base: 0.875rem; // 14px (GNB 메뉴)
@@ -28,7 +27,6 @@ $font-size-md: 1rem; // 16px (본문)
 $font-size-lg: 1.125rem; // 18px
 $font-size-xl: 1.25rem; // 20px
 
-// Spacing
 $spacing-gnb-group-padding: 0.75rem; // GNB 그룹 내부 패딩
 $spacing-gnb-item-padding-x: 0.75rem; // GNB 메뉴 항목 좌우 패딩
 $spacing-gnb-item-height: 2.5rem; // GNB 메뉴 항목 높이 (40px)
@@ -36,23 +34,6 @@ $spacing-gnb-icon-size: 1.5rem; // GNB 아이콘 크기 (24px)
 $spacing-gnb-icon-gap: 1.5rem; // GNB 아이콘-텍스트 간격
 $spacing-footer-padding: 1rem 1.5rem; // 푸터 패딩
 $spacing-footer-gap: 0.625rem; // 푸터 항목 간격
-
-// Border Radius
-$radius-menu-item: 0.5rem; // GNB 메뉴 항목 라운드 (8px)
-$radius-button: 0.25rem; // 버튼 라운드 (4px)
-$radius-card: 0.5rem; // 카드 라운드 (8px)
-
-// Components
-$sidebar-width: 240px; // 사이드바 너비
-$sidebar-background: #ffffff; // 사이드바 배경
-$header-height: 60px; // 헤더 높이
-$header-background: #ffffff; // 헤더 배경
-$button-primaryBg: #ff385c; // 기본 버튼 배경
-$button-primaryText: #ffffff; // 기본 버튼 텍스트
-$button-outlineBorder: #ff385c; // 아웃라인 버튼 테두리
-$button-outlineText: #ff385c; // 아웃라인 버튼 텍스트
-$button-heightSm: 2rem; // 작은 버튼 높이
-$button-heightMd: 2.5rem; // 중간 버튼 높이
 
 // ── Global (White Lab) Tokens ──
 $wl-bg: #f8f7f5; // 페이지 배경 (White Lab)
@@ -76,5 +57,3 @@ $wl-blue: #3a6fa8; // 정보
 $wl-blue-bg: #f0f4fb; // 정보 배경
 $wl-purple: #7c5cbf; // AI/특수
 $wl-purple-bg: #f6f2fd; // AI/특수 배경
-$wl-radius: 10px;
-$wl-shadow: 0 1px 4px rgba(0,0,0,0.04);
