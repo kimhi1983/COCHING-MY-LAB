@@ -1,0 +1,25 @@
+{
+  "recommendations": [
+    // Vue 2 개발
+    "octref.vetur",
+
+    // Java / Spring Boot
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-spring-boot",
+    "vscjava.vscode-gradle",
+
+    // Python (AI 처방 서버)
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+
+    // WSL 연동
+    "ms-vscode-remote.remote-wsl",
+
+    // 유틸
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "mikestead.dotenv",
+    "rangav.vscode-thunder-client",
+    "formulahendry.auto-rename-tag"
+  ]
+}
