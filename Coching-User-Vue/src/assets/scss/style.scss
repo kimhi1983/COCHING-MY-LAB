@@ -9,6 +9,33 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
 /*root*/
 :root {
   --color--dark-blue: #2455f4;
+
+  /* ── White Lab Design Tokens ── */
+  --wl-bg:           #f8f7f5;
+  --wl-surface:      #ffffff;
+  --wl-sidebar:      #fafaf8;
+  --wl-border:       #ece9e3;
+  --wl-border-mid:   #d8d4cc;
+  --wl-accent:       #b8935a;
+  --wl-accent-lt:    #f0e8d8;
+  --wl-accent-dim:   #e8dece;
+  --wl-text:         #1a1814;
+  --wl-text-sub:     #6b6560;
+  --wl-text-dim:     #aba59d;
+  --wl-green:        #3a9068;
+  --wl-green-bg:     #f0f8f4;
+  --wl-red:          #c44e4e;
+  --wl-red-bg:       #fdf2f2;
+  --wl-amber:        #b07820;
+  --wl-amber-bg:     #fdf8f0;
+  --wl-blue:         #3a6fa8;
+  --wl-blue-bg:      #f0f4fb;
+  --wl-purple:       #7c5cbf;
+  --wl-purple-bg:    #f6f2fd;
+  --wl-shadow:       0 1px 4px rgba(0,0,0,0.04);
+  --wl-radius:       10px;
+  --wl-font:         'Pretendard', -apple-system, 'Noto Sans KR', sans-serif;
+  --wl-mono:         'JetBrains Mono', 'Courier New', monospace;
 }
 
 .ewg.gray {

@@ -3,7 +3,7 @@ const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const port = process.env.port || 9727 // dev port
+const port = process.env.port || 9827 // dev port (로컬: Partner=9727, User=9827, BO=9527)
 
 module.exports = {
   publicPath: process.env.PUBLIC_PATH,
@@ -21,7 +21,18 @@ module.exports = {
   },
   //productionSourceMap: false,
   devServer: {
-    port: port
+    port: port,
+    proxy: {
+      '/api/ai/': {
+        target: 'http://localhost:8420',
+        changeOrigin: true,
+        pathRewrite: { '^/api/ai': '' },
+      },
+      '/api/rnd/': {
+        target: 'http://localhost:8280',
+        changeOrigin: true,
+      },
+    },
   },
   configureWebpack: {
     

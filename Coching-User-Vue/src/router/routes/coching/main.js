@@ -1,6 +1,7 @@
 //Layout
 import MainLayout from '@/layouts/MainLayout';
 import BasicLayout from '@/layouts/BasicLayout';
+import EmptyLayout from '@/layouts/EmptyLayout';
 
 const VUE_APP_BASE_ROUTER_PATH = process.env.VUE_APP_BASE_ROUTER_PATH;
 

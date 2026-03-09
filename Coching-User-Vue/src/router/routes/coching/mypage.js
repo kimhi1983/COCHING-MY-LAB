@@ -215,7 +215,30 @@ export default [
             { text: '홈',},
             { text: '마이페이지',
               active: true,
-            },            
+            },
+          ],
+          header : {
+            show:true,
+          }
+        },
+      },
+      {
+        path: 'mylab',
+        name: 'coching-mypage-mylab',
+        component: () => import('@/views/coching/mylab/MyLab.vue'),
+        meta: {
+          requireLogin : false,
+          mainNavId : 1,
+          wrapClass : [],
+          pageTitle :{
+            "ko" : "MY LAB",
+            "en" : "MY LAB"
+          },
+          breadcrumb: [
+            { text: '홈',},
+            { text: 'MY LAB',
+              active: true,
+            },
           ],
           header : {
             show:true,
