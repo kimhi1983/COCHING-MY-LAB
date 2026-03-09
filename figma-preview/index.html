@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>COCHING Lab Studio — Figma Preview</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+/* ── COCHING Design Tokens ── */
+:root {
+  --color--wh:#ffffff; --color--primary:#ff385c; --color--bk:#222222;
+  --color--gray-666:#666666; --color--gray-999:#999999;
+  --color--border-ddd:#dddddd; --color--border-eee:#eeeeee;
+  --color--bg-hover:rgba(0,0,0,0.03);
+  /* WL tokens */
+  --wl-bg:#f8f7f5; --wl-surface:#ffffff; --wl-sidebar:#fafaf8;
+  --wl-border:#ece9e3; --wl-border-mid:#d8d4cc;
+  --wl-accent:#b8935a; --wl-accent-lt:#f0e8d8; --wl-accent-dim:#e8dece;
+  --wl-text:#1a1814; --wl-text-sub:#6b6560; --wl-text-dim:#aba59d;
+  --wl-green:#3a9068; --wl-green-bg:#f0f8f4;
+  --wl-red:#c44e4e;   --wl-red-bg:#fdf2f2;
+  --wl-amber:#b07820; --wl-amber-bg:#fdf8f0;
+  --wl-blue:#3a6fa8;  --wl-blue-bg:#f0f4fb;
+  --wl-purple:#7c5cbf;--wl-purple-bg:#f6f2fd;
+  --wl-shadow:0 1px 4px rgba(0,0,0,0.06);
+  --wl-radius:10px;
+  --wl-font:'Pretendard',-apple-system,'Noto Sans KR',sans-serif;
+  --wl-mono:'JetBrains Mono','Courier New',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--wl-font);background:var(--wl-bg);color:var(--wl-text);font-size:14px;line-height:1.5;width:1440px;min-height:900px}
+
+/* ─────────────────────────────────────────
+   COCHING GNB Header
+───────────────────────────────────────── */
+.coching-header {
+  position:fixed; top:0; left:0; width:100%; height:56px;
+  background:#fff; border-bottom:1px solid var(--color--border-eee);
+  display:flex; align-items:center; padding:0 24px 0 16px;
+  z-index:999; gap:12px;
+}
+.coching-logo {
+  display:flex; align-items:center; gap:8px; padding:0 14px;
+  height:56px; text-decoration:none;
+}
+.coching-logo-mark {
+  width:32px; height:32px; background:#ff385c; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:800; font-size:14px; letter-spacing:-0.5px;
+}
+.coching-logo-text {
+  font-size:16px; font-weight:800; color:#222; letter-spacing:-0.5px;
+}
+.coching-header-spacer { flex:1 }
+.coching-header-avatar {
+  width:32px; height:32px; border-radius:50%; background:#f0e8d8;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--wl-accent); font-weight:700;
+  border:1px solid var(--wl-accent-dim);
+}
+
+/* ─────────────────────────────────────────
+   COCHING Left Nav
+───────────────────────────────────────── */
+.coching-nav {
+  position:fixed; top:56px; left:0; width:240px;
+  height:calc(100vh - 56px); background:#fff;
+  border-right:1px solid var(--color--border-eee);
+  overflow-y:auto; z-index:9;
+  display:flex; flex-direction:column; justify-content:space-between;
+  padding-bottom:16px;
+}
+.coching-nav .gnb { flex:1 }
+.coching-nav .gnb .group {
+  padding:12px 10px;
+  border-bottom:1px solid var(--color--border-eee);
+}
+.coching-nav a {
+  display:flex; align-items:center; padding:0 12px;
+  border-radius:8px; line-height:1; color:#222;
+  font-size:14px; height:40px; text-decoration:none; gap:12px;
+  transition:background .12s;
+}
+.coching-nav a:hover { background:var(--color--bg-hover) }
+.coching-nav a.active {
+  background:rgba(255,56,92,.08); font-weight:700; color:#ff385c;
+}
+.coching-nav a .nav-icon {
+  width:20px; height:20px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0;
+}
+.gnb-acd-title {
+  cursor:pointer; font-weight:600; padding:0 12px;
+  height:40px; display:flex; align-items:center;
+  font-size:14px; color:#222; justify-content:space-between;
+}
+.gnb-acd-title::after {
+  content:'▾'; font-size:12px; color:var(--color--gray-999);
+}
+.gnb-wrap { padding-left:8px }
+
+.nav-bottom {
+  padding:12px 10px; border-top:1px solid var(--color--border-eee);
+}
+.nav-user {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:8px; cursor:pointer;
+}
+.nav-user:hover { background:var(--color--bg-hover) }
+.nav-user-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background:#f0e8d8; display:flex; align-items:center; justify-content:center;
+  font-size:11px; color:var(--wl-accent); font-weight:700;
+  border:1px solid var(--wl-accent-dim); flex-shrink:0;
+}
+.nav-user-info { flex:1; min-width:0 }
+.nav-user-name { font-size:12px; font-weight:700; color:#222; }
+.nav-user-role { font-size:11px; color:var(--color--gray-999) }
+
+/* ─────────────────────────────────────────
+   Main Content Area
+───────────────────────────────────────── */
+.coching-main {
+  margin-top:56px; margin-left:240px;
+  min-height:calc(100vh - 56px); background:var(--wl-bg);
+}
+.wl-content { padding:28px 32px; max-width:1100px }
+
+/* ── Buttons ── */
+.wl-btn-primary{background:var(--wl-text);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;font-family:var(--wl-font);cursor:pointer}
+.wl-btn-ghost{background:transparent;color:var(--wl-text-sub);border:1px solid var(--wl-border-mid);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:500;font-family:var(--wl-font);cursor:pointer}
+.wl-btn-accent{background:var(--wl-accent-lt);color:var(--wl-accent);border:1px solid var(--wl-accent-dim);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;font-family:var(--wl-font);cursor:pointer}
+
+/* ── Header ── */
+.wl-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.wl-date{font-size:11px;color:var(--wl-text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.wl-title{font-size:22px;font-weight:700;color:var(--wl-text);letter-spacing:-.3px}
+
+/* ── KPI Stats ── */
+.wl-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.wl-stat-card{background:var(--wl-surface);border:1px solid var(--wl-border);border-radius:var(--wl-radius);padding:18px 20px;box-shadow:var(--wl-shadow)}
+.wl-stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.wl-stat-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--wl-text-dim)}
+.wl-stat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.wl-stat-value-row{display:flex;align-items:baseline;gap:5px}
+.wl-stat-value{font-size:28px;font-weight:800;letter-spacing:-1px}
+.wl-stat-unit{font-size:12px;color:var(--wl-text-sub);font-weight:500}
+
+/* ── Two Column ── */
+.wl-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+
+/* ── Panel ── */
+.wl-panel{background:var(--wl-surface);border:1px solid var(--wl-border);border-radius:var(--wl-radius);box-shadow:var(--wl-shadow);overflow:hidden;margin-bottom:16px}
+.wl-panel-header{display:flex;justify-content:space-between;align-items:flex-end;padding:18px 20px 14px}
+.wl-section-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--wl-text-dim);margin-bottom:3px}
+.wl-panel-title{font-size:15px;font-weight:700;color:var(--wl-text)}
+.wl-divider{height:1px;background:var(--wl-border)}
+
+/* ── Today's Log ── */
+.wl-log-row{display:grid;grid-template-columns:52px 3px 1fr auto;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--wl-border)}
+.wl-log-row.last{border-bottom:none}
+.wl-log-time{font-size:11px;font-family:var(--wl-mono);color:var(--wl-text-dim);white-space:nowrap}
+.wl-log-bar{width:3px;height:36px;border-radius:2px}
+.wl-log-body{display:flex;flex-direction:column;gap:4px}
+.wl-chips{display:flex;gap:5px;flex-wrap:wrap}
+.wl-log-title{font-size:13px;font-weight:500;color:var(--wl-text)}
+.wl-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+
+/* ── Stability ── */
+.wl-stab-row{display:grid;grid-template-columns:1fr 60px 80px 80px;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--wl-border)}
+.wl-stab-row.last{border-bottom:none}
+.wl-stab-name{font-size:13px;font-weight:600;color:var(--wl-text)}
+.wl-stab-sub{font-size:11px;color:var(--wl-text-dim);margin-top:2px}
+.wl-stab-stat{text-align:center}
+.wl-micro-label{font-size:9px;color:var(--wl-text-dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.wl-stab-val{font-size:15px;font-weight:700;font-family:var(--wl-mono)}
+.wl-stab-visc{font-size:12px;font-weight:500;color:var(--wl-text-sub);font-family:var(--wl-mono)}
+
+/* ── Formula Table ── */
+.wl-table-head,.wl-table-row{display:grid;grid-template-columns:80px 1fr 90px 55px 90px 80px 110px;align-items:center;gap:10px;padding:10px 20px}
+.wl-table-head{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--wl-text-dim);text-transform:uppercase;background:var(--wl-bg);border-bottom:1px solid var(--wl-border)}
+.wl-table-row{border-bottom:1px solid var(--wl-border)}
+.wl-table-row.last{border-bottom:none}
+.wl-id{font-size:11px;font-family:var(--wl-mono);color:var(--wl-text-dim)}
+.wl-formula-name{font-size:13px;font-weight:600;color:var(--wl-text)}
+.wl-formula-ver{font-size:11px;color:var(--wl-text-dim);margin-top:1px}
+.wl-formula-type{font-size:12px;color:var(--wl-text-sub)}
+.wl-ph,.wl-visc{font-size:12px;font-family:var(--wl-mono);color:var(--wl-text-sub)}
+.wl-progress-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.wl-progress-pct{font-size:11px;font-weight:700}
+.wl-bar-bg{height:5px;background:var(--wl-border);border-radius:3px;overflow:hidden}
+.wl-bar-fill{height:100%;border-radius:3px}
+
+/* ── Regulation ── */
+.wl-reg-head,.wl-reg-row{display:grid;grid-template-columns:60px 1fr 80px 90px 1fr 90px;align-items:center;gap:10px;padding:10px 20px}
+.wl-reg-head{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--wl-text-dim);text-transform:uppercase;background:var(--wl-bg);border-bottom:1px solid var(--wl-border)}
+.wl-reg-row{border-bottom:1px solid var(--wl-border)}
+.wl-reg-row.last{border-bottom:none}
+.wl-reg-ingredient{font-size:13px;font-weight:600;color:var(--wl-text)}
+.wl-reg-limit{font-size:12px;font-family:var(--wl-mono);color:var(--wl-text-sub)}
+.wl-reg-note{font-size:12px;color:var(--wl-text-sub)}
+.wl-reg-date{font-size:11px;color:var(--wl-text-dim)}
+
+/* ── Footer ── */
+.wl-footer{display:flex;justify-content:space-between;padding:20px 0 8px;font-size:11px;color:var(--wl-text-dim);letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<!-- ══ COCHING Header ══ -->
+<header class="coching-header">
+  <a class="coching-logo" href="#">
+    <div class="coching-logo-mark">CO</div>
+    <span class="coching-logo-text">COCHING</span>
+  </a>
+  <div class="coching-header-spacer"></div>
+  <div class="coching-header-avatar">K</div>
+</header>
+
+<!-- ══ Left GNB ══ -->
+<nav class="coching-nav">
+  <div class="gnb">
+    <!-- Group 1 -->
+    <div class="group">
+      <a href="#" class="active">
+        <div class="nav-icon">🏠</div> 홈
+      </a>
+      <a href="#">
+        <div class="nav-icon">📺</div> 코칭 TV
+      </a>
+    </div>
+    <!-- Group 2: 알림함 accordion -->
+    <div class="group">
+      <div class="gnb-acd-title">알림함</div>
+      <div class="gnb-wrap">
+        <a href="#"><div class="nav-icon">🔔</div> 알림함</a>
+        <a href="#"><div class="nav-icon">📋</div> 원료자료요청</a>
+        <a href="#"><div class="nav-icon">✉️</div> 쪽지함</a>
+      </div>
+    </div>
+    <!-- Group 3 -->
+    <div class="group">
+      <a href="#"><div class="nav-icon">💧</div> 원료소싱</a>
+      <a href="#"><div class="nav-icon">📢</div> 공지사항</a>
+      <a href="#"><div class="nav-icon">📰</div> Weekly News</a>
+      <a href="#"><div class="nav-icon">💬</div> 1:1 문의하기</a>
+    </div>
+  </div>
+  <!-- User info bottom -->
+  <div class="nav-bottom">
+    <div class="nav-user">
+      <div class="nav-user-avatar">K</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name">김화연 연구원</div>
+        <div class="nav-user-role">Cosmetic R&D</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ Main Content ══ -->
+<div class="coching-main">
+<div class="wl-content">
+
+  <!-- Header -->
+  <div class="wl-header">
+    <div>
+      <div class="wl-date">2026년 3월 9일 월요일</div>
+      <h1 class="wl-title">Research Overview</h1>
+    </div>
+    <button class="wl-btn-primary">⚗ 새 처방 생성</button>
+  </div>
+
+  <!-- KPI Stats -->
+  <div class="wl-stats-grid">
+    <div class="wl-stat-card">
+      <div class="wl-stat-top">
+        <div class="wl-stat-label">진행중 처방</div>
+        <div class="wl-stat-icon" style="background:#fdf8f0;border:1px solid #e8d4a0">⚗️</div>
+      </div>
+      <div class="wl-stat-value-row">
+        <span class="wl-stat-value" style="color:#b07820">4</span>
+        <span class="wl-stat-unit">건</span>
+      </div>
+    </div>
+    <div class="wl-stat-card">
+      <div class="wl-stat-top">
+        <div class="wl-stat-label">이번 달 완료</div>
+        <div class="wl-stat-icon" style="background:#f0f8f4;border:1px solid #b8dece">✓</div>
+      </div>
+      <div class="wl-stat-value-row">
+        <span class="wl-stat-value" style="color:#3a9068">7</span>
+        <span class="wl-stat-unit">건</span>
+      </div>
+    </div>
+    <div class="wl-stat-card">
+      <div class="wl-stat-top">
+        <div class="wl-stat-label">안정성 진행</div>
+        <div class="wl-stat-icon" style="background:#f0f4fb;border:1px solid #b8cce8">🔬</div>
+      </div>
+      <div class="wl-stat-value-row">
+        <span class="wl-stat-value" style="color:#3a6fa8">3</span>
+        <span class="wl-stat-unit">배치</span>
+      </div>
+    </div>
+    <div class="wl-stat-card">
+      <div class="wl-stat-top">
+        <div class="wl-stat-label">규제 체크</div>
+        <div class="wl-stat-icon" style="background:#f6f2fd;border:1px solid #cfc0ee">§</div>
+      </div>
+      <div class="wl-stat-value-row">
+        <span class="wl-stat-value" style="color:#7c5cbf">12</span>
+        <span class="wl-stat-unit">건</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Column -->
+  <div class="wl-two-col">
+    <div class="wl-panel">
+      <div class="wl-panel-header">
+        <div><div class="wl-section-label">TODAY'S LOG</div><div class="wl-panel-title">오늘의 업무</div></div>
+        <button class="wl-btn-ghost">전체 보기</button>
+      </div>
+      <div class="wl-divider"></div>
+      <div class="wl-log-row">
+        <span class="wl-log-time">09:15</span>
+        <div class="wl-log-bar" style="background:#b07820"></div>
+        <div class="wl-log-body">
+          <div class="wl-chips">
+            <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">처방</span>
+            <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">우선</span>
+          </div>
+          <div class="wl-log-title">쿠션 21호 v3.2 — TiO₂ 비율 재조정</div>
+        </div>
+        <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">진행중</span>
+      </div>
+      <div class="wl-log-row">
+        <span class="wl-log-time">11:30</span>
+        <div class="wl-log-bar" style="background:#3a6fa8"></div>
+        <div class="wl-log-body">
+          <div class="wl-chips"><span class="wl-chip" style="color:#3a6fa8;background:#f0f4fb;border:1px solid #b8cce8">시험</span></div>
+          <div class="wl-log-title">선스틱 SPF50+ — 4주 안정성 최종 판정</div>
+        </div>
+        <span class="wl-chip" style="color:#3a9068;background:#f0f8f4;border:1px solid #b8dece">완료</span>
+      </div>
+      <div class="wl-log-row">
+        <span class="wl-log-time">14:00</span>
+        <div class="wl-log-bar" style="background:#c44e4e"></div>
+        <div class="wl-log-body">
+          <div class="wl-chips">
+            <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">규제</span>
+            <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">우선</span>
+          </div>
+          <div class="wl-log-title">EU 규제 — Benzophenone-3 제한 확인</div>
+        </div>
+        <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">검토중</span>
+      </div>
+      <div class="wl-log-row last">
+        <span class="wl-log-time">16:45</span>
+        <div class="wl-log-bar" style="background:#7c5cbf"></div>
+        <div class="wl-log-body">
+          <div class="wl-chips"><span class="wl-chip" style="color:#7c5cbf;background:#f6f2fd;border:1px solid #cfc0ee">아이디어</span></div>
+          <div class="wl-log-title">Bakuchiol × 세라마이드 시너지 메모</div>
+        </div>
+        <span class="wl-chip" style="color:#6b6560;background:#f5f3ef;border:1px solid #e0dcd4">메모</span>
+      </div>
+    </div>
+
+    <div class="wl-panel">
+      <div class="wl-panel-header">
+        <div><div class="wl-section-label">STABILITY STATUS</div><div class="wl-panel-title">안정성 현황</div></div>
+        <button class="wl-btn-ghost">상세 보기</button>
+      </div>
+      <div class="wl-divider"></div>
+      <div class="wl-stab-row">
+        <div><div class="wl-stab-name">쿠션 21호 v3.2</div><div class="wl-stab-sub">40°C · 4주</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">ΔE</div><div class="wl-stab-val" style="color:#3a9068">1.2</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">점도</div><div class="wl-stab-visc">48,200</div></div>
+        <span class="wl-chip" style="color:#3a9068;background:#f0f8f4;border:1px solid #b8dece">안정</span>
+      </div>
+      <div class="wl-stab-row">
+        <div><div class="wl-stab-name">선스틱 SPF50+</div><div class="wl-stab-sub">50°C · 8주</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">ΔE</div><div class="wl-stab-val" style="color:#c44e4e">3.8</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">점도</div><div class="wl-stab-visc">—</div></div>
+        <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">재검토</span>
+      </div>
+      <div class="wl-stab-row last">
+        <div><div class="wl-stab-name">비타C 앰플 v2</div><div class="wl-stab-sub">25°C · 2주</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">ΔE</div><div class="wl-stab-val" style="color:#3a9068">0.7</div></div>
+        <div class="wl-stab-stat"><div class="wl-micro-label">점도</div><div class="wl-stab-visc">3,400</div></div>
+        <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">진행중</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formula Table -->
+  <div class="wl-panel">
+    <div class="wl-panel-header">
+      <div><div class="wl-section-label">ACTIVE FORMULAS</div><div class="wl-panel-title">처방 목록</div></div>
+      <button class="wl-btn-accent">+ 새 처방</button>
+    </div>
+    <div class="wl-divider"></div>
+    <div class="wl-table-head">
+      <span>ID</span><span>처방명</span><span>제형</span><span>pH</span><span>점도</span><span>상태</span><span>진행률</span>
+    </div>
+    <div class="wl-table-row">
+      <span class="wl-id">CF-2024-021</span>
+      <div><div class="wl-formula-name">쿠션 21호</div><div class="wl-formula-ver">v3.2 — 2026.02.15</div></div>
+      <span class="wl-formula-type">W/S 에멀전</span>
+      <span class="wl-ph">5.8</span><span class="wl-visc">48,200 cP</span>
+      <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">진행중</span>
+      <div><div class="wl-progress-row"><span class="wl-micro-label">진행률</span><span class="wl-progress-pct" style="color:#b07820">68%</span></div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:68%;background:#b07820"></div></div></div>
+    </div>
+    <div class="wl-table-row">
+      <span class="wl-id">SS-2024-008</span>
+      <div><div class="wl-formula-name">선스틱 SPF50+</div><div class="wl-formula-ver">v1.4 — 2026.01.20</div></div>
+      <span class="wl-formula-type">스틱 에멀전</span>
+      <span class="wl-ph">6.2</span><span class="wl-visc">—</span>
+      <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">재검토</span>
+      <div><div class="wl-progress-row"><span class="wl-micro-label">진행률</span><span class="wl-progress-pct" style="color:#c44e4e">45%</span></div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:45%;background:#c44e4e"></div></div></div>
+    </div>
+    <div class="wl-table-row">
+      <span class="wl-id">VA-2024-015</span>
+      <div><div class="wl-formula-name">비타C 앰플 v2</div><div class="wl-formula-ver">v2.0 — 2026.03.01</div></div>
+      <span class="wl-formula-type">수성 앰플</span>
+      <span class="wl-ph">3.5</span><span class="wl-visc">3,400 cP</span>
+      <span class="wl-chip" style="color:#3a9068;background:#f0f8f4;border:1px solid #b8dece">완료</span>
+      <div><div class="wl-progress-row"><span class="wl-micro-label">진행률</span><span class="wl-progress-pct" style="color:#3a9068">100%</span></div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:100%;background:#3a9068"></div></div></div>
+    </div>
+    <div class="wl-table-row last">
+      <span class="wl-id">HB-2024-003</span>
+      <div><div class="wl-formula-name">히알론산 부스터</div><div class="wl-formula-ver">v1.1 — 2026.02.28</div></div>
+      <span class="wl-formula-type">수성 세럼</span>
+      <span class="wl-ph">6.8</span><span class="wl-visc">1,200 cP</span>
+      <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">진행중</span>
+      <div><div class="wl-progress-row"><span class="wl-micro-label">진행률</span><span class="wl-progress-pct" style="color:#b07820">30%</span></div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:30%;background:#b07820"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Regulation -->
+  <div class="wl-panel">
+    <div class="wl-panel-header">
+      <div><div class="wl-section-label">REGULATION WATCH</div><div class="wl-panel-title">규제 현황</div></div>
+      <button class="wl-btn-ghost">전체 목록</button>
+    </div>
+    <div class="wl-divider"></div>
+    <div class="wl-reg-head">
+      <span>지역</span><span>성분명</span><span>상태</span><span>한도</span><span>비고</span><span>업데이트</span>
+    </div>
+    <div class="wl-reg-row">
+      <span class="wl-chip" style="color:#3a6fa8;background:#f0f4fb;border:1px solid #b8cce8">EU</span>
+      <span class="wl-reg-ingredient">Benzophenone-3</span>
+      <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">제한</span>
+      <span class="wl-reg-limit">≤ 6%</span>
+      <span class="wl-reg-note">선케어 제품 한도 강화</span>
+      <span class="wl-reg-date">2026.02.01</span>
+    </div>
+    <div class="wl-reg-row">
+      <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">KR</span>
+      <span class="wl-reg-ingredient">Hydroquinone</span>
+      <span class="wl-chip" style="color:#c44e4e;background:#fdf2f2;border:1px solid #e8c0c0">금지</span>
+      <span class="wl-reg-limit">0%</span>
+      <span class="wl-reg-note">화장품 전 품목 사용금지</span>
+      <span class="wl-reg-date">2025.12.15</span>
+    </div>
+    <div class="wl-reg-row last">
+      <span class="wl-chip" style="color:#3a9068;background:#f0f8f4;border:1px solid #b8dece">US</span>
+      <span class="wl-reg-ingredient">Retinol</span>
+      <span class="wl-chip" style="color:#b07820;background:#fdf8f0;border:1px solid #e8d4a0">모니터링</span>
+      <span class="wl-reg-limit">≤ 0.3%</span>
+      <span class="wl-reg-note">FDA 재검토 진행중</span>
+      <span class="wl-reg-date">2026.01.10</span>
+    </div>
+  </div>
+
+  <div class="wl-footer">
+    <span>COCHING LAB STUDIO · COSMETIC R&D</span>
+    <span>v2.3 Hybrid · COMPOUND-EXPANSION SKILL v1.0</span>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
