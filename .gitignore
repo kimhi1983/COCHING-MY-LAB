@@ -40,3 +40,20 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+
+# 보안 파일 — 절대 커밋 금지
+*.pem
+*.p12
+*.key
+*.backup
+*.sql
+*_dump.backup
+ocr-project-*.json
+*-service-account*.json
+이관요청 자료/
+이관요청목록.txt
+
+# 대용량 파일
+*.zip
+files.zip
+files2.zip

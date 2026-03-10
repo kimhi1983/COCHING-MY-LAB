@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COCHING AI — 마스터플랜 v5 FINAL</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#06070c;--bg2:#0b0d15;--bg3:#10131c;--bg4:#161924;
+  --bdr:#1a2030;--bdr2:#222c40;
+  --g:#1aff9c;--p:#b388ff;--y:#ffd060;--b:#4fc3f7;--r:#ff5c8a;--o:#ff9944;
+  --t:#dde6f4;--t2:#7a8fa8;--t3:#334558;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px;}
+
+header{
+  border-bottom:1px solid var(--bdr);padding:2.6rem 3rem 2rem;
+  background:linear-gradient(160deg,var(--bg2) 0%,#0e1220 50%,var(--bg2) 100%);
+  position:relative;overflow:hidden;
+}
+header::after{
+  content:'';position:absolute;top:-40%;right:-5%;width:500px;height:500px;
+  background:radial-gradient(circle,rgba(26,255,156,.04) 0%,transparent 65%);pointer-events:none;
+}
+.badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+.badge{font-size:.66rem;font-family:'JetBrains Mono',monospace;padding:.17rem .62rem;
+  border-radius:2rem;display:inline-flex;align-items:center;gap:.3rem;}
+.bg{background:rgba(26,255,156,.07);border:1px solid rgba(26,255,156,.22);color:var(--g);}
+.bp{background:rgba(179,136,255,.07);border:1px solid rgba(179,136,255,.22);color:var(--p);}
+.by{background:rgba(255,208,96,.07);border:1px solid rgba(255,208,96,.22);color:var(--y);}
+.bb{background:rgba(79,195,247,.07);border:1px solid rgba(79,195,247,.22);color:var(--b);}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:bl 1.6s infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+h1{font-size:2.75rem;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:.4rem;}
+h1 span{color:var(--g);}
+.sub{color:var(--t2);font-size:.86rem;line-height:1.7;margin-bottom:1.6rem;max-width:700px;}
+.kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:.7rem;}
+.kpi{background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;padding:.75rem .9rem;}
+.kl{font-size:.57rem;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);
+  font-family:'JetBrains Mono',monospace;margin-bottom:.2rem;}
+.kv{font-size:1.15rem;font-weight:700;line-height:1;}
+.ks{font-size:.62rem;color:var(--t3);margin-top:.1rem;}
+
+nav{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:0 3rem;
+  display:flex;overflow-x:auto;position:sticky;top:0;z-index:100;gap:0;}
+.tab{padding:.8rem 1.2rem;font-size:.77rem;font-weight:500;color:var(--t3);
+  cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;user-select:none;}
+.tab:hover{color:var(--t2);}
+.tab.on{color:var(--g);border-bottom-color:var(--g);}
+
+main{padding:2rem 3rem;max-width:1440px;}
+.sec{display:none;animation:fi .2s ease;}
+.sec.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.sh{margin-bottom:1.3rem;}
+.sh-t{font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem;}
+.tag{font-size:.6rem;font-family:'JetBrains Mono',monospace;padding:.1rem .4rem;
+  border-radius:.2rem;background:rgba(26,255,156,.07);color:var(--g);border:1px solid rgba(26,255,156,.17);}
+.sh-d{color:var(--t2);font-size:.83rem;line-height:1.7;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;}
+
+.card{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
+  padding:1.2rem;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc,var(--g));}
+.cl{font-size:.61rem;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);
+  font-family:'JetBrains Mono',monospace;margin-bottom:.45rem;}
+.ct{font-size:.9rem;font-weight:700;margin-bottom:.35rem;}
+.cb{font-size:.79rem;color:var(--t2);line-height:1.68;}
+
+.al{border-radius:8px;padding:.8rem 1rem;margin-bottom:.85rem;font-size:.78rem;
+  display:flex;gap:.5rem;align-items:flex-start;line-height:1.68;}
+.ag{background:rgba(26,255,156,.05);border:1px solid rgba(26,255,156,.17);color:var(--g);}
+.ay{background:rgba(255,208,96,.05);border:1px solid rgba(255,208,96,.19);color:var(--y);}
+.ab{background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.17);color:var(--b);}
+.ar{background:rgba(255,92,138,.05);border:1px solid rgba(255,92,138,.17);color:var(--r);}
+.ap{background:rgba(179,136,255,.05);border:1px solid rgba(179,136,255,.19);color:var(--p);}
+
+pre{background:#040609;border:1px solid var(--bdr);border-radius:8px;
+  padding:.9rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  color:#79c0ff;overflow-x:auto;line-height:1.82;margin-bottom:.75rem;}
+.cm{color:#2d4055;}.ck{color:#ff7b72;}.cs{color:#a5d6ff;}.cv{color:#ffa657;}.cf{color:#d2a8ff;}
+
+.chips{display:flex;flex-wrap:wrap;gap:.26rem;margin-top:.42rem;}
+.chip{font-size:.59rem;font-family:'JetBrains Mono',monospace;padding:.1rem .4rem;border-radius:.22rem;white-space:nowrap;}
+.cg{background:rgba(26,255,156,.09);color:var(--g);border:1px solid rgba(26,255,156,.17);}
+.cp{background:rgba(179,136,255,.09);color:var(--p);border:1px solid rgba(179,136,255,.17);}
+.cy{background:rgba(255,208,96,.09);color:var(--y);border:1px solid rgba(255,208,96,.17);}
+.cb2{background:rgba(79,195,247,.09);color:var(--b);border:1px solid rgba(79,195,247,.17);}
+.cr{background:rgba(255,92,138,.09);color:var(--r);border:1px solid rgba(255,92,138,.17);}
+.co{background:rgba(255,153,68,.09);color:var(--o);border:1px solid rgba(255,153,68,.17);}
+
+table{width:100%;border-collapse:collapse;font-size:.78rem;}
+th{text-align:left;padding:.5rem .8rem;background:var(--bg2);color:var(--t3);
+  font-size:.61rem;text-transform:uppercase;letter-spacing:.08em;
+  border-bottom:1px solid var(--bdr);font-family:'JetBrains Mono',monospace;}
+td{padding:.65rem .8rem;border-bottom:1px solid rgba(26,32,48,.5);color:var(--t2);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.011);}
+.tn{color:var(--t);font-weight:600;}.tg{color:var(--g);font-weight:700;}
+.ty{color:var(--y);font-weight:700;}.tt{color:var(--g);font-weight:900;}
+
+/* ARCH DIAGRAM */
+.arch{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;
+  padding:1.6rem;margin-bottom:1rem;}
+.arch-title{font-size:.63rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-bottom:1.2rem;}
+.tier{margin-bottom:1rem;}
+.tier-label{font-size:.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;
+  font-family:'JetBrains Mono',monospace;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;}
+.tier-label::after{content:'';flex:1;height:1px;background:var(--bdr);}
+.nodes{display:flex;gap:.6rem;flex-wrap:wrap;}
+.node{background:var(--bg4);border:1px solid var(--bdr);border-radius:8px;
+  padding:.7rem .9rem;text-align:center;min-width:100px;transition:.15s;}
+.node.hi{border-color:var(--g);background:rgba(26,255,156,.03);}
+.node.hp{border-color:var(--p);background:rgba(179,136,255,.03);}
+.node.hy{border-color:var(--y);background:rgba(255,208,96,.03);}
+.node.hb{border-color:var(--b);background:rgba(79,195,247,.03);}
+.ni{font-size:1.2rem;margin-bottom:.18rem;}
+.nn{font-size:.7rem;font-weight:700;}
+.nt{font-size:.59rem;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:.1rem;}
+.conn-row{display:flex;align-items:center;justify-content:center;gap:.3rem;margin:.4rem 0;flex-wrap:wrap;}
+.arr{font-size:.8rem;color:var(--t3);flex-shrink:0;}
+.conn-label{font-size:.6rem;color:var(--g);font-family:'JetBrains Mono',monospace;}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:1.7rem;margin-bottom:1rem;}
+.tl::before{content:'';position:absolute;left:.3rem;top:8px;bottom:20px;width:2px;
+  background:linear-gradient(to bottom,var(--g),var(--p),transparent);}
+.tli{position:relative;padding:0 0 1.2rem 1rem;}
+.tld{position:absolute;left:-1.4rem;top:4px;width:11px;height:11px;border-radius:50%;
+  border:2px solid var(--g);background:var(--bg);}
+.tld.now{background:var(--y);border-color:var(--y);animation:bl 1.5s infinite;}
+.tlp{font-size:.62rem;color:var(--g);font-family:'JetBrains Mono',monospace;margin-bottom:.18rem;}
+.tlt{font-size:.87rem;font-weight:700;margin-bottom:.2rem;}
+.tld2{font-size:.76rem;color:var(--t2);line-height:1.6;}
+.tll{margin-top:.4rem;list-style:none;}
+.tll li{font-size:.73rem;color:var(--t2);padding-left:.82rem;margin-bottom:.13rem;position:relative;}
+.tll li::before{content:'▸';position:absolute;left:0;color:var(--g);}
+.tll li.new{color:var(--y);}
+.tll li.new::before{color:var(--y);}
+.tll li.sec-item::before{color:var(--p);}
+
+/* RISKS */
+.risks{display:grid;grid-template-columns:1fr 1fr;gap:.82rem;margin-bottom:1rem;}
+.risk{background:var(--bg3);border-radius:9px;padding:.95rem 1.05rem;border-left:3px solid var(--rc,#222);}
+.rlv{font-size:.59rem;font-family:'JetBrains Mono',monospace;letter-spacing:.08em;margin-bottom:.25rem;}
+.rt{font-size:.85rem;font-weight:700;margin-bottom:.2rem;}
+.rd{font-size:.75rem;color:var(--t2);line-height:1.55;}
+.rf{font-size:.73rem;color:var(--g);margin-top:.35rem;line-height:1.5;}
+
+/* DEPLOY FLOW */
+.deploy{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1rem;}
+.deploy-step{background:var(--bg3);border:1px solid var(--bdr);border-radius:9px;
+  padding:1rem 1.2rem;display:grid;grid-template-columns:44px 1fr auto;gap:.85rem;align-items:start;}
+.ds-num{width:38px;height:38px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.ds-title{font-size:.88rem;font-weight:700;margin-bottom:.2rem;}
+.ds-desc{font-size:.76rem;color:var(--t2);line-height:1.6;}
+.ds-badge{font-size:.61rem;font-family:'JetBrains Mono',monospace;padding:.12rem .48rem;
+  border-radius:.22rem;white-space:nowrap;align-self:flex-start;}
+.sb-ex{background:rgba(26,255,156,.09);color:var(--g);border:1px solid rgba(26,255,156,.19);}
+.sb-new{background:rgba(255,208,96,.09);color:var(--y);border:1px solid rgba(255,208,96,.19);}
+.sb-chg{background:rgba(179,136,255,.09);color:var(--p);border:1px solid rgba(179,136,255,.19);}
+
+footer{border-top:1px solid var(--bdr);padding:1.1rem 3rem;
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--t3);font-size:.67rem;font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:960px){
+  header,nav,main,footer{padding-left:1.2rem;padding-right:1.2rem;}
+  h1{font-size:1.8rem;}.kpis{grid-template-columns:repeat(4,1fr);}
+  .g2,.g3{grid-template-columns:1fr;}.risks{grid-template-columns:1fr;}
+  .nodes{flex-direction:column;}.deploy-step{grid-template-columns:44px 1fr;}
+  .ds-badge{grid-column:1/-1;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badges">
+    <span class="badge bg"><span class="dot"></span>FINAL v5.0</span>
+    <span class="badge bp">Vue 3 + VPS Nginx</span>
+    <span class="badge by">이메일 직접 로그인</span>
+    <span class="badge bb">PC↔VPS 분리 아키텍처</span>
+  </div>
+  <h1>COCHING AI<br><span>마스터플랜 v5 FINAL</span></h1>
+  <p class="sub">
+    coching.kr VPS(Nginx)에 마이랩 기능을 통합합니다.<br>
+    VPS는 프론트엔드 + 인증 API 전담, PC 서버는 처방 AI 엔진 전담으로 역할을 분리하여 안정성과 보안을 동시에 확보합니다.
+  </p>
+  <div class="kpis">
+    <div class="kpi"><div class="kl">프론트</div><div class="kv" style="color:var(--g)">Vue 3</div><div class="ks">VPS Nginx</div></div>
+    <div class="kpi"><div class="kl">인증</div><div class="kv" style="color:var(--p)">이메일</div><div class="ks">직접 구현</div></div>
+    <div class="kpi"><div class="kl">처방 AI</div><div class="kv" style="color:var(--b)">PC 전담</div><div class="ks">WSL2 분리</div></div>
+    <div class="kpi"><div class="kl">API 비용</div><div class="kv" style="color:var(--g)">₩0</div><div class="ks">처방 생산</div></div>
+    <div class="kpi"><div class="kl">동시 사용자</div><div class="kv" style="color:var(--y)">200명</div><div class="ks">캐시 최적화</div></div>
+    <div class="kpi"><div class="kl">에이전트</div><div class="kv" style="color:var(--p)">9개</div><div class="ks">분리 설계</div></div>
+    <div class="kpi"><div class="kl">구축 기간</div><div class="kv" style="color:var(--y)">8주</div><div class="ks">MVP</div></div>
+  </div>
+</header>
+
+<nav>
+  <div class="tab on" onclick="S('overview')">📊 전체 개요</div>
+  <div class="tab" onclick="S('arch')">🏗️ 확정 아키텍처</div>
+  <div class="tab" onclick="S('deploy')">🚀 VPS 배포 전략</div>
+  <div class="tab" onclick="S('auth')">🔐 로그인 설계</div>
+  <div class="tab" onclick="S('mylab')">📓 마이랩 설계</div>
+  <div class="tab" onclick="S('stack')">🛠️ 기술 스택</div>
+  <div class="tab" onclick="S('agents')">🤖 에이전트 팀</div>
+  <div class="tab" onclick="S('timeline')">📅 구축 일정</div>
+  <div class="tab" onclick="S('cost')">💰 비용 분석</div>
+  <div class="tab" onclick="S('risk')">⚠️ 리스크</div>
+</nav>
+
+<main>
+
+<!-- ══ OVERVIEW ══ -->
+<div id="tab-overview" class="sec on">
+  <div class="sh">
+    <div class="sh-t">📊 전체 개요 <span class="tag">v5 CONFIRMED</span></div>
+    <div class="sh-d">모든 핵심 변수가 확정됐습니다. VPS(프론트+인증) ↔ PC 서버(처방 AI) 이중 서버 구조가 이번 v5의 핵심 아키텍처입니다.</div>
+  </div>
+
+  <div class="al ag">
+    ✅ <div><strong>총괄 책임자 v5 핵심 결정:</strong> VPS와 PC 서버를 역할 분리하는 것이 최선입니다. VPS는 항상 켜져 있고 안정적이므로 인증·프론트를 맡기고, PC 서버는 처방 AI 엔진에 집중합니다. PC가 꺼져도 로그인과 UI는 정상 동작하며, 처방 생성만 대기 상태가 됩니다. <strong>이것이 단일 서버 구조보다 훨씬 견고합니다.</strong></div>
+  </div>
+
+  <div class="g3">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">v4 → v5 변경 1</div>
+      <div class="ct">🖥️ 인증 서버: VPS로 이동</div>
+      <div class="cb">이메일+비밀번호 로그인/회원가입 API를 VPS에 구현합니다. users.db도 VPS에 위치. PC 서버와 독립적으로 24시간 안정 운영됩니다.</div>
+      <div class="chips"><span class="chip cg">VPS 담당</span><span class="chip cp">Node.js + Hono</span><span class="chip cb2">users.db</span></div>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">v4 → v5 변경 2</div>
+      <div class="ct">☁️ Cloudflare Pages → VPS Nginx</div>
+      <div class="cb">정적 Vue 빌드를 Cloudflare Pages 대신 VPS의 Nginx로 서빙합니다. 기존 coching.kr과 동일 서버에서 통합 운영. 배포 파이프라인도 VPS 기준으로 재설계합니다.</div>
+      <div class="chips"><span class="chip cp">Nginx 서빙</span><span class="chip cg">기존 서버 통합</span><span class="chip cy">배포 자동화</span></div>
+    </div>
+    <div class="card" style="--cc:var(--y)">
+      <div class="cl">v5 확정 3</div>
+      <div class="ct">🤝 VPS ↔ PC 서버 통신</div>
+      <div class="cb">VPS의 처방 API 요청이 Cloudflare Tunnel을 통해 PC 서버로 전달됩니다. PC가 오프라인이면 VPS가 Queue 메시지를 저장하고, PC 복구 후 자동 처리됩니다.</div>
+      <div class="chips"><span class="chip cy">CF Tunnel</span><span class="chip cg">VPS → PC 프록시</span><span class="chip cp">오프라인 대비</span></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="--cc:var(--b)">
+      <div class="cl">v4 → v5 전체 변경 비교</div>
+      <table style="margin-top:.4rem">
+        <tr><th>항목</th><th>v4 (이전)</th><th>v5 (확정)</th></tr>
+        <tr><td class="tn">로그인</td><td style="color:var(--y)">초대 코드</td><td class="tg">이메일+비밀번호</td></tr>
+        <tr><td class="tn">프론트 배포</td><td style="color:var(--y)">Cloudflare Pages</td><td class="tg">VPS Nginx</td></tr>
+        <tr><td class="tn">인증 서버</td><td style="color:var(--y)">PC 서버</td><td class="tg">VPS (분리)</td></tr>
+        <tr><td class="tn">users.db</td><td style="color:var(--y)">PC에 위치</td><td class="tg">VPS에 위치</td></tr>
+        <tr><td class="tn">처방 AI</td><td>PC 서버</td><td class="tg">PC 서버 (동일)</td></tr>
+        <tr><td class="tn">formula.db</td><td>PC에 위치</td><td class="tg">PC에 위치 (동일)</td></tr>
+        <tr><td class="tn">회원가입</td><td style="color:var(--y)">초대 코드만</td><td class="tg">이메일 직접 가입</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">서버 역할 분리 원칙</div>
+      <pre style="margin-top:.4rem"><span class="cm"># VPS (항상 켜짐 — 24/7 안정)</span>
+담당:
+  ✅ Vue 앱 서빙 (Nginx)
+  ✅ 로그인/회원가입 API
+  ✅ users.db (회원 정보)
+  ✅ JWT 발급 + 검증
+  ✅ 처방 요청 → PC 서버 프록시
+  ✅ 처방 히스토리 조회 프록시
+
+<span class="cm"># PC 서버 (처방 AI 전담)</span>
+담당:
+  ✅ 처방 생산 에이전트 01~08
+  ✅ formula.db (처방 히스토리)
+  ✅ inci.db / compound.db
+  ✅ regulation.db
+  ✅ DB 갱신 (n8n 02:00)
+
+<span class="cm"># 독립 원칙</span>
+PC 꺼짐 → VPS 로그인/UI 정상
+PC 켜짐 → 처방 생성 가능</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARCH ══ -->
+<div id="tab-arch" class="sec">
+  <div class="sh">
+    <div class="sh-t">🏗️ 확정 시스템 아키텍처 <span class="tag">v5 FINAL ARCHITECTURE</span></div>
+    <div class="sh-d">VPS와 PC 서버의 역할이 명확히 분리된 최종 아키텍처입니다.</div>
+  </div>
+
+  <div class="arch">
+    <div class="arch-title">── COCHING AI v5 전체 아키텍처 ──</div>
+
+    <div class="tier">
+      <div class="tier-label">① 사용자 (브라우저)</div>
+      <div class="nodes">
+        <div class="node hi"><div class="ni">👤</div><div class="nn">사용자</div><div class="nt">coching.kr</div></div>
+        <div style="align-self:center;font-size:.75rem;color:var(--t3);padding:.3rem">HTTPS</div>
+        <div class="node hi"><div class="ni">🌐</div><div class="nn">Vue 3 App</div><div class="nt">/mylab 포함</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-label">② VPS 서버 (coching.kr — 항상 켜짐)</div>
+      <div class="nodes">
+        <div class="node hp"><div class="ni">🔷</div><div class="nn">Nginx</div><div class="nt">프론트 서빙</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node hp"><div class="ni">⚡</div><div class="nn">Hono API</div><div class="nt">인증 + 프록시</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node hp"><div class="ni">🗄️</div><div class="nn">users.db</div><div class="nt">회원 정보</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node"><div class="ni">🔑</div><div class="nn">JWT 발급</div><div class="nt">httpOnly Cookie</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-label">③ Cloudflare (무료 — 캐시 + 터널)</div>
+      <div class="nodes">
+        <div class="node hy"><div class="ni">⚡</div><div class="nn">CF Workers</div><div class="nt">처방 캐시</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node hy"><div class="ni">📦</div><div class="nn">CF KV</div><div class="nt">24h 캐시</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node hy"><div class="ni">🔌</div><div class="nn">CF Tunnel</div><div class="nt">cloudflared</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-label">④ PC 서버 (처방 AI 전담 — Windows WSL2)</div>
+      <div class="nodes">
+        <div class="node hb"><div class="ni">🤖</div><div class="nn">처방 엔진</div><div class="nt">Hono + PM2</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">→</div>
+        <div class="node hb"><div class="ni">🗄️</div><div class="nn">formula.db</div><div class="nt">처방 히스토리</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">+</div>
+        <div class="node hb"><div class="ni">🧪</div><div class="nn">inci.db</div><div class="nt">성분 DB</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">+</div>
+        <div class="node hb"><div class="ni">⚗️</div><div class="nn">compound.db</div><div class="nt">복합성분</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">+</div>
+        <div class="node hb"><div class="ni">⚖️</div><div class="nn">regulation.db</div><div class="nt">규제 조건</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-label">⑤ 백업 + 자동화</div>
+      <div class="nodes">
+        <div class="node"><div class="ni">☁️</div><div class="nn">CF R2</div><div class="nt">DB 백업</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">+</div>
+        <div class="node"><div class="ni">⚙️</div><div class="nn">n8n</div><div class="nt">스케줄러</div></div>
+        <div style="align-self:center;padding:.3rem;font-size:.75rem;color:var(--t3)">+</div>
+        <div class="node"><div class="ni">📧</div><div class="nn">Hiworks</div><div class="nt">알림</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">처방 요청 전체 흐름 (v5)</div>
+      <pre style="margin-top:.4rem"><span class="cm">1. 사용자가 /mylab에서 처방 생성 요청</span>
+   Vue → POST /api/formula/generate
+   (httpOnly Cookie JWT 자동 첨부)
+
+<span class="cm">2. VPS Hono API 수신</span>
+   → JWT 검증 (users.db 확인)
+   → cf-tunnel → CF Workers 전달
+
+<span class="cm">3. CF Workers 캐시 확인</span>
+   ① KV 완전 일치 → 0.1초 반환
+   ② KV 유사 처방 → 0.3초 반환
+   ③ 캐시 미스 → PC 서버로 전달
+
+<span class="cm">4. PC 서버 처방 생산 (2~3초)</span>
+   Orchestrator → Agent 01~07
+   → SQLite DB 조회 (외부 API 없음)
+   → 처방서 + 전성분표 JSON 반환
+
+<span class="cm">5. VPS → CF KV 캐시 저장 (24h)</span>
+   → formula.db에 user_id와 함께 저장
+   → Vue에 결과 반환
+
+<span class="cm">6. PC 오프라인 시 Fallback</span>
+   VPS → "처방 생성 대기중" 응답
+   → n8n이 감지 → Hiworks 알림
+   → PC 복구 후 자동 처리</pre>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">VPS Nginx 설정 (coching.kr)</div>
+      <pre style="margin-top:.4rem"><span class="cm"># /etc/nginx/sites-available/coching.kr</span>
+server {
+  listen 80;
+  server_name coching.kr www.coching.kr;
+  <span class="cm"># HTTPS 리다이렉트</span>
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name coching.kr www.coching.kr;
+  
+  <span class="cm"># SSL (Let's Encrypt 무료)</span>
+  ssl_certificate /etc/letsencrypt/live/coching.kr/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/coching.kr/privkey.pem;
+
+  <span class="cm"># Vue 앱 서빙 (기존 + 마이랩 통합 빌드)</span>
+  location / {
+    root /var/www/coching/dist;
+    try_files $uri $uri/ /index.html;
+  }
+
+  <span class="cm"># VPS 인증 API</span>
+  location /api/auth/ {
+    proxy_pass http://localhost:3001;
+    proxy_set_header Authorization $http_authorization;
+  }
+
+  <span class="cm"># 처방 API → CF Tunnel → PC 서버</span>
+  location /api/formula/ {
+    proxy_pass http://localhost:3001;
+    <span class="cm"># CF Workers를 거쳐 PC로 전달</span>
+  }
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DEPLOY ══ -->
+<div id="tab-deploy" class="sec">
+  <div class="sh">
+    <div class="sh-t">🚀 VPS 배포 전략 <span class="tag">DEPLOY STRATEGY</span></div>
+    <div class="sh-d">기존 VPS에서 coching.kr을 운영 중인 환경에 마이랩을 통합하는 배포 전략입니다. 기존 서비스를 중단하지 않고 점진적으로 통합합니다.</div>
+  </div>
+
+  <div class="al ab">
+    ℹ️ <div><strong>배포 원칙:</strong> 기존 coching.kr Vue 프로젝트의 <code>npm run build</code> 결과물(dist/)에 마이랩 컴포넌트가 포함된 채로 빌드됩니다. Nginx의 root 경로를 새 dist/로 교체하는 것만으로 배포가 완료됩니다. 다운타임 없이 전환 가능합니다.</div>
+  </div>
+
+  <div class="deploy">
+    <div class="deploy-step">
+      <div class="ds-num" style="background:rgba(26,255,156,.1)">📁</div>
+      <div>
+        <div class="ds-title">① Vue 프로젝트에 마이랩 컴포넌트 추가</div>
+        <div class="ds-desc">기존 coching.kr Vue 프로젝트 로컬에서 개발. src/views/MyLab.vue + src/components/mylab/ 폴더 추가. Vue Router에 /mylab 경로 추가. 기존 코드는 절대 수정하지 않음.</div>
+        <div class="chips" style="margin-top:.4rem"><span class="chip cg">로컬 개발</span><span class="chip cp">기존 코드 무수정</span></div>
+      </div>
+      <span class="ds-badge sb-ex">기존 유지</span>
+    </div>
+    <div class="deploy-step">
+      <div class="ds-num" style="background:rgba(255,208,96,.1)">🔨</div>
+      <div>
+        <div class="ds-title">② VPS에서 빌드 + 배포 스크립트</div>
+        <div class="ds-desc">VPS에서 Git pull → npm run build → dist/ 교체 → Nginx reload. PM2로 Hono API 서버(포트 3001) 관리. Let's Encrypt SSL 인증서는 기존 것 유지.</div>
+        <pre style="margin-top:.5rem;margin-bottom:0;font-size:.68rem"><span class="cm">#!/bin/bash — deploy.sh (VPS에서 실행)</span>
+cd /home/ubuntu/coching-web
+git pull origin main
+npm install
+npm run build
+<span class="cm"># dist/ → Nginx root 교체 (심볼릭 링크)</span>
+ln -sfn /home/ubuntu/coching-web/dist /var/www/coching/dist
+nginx -s reload
+<span class="cm"># Hono API 서버 재시작</span>
+pm2 restart coching-api</pre>
+      </div>
+      <span class="ds-badge sb-new">신규 작성</span>
+    </div>
+    <div class="deploy-step">
+      <div class="ds-num" style="background:rgba(179,136,255,.1)">🔌</div>
+      <div>
+        <div class="ds-title">③ VPS Hono API 서버 구성 (포트 3001)</div>
+        <div class="ds-desc">인증 API(/api/auth/*)와 처방 프록시(/api/formula/*)를 담당하는 Hono 서버. PM2로 관리. VPS에는 users.db만 위치.</div>
+        <pre style="margin-top:.5rem;margin-bottom:0;font-size:.68rem"><span class="cm">// VPS: src/api-server.ts</span>
+<span class="ck">const</span> app = <span class="ck">new</span> <span class="cf">Hono</span>()
+<span class="cm">// 인증 라우트 (VPS에서 직접 처리)</span>
+app.post(<span class="cs">'/api/auth/register'</span>, <span class="cf">registerHandler</span>)
+app.post(<span class="cs">'/api/auth/login'</span>, <span class="cf">loginHandler</span>)
+app.post(<span class="cs">'/api/auth/logout'</span>, <span class="cf">logoutHandler</span>)
+<span class="cm">// 처방 라우트 (PC 서버로 프록시)</span>
+app.all(<span class="cs">'/api/formula/*'</span>, authMiddleware, <span class="cf">proxyToPC</span>)</pre>
+      </div>
+      <span class="ds-badge sb-new">신규 작성</span>
+    </div>
+    <div class="deploy-step">
+      <div class="ds-num" style="background:rgba(79,195,247,.1)">🔌</div>
+      <div>
+        <div class="ds-title">④ Cloudflare Tunnel (VPS → PC 서버 연결)</div>
+        <div class="ds-desc">기존 PC 서버 Tunnel을 VPS에서도 접근 가능하도록 설정. VPS의 proxyToPC 함수가 CF Tunnel URL(api-pc.coching.kr)로 처방 요청을 전달합니다.</div>
+        <div class="chips" style="margin-top:.4rem"><span class="chip cb2">cloudflared 기존 유지</span><span class="chip cy">api-pc.coching.kr 서브도메인</span></div>
+      </div>
+      <span class="ds-badge sb-ex">기존 활용</span>
+    </div>
+    <div class="deploy-step">
+      <div class="ds-num" style="background:rgba(26,255,156,.1)">✅</div>
+      <div>
+        <div class="ds-title">⑤ 배포 완료 확인 체크리스트</div>
+        <div class="ds-desc">배포 후 반드시 확인할 항목들입니다.</div>
+        <pre style="margin-top:.5rem;margin-bottom:0;font-size:.68rem"><span class="cm">□ coching.kr 접속 → 기존 페이지 정상</span>
+<span class="cm">□ coching.kr/mylab 접속 → 로그인 페이지 표시</span>
+<span class="cm">□ 회원가입 → 이메일 + 비밀번호 정상 처리</span>
+<span class="cm">□ 로그인 → httpOnly Cookie JWT 발급 확인</span>
+<span class="cm">□ 처방 생성 요청 → PC 서버 도달 확인</span>
+<span class="cm">□ PC 서버 꺼진 상태 → 로그인은 정상 동작</span>
+<span class="cm">□ SSL 인증서 만료 여부 확인 (certbot)</span></pre>
+      </div>
+      <span class="ds-badge sb-new">필수 확인</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div id="tab-auth" class="sec">
+  <div class="sh">
+    <div class="sh-t">🔐 로그인 시스템 설계 <span class="tag">EMAIL + PASSWORD</span></div>
+    <div class="sh-d">이메일+비밀번호 직접 구현. VPS Hono API가 인증 전담. JWT는 httpOnly Cookie로 보안 관리합니다.</div>
+  </div>
+
+  <div class="al ap">
+    💡 <div><strong>초대 코드 vs 이메일 직접 가입:</strong> 이메일+비밀번호 방식으로 변경되었지만, <strong>가입 승인 기능</strong>을 추가하는 것을 강력 권장합니다. 이메일로 가입 후 Daniel이 관리자 패널에서 승인해야 처방 생성이 활성화되는 방식입니다. 불특정 다수 가입을 방지하면서도 이메일 방식의 편의성을 유지할 수 있습니다.</div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">VPS 인증 API 라우트</div>
+      <pre style="margin-top:.4rem"><span class="cm">// VPS: POST /api/auth/register</span>
+{
+  email: <span class="cs">"user@company.com"</span>,
+  password: <span class="cs">"********"</span>,
+  name: <span class="cs">"홍길동"</span>
+}
+→ 비밀번호 bcrypt 해시
+→ users.db 저장 (status: 'pending')
+→ 이메일 인증 메일 발송 (Hiworks SMTP)
+
+<span class="cm">// VPS: POST /api/auth/login</span>
+{
+  email: <span class="cs">"user@company.com"</span>,
+  password: <span class="cs">"********"</span>
+}
+→ users.db 조회 + bcrypt 검증
+→ status === 'active' 확인
+→ JWT 생성 (7일 유효)
+→ httpOnly Secure Cookie 설정
+→ { success: true } 반환
+
+<span class="cm">// VPS: POST /api/auth/logout</span>
+→ Cookie 만료 처리
+
+<span class="cm">// VPS: GET /api/auth/me</span>
+→ Cookie JWT 검증
+→ 사용자 정보 반환</pre>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">users.db 스키마 (VPS 위치)</div>
+      <pre style="margin-top:.4rem"><span class="cm">-- VPS의 users.db</span>
+<span class="ck">CREATE TABLE</span> users (
+  id           TEXT PRIMARY KEY,   <span class="cm">-- UUID v4</span>
+  email        TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,     <span class="cm">-- bcrypt</span>
+  name         TEXT,
+  status       TEXT DEFAULT <span class="cs">'pending'</span>,
+  <span class="cm">-- 'pending' | 'active' | 'suspended'</span>
+  plan         TEXT DEFAULT <span class="cs">'basic'</span>,
+  created_at   TEXT,
+  last_login   TEXT,
+  email_verified INTEGER DEFAULT 0
+);
+
+<span class="cm">-- 이메일 인증 토큰</span>
+<span class="ck">CREATE TABLE</span> email_verifications (
+  token        TEXT PRIMARY KEY,
+  user_id      TEXT,
+  expires_at   TEXT,
+  used         INTEGER DEFAULT 0
+);
+
+<span class="cm">-- 비밀번호 재설정</span>
+<span class="ck">CREATE TABLE</span> password_resets (
+  token        TEXT PRIMARY KEY,
+  user_id      TEXT,
+  expires_at   TEXT,
+  used         INTEGER DEFAULT 0
+);</pre>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:var(--y)">
+    <div class="cl">Vue 로그인 플로우</div>
+    <pre style="margin-top:.4rem"><span class="cm">// stores/auth.ts (Pinia)</span>
+<span class="ck">export const</span> useAuthStore = <span class="cf">defineStore</span>(<span class="cs">'auth'</span>, () => {
+  <span class="ck">const</span> user = <span class="cf">ref</span>(null)
+
+  <span class="ck">const</span> <span class="cf">login</span> = <span class="ck">async</span> (email, password) => {
+    <span class="ck">const</span> res = <span class="ck">await</span> <span class="cf">fetch</span>(<span class="cs">'/api/auth/login'</span>, {
+      method: <span class="cs">'POST'</span>,
+      credentials: <span class="cs">'include'</span>,   <span class="cm">// httpOnly Cookie 자동 처리</span>
+      body: <span class="cf">JSON.stringify</span>({ email, password })
+    })
+    <span class="ck">if</span> (res.ok) {
+      <span class="ck">await</span> <span class="cf">fetchMe</span>()              <span class="cm">// 사용자 정보 로드</span>
+      router.<span class="cf">push</span>(<span class="cs">'/mylab'</span>)
+    }
+  }
+
+  <span class="ck">const</span> <span class="cf">fetchMe</span> = <span class="ck">async</span> () => {
+    <span class="ck">const</span> res = <span class="ck">await</span> <span class="cf">fetch</span>(<span class="cs">'/api/auth/me'</span>, {
+      credentials: <span class="cs">'include'</span>     <span class="cm">// Cookie 자동 첨부</span>
+    })
+    user.value = <span class="ck">await</span> res.<span class="cf">json</span>()
+  }
+
+  <span class="ck">return</span> { user, login, fetchMe }
+})</pre>
+  </div>
+</div>
+
+<!-- ══ MYLAB ══ -->
+<div id="tab-mylab" class="sec">
+  <div class="sh">
+    <div class="sh-t">📓 마이랩 기능 설계 <span class="tag">처방 업무일지 플랫폼</span></div>
+    <div class="sh-d">처방 전문가의 업무 흐름 전체를 지원하는 4가지 핵심 기능입니다. 모두 MVP에 포함됩니다.</div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">핵심 기능 1 — 날짜별 처방 업무 일지</div>
+      <div class="cb" style="margin-bottom:.5rem">날짜별로 처방 작업을 기록합니다. 오늘 만든 처방, 어제 수정한 처방을 시간순으로 확인할 수 있습니다.</div>
+      <pre style="font-size:.68rem"><span class="cm">// formula.db 쿼리 (PC 서버)</span>
+SELECT * FROM formulas
+WHERE user_id = ?
+ORDER BY created_at DESC
+<span class="cm">-- 결과: 날짜별 그룹핑으로 표시</span>
+<span class="cm">-- 2026.03.10: SPF50+ 선크림</span>
+<span class="cm">-- 2026.03.09: 나이아신아마이드 세럼</span></pre>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">핵심 기능 2 — 처방에 메모/노트 추가</div>
+      <div class="cb" style="margin-bottom:.5rem">각 처방에 자유 메모를 추가합니다. "고객 A 요청", "SPF 시험 의뢰 예정", "벤토나이트 함량 조정 필요" 등 업무 맥락을 기록합니다.</div>
+      <pre style="font-size:.68rem"><span class="cm">// formula.db 스키마</span>
+<span class="ck">CREATE TABLE</span> formulas (
+  id           TEXT PRIMARY KEY,
+  user_id      TEXT,
+  title        TEXT,
+  product_type TEXT,
+  status       TEXT,     <span class="cm">-- draft/review/done</span>
+  formula_data TEXT,     <span class="cm">-- JSON (처방 전체)</span>
+  memo         TEXT,     <span class="cm">-- ← 메모/노트</span>
+  tags         TEXT,     <span class="cm">-- JSON ["선크림","A사"]</span>
+  project_name TEXT,
+  created_at   TEXT,
+  updated_at   TEXT
+);</pre>
+    </div>
+    <div class="card" style="--cc:var(--y)">
+      <div class="cl">핵심 기능 3 — 처방 진행 상태 관리</div>
+      <div class="cb" style="margin-bottom:.5rem">처방의 진행 상태를 3단계로 관리합니다. 상태 변경 히스토리도 기록되어 언제 검토가 완료됐는지 추적 가능합니다.</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.3rem">
+        <div style="background:rgba(255,208,96,.08);border:1px solid rgba(255,208,96,.2);border-radius:7px;padding:.6rem .8rem;flex:1">
+          <div style="font-size:.65rem;color:var(--y);font-weight:700;margin-bottom:.2rem">📝 초안 (draft)</div>
+          <div style="font-size:.72rem;color:var(--t2)">AI 처방 생성 완료. 아직 검토 전 상태.</div>
+        </div>
+        <div style="background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);border-radius:7px;padding:.6rem .8rem;flex:1">
+          <div style="font-size:.65rem;color:var(--b);font-weight:700;margin-bottom:.2rem">🔍 검토중 (review)</div>
+          <div style="font-size:.72rem;color:var(--t2)">성분 검토, 규제 확인, 수동 수정 중.</div>
+        </div>
+        <div style="background:rgba(26,255,156,.08);border:1px solid rgba(26,255,156,.2);border-radius:7px;padding:.6rem .8rem;flex:1">
+          <div style="font-size:.65rem;color:var(--g);font-weight:700;margin-bottom:.2rem">✅ 완료 (done)</div>
+          <div style="font-size:.72rem;color:var(--t2)">최종 확정. 제조 의뢰 가능 상태.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="--cc:var(--b)">
+      <div class="cl">핵심 기능 4 — 처방을 프로젝트 단위로 관리</div>
+      <div class="cb" style="margin-bottom:.5rem">관련 처방을 프로젝트로 묶어 관리합니다. "A사 썬케어 라인"에는 SPF30, SPF50, PA+++ 처방 3개가 묶여 있는 식입니다.</div>
+      <pre style="font-size:.68rem"><span class="cm">// 프로젝트 뷰 쿼리</span>
+SELECT
+  project_name,
+  COUNT(*) as formula_count,
+  SUM(CASE WHEN status='done' THEN 1 ELSE 0 END) as done_count
+FROM formulas
+WHERE user_id = ?
+GROUP BY project_name
+ORDER BY MAX(updated_at) DESC
+
+<span class="cm">-- 결과 예시:</span>
+<span class="cm">-- "A사 썬케어 라인": 3개 처방 (2개 완료)</span>
+<span class="cm">-- "B사 기초 세트": 5개 처방 (전체 완료)</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STACK ══ -->
+<div id="tab-stack" class="sec">
+  <div class="sh">
+    <div class="sh-t">🛠️ 최종 기술 스택 <span class="tag">v5 STACK</span></div>
+    <div class="sh-d">VPS Nginx 환경 기준 최종 확정 스택입니다. 기존 coching.kr 환경과 최대한 호환됩니다.</div>
+  </div>
+  <div class="g2">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">VPS 서버 스택</div>
+      <table style="margin-top:.4rem">
+        <tr><th>역할</th><th>기술</th><th>비고</th></tr>
+        <tr><td class="tn">웹 서버</td><td class="tg">Nginx</td><td>기존 유지</td></tr>
+        <tr><td class="tn">SSL</td><td class="tg">Let's Encrypt</td><td>certbot 자동 갱신</td></tr>
+        <tr><td class="tn">API 서버</td><td class="tg">Hono + PM2</td><td>포트 3001</td></tr>
+        <tr><td class="tn">런타임</td><td class="tg">Node.js 20 LTS</td><td>신규 추가</td></tr>
+        <tr><td class="tn">인증 DB</td><td class="tg">SQLite (users.db)</td><td>VPS 전용</td></tr>
+        <tr><td class="tn">패키지</td><td class="tg">bcrypt + jose</td><td>비밀번호+JWT</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--cc:var(--b)">
+      <div class="cl">PC 서버 스택 (처방 AI 전담)</div>
+      <table style="margin-top:.4rem">
+        <tr><th>역할</th><th>기술</th><th>비고</th></tr>
+        <tr><td class="tn">서버</td><td class="tg">Hono + PM2</td><td>Cluster 모드</td></tr>
+        <tr><td class="tn">환경</td><td class="tg">WSL2 Ubuntu</td><td>Windows 위</td></tr>
+        <tr><td class="tn">터널</td><td class="tg">CF cloudflared</td><td>VPS에서 접근</td></tr>
+        <tr><td class="tn">처방 DB</td><td class="tg">SQLite 4종</td><td>formula+inci+...</td></tr>
+        <tr><td class="tn">자동화</td><td class="tg">n8n</td><td>02:00 DB 갱신</td></tr>
+        <tr><td class="tn">AI</td><td class="tg">Claude Code Max</td><td>DB 갱신 전용</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">프론트엔드 스택 (Vue 3)</div>
+      <table style="margin-top:.4rem">
+        <tr><th>역할</th><th>기술</th><th>비고</th></tr>
+        <tr><td class="tn">프레임워크</td><td class="tg">Vue 3 + TS</td><td>기존 유지</td></tr>
+        <tr><td class="tn">빌드</td><td class="tg">Vite</td><td>기존 유지</td></tr>
+        <tr><td class="tn">라우터</td><td class="tg">Vue Router 4</td><td>라우트만 추가</td></tr>
+        <tr><td class="tn">상태관리</td><td class="tg">Pinia</td><td>신규 추가</td></tr>
+        <tr><td class="tn">HTTP</td><td class="tg">fetch (credentials)</td><td>Cookie 자동</td></tr>
+        <tr><td class="tn">스타일</td><td class="tg">Scoped CSS</td><td>기존 격리</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--cc:var(--y)">
+      <div class="cl">Cloudflare (무료 티어)</div>
+      <table style="margin-top:.4rem">
+        <tr><th>서비스</th><th>용도</th></tr>
+        <tr><td class="tn">CF Tunnel</td><td>VPS → PC 서버 연결</td></tr>
+        <tr><td class="tn">CF Workers</td><td>처방 요청 캐시 레이어</td></tr>
+        <tr><td class="tn">CF KV</td><td>처방 결과 24h 캐시</td></tr>
+        <tr><td class="tn">CF R2</td><td>SQLite 전체 백업</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AGENTS ══ -->
+<div id="tab-agents" class="sec">
+  <div class="sh">
+    <div class="sh-t">🤖 에이전트 팀 v5 <span class="tag">PC 서버 전담 — 9개</span></div>
+    <div class="sh-d">모든 처방 생산 에이전트는 PC 서버에서 실행됩니다. VPS로부터 받은 요청을 처리하고 결과를 반환합니다.</div>
+  </div>
+  <div class="g2">
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">에이전트 실행 파이프라인</div>
+      <pre style="margin-top:.4rem"><span class="cm">VPS → PC 서버 요청 수신</span>
+  POST /formula/generate
+  { user_id, product_type, spf, features }
+
+Orchestrator
+  ↓
+Agent 01: Formulation      (처방 설계)
+  ↓
+Agent 02: Compound Expansion (복합성분 전개)
+  ↓
+Agent 03: Precision Arithmetic (정밀 계산)
+  ↓
+┌── Agent 04: Regulation ──┐ (병렬)
+└── Agent 05: Safety ──────┘
+  ↓
+Agent 06: QA Validation    (17개 체크)
+  ↓
+Agent 07: Render           (Vue reactive data)
+  ↓
+PC 서버 → VPS 반환 → Vue 렌더링
+
+<span class="cm"># 야간 전용 (02:00)</span>
+Agent 08: DB Update (Claude Code Max)</pre>
+    </div>
+    <div class="card" style="--cc:var(--p)">
+      <div class="cl">에이전트별 DB 의존성</div>
+      <table style="margin-top:.4rem">
+        <tr><th>에이전트</th><th>참조 DB</th><th>비고</th></tr>
+        <tr><td class="tn">01 Formulation</td><td>formula.db</td><td>유사 처방 참조</td></tr>
+        <tr><td class="tn">02 Compound Exp.</td><td>compound.db</td><td>SKILL.md 적용</td></tr>
+        <tr><td class="tn">03 Precision</td><td>—</td><td>수치 연산만</td></tr>
+        <tr><td class="tn">04 Regulation</td><td>regulation.db</td><td>KR/EU/US 병렬</td></tr>
+        <tr><td class="tn">05 Safety</td><td>inci.db</td><td>EWG + 향료 26종</td></tr>
+        <tr><td class="tn">06 QA</td><td>—</td><td>17개 체크리스트</td></tr>
+        <tr><td class="tn">07 Render</td><td>—</td><td>Vue reactive 변환</td></tr>
+        <tr><td class="tn">08 DB Update</td><td>전체 5종</td><td>야간 갱신</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TIMELINE ══ -->
+<div id="tab-timeline" class="sec">
+  <div class="sh">
+    <div class="sh-t">📅 구축 로드맵 v5 <span class="tag">8-WEEK ROADMAP FINAL</span></div>
+    <div class="sh-d">VPS Nginx + 이메일 로그인을 반영한 최종 확정 일정.</div>
+  </div>
+  <div class="tl">
+    <div class="tli">
+      <div class="tld now"></div>
+      <div class="tlp">PHASE 1 — Week 1~2 ★ 지금 시작</div>
+      <div class="tlt">🔐 VPS Hono API + 인증 시스템 + 마이랩 라우트</div>
+      <div class="tld2">VPS에 Hono API 서버를 올리고 이메일 인증 시스템을 완성합니다. Vue에는 /mylab 라우트와 로그인 페이지를 추가합니다.</div>
+      <ul class="tll">
+        <li class="new">VPS: Node.js 20 + Hono + PM2 설치 (포트 3001)</li>
+        <li class="new">VPS: users.db 스키마 생성</li>
+        <li class="new">VPS: 이메일+비밀번호 인증 API (register/login/logout/me)</li>
+        <li class="new">VPS: JWT httpOnly Cookie 발급 + Nginx proxy_pass 설정</li>
+        <li class="new">Vue: /mylab 라우트 추가 + 로그인/회원가입 페이지</li>
+        <li class="new">Vue: Pinia authStore 구현</li>
+        <li>PC 서버: WSL2 + Hono + PM2 Cluster 구성</li>
+        <li>CF Tunnel: api-pc.coching.kr 서브도메인 연결</li>
+        <li>SQLite 전체 → CF R2 자동 백업 설정 (VPS + PC 둘 다)</li>
+      </ul>
+    </div>
+    <div class="tli">
+      <div class="tld"></div>
+      <div class="tlp">PHASE 2 — Week 3~4</div>
+      <div class="tlt">🗄️ PC 서버 DB 구축 + 에이전트 01~03</div>
+      <ul class="tll">
+        <li>PC 서버: SQLite 5종 DB 스키마 + Claude Code Max 초기 데이터</li>
+        <li>compound.db: COMPOUND-EXPANSION SKILL 기반 10종 등록</li>
+        <li>Agent 01~03 구현 (Formulation → Compound Expansion → Precision)</li>
+        <li class="new">Vue: 마이랩 메인 레이아웃 (좌측 일지 사이드바 + 우측 상세)</li>
+        <li class="new">Vue: 처방 입력 폼 컴포넌트 (FormulaForm.vue)</li>
+        <li class="new">Vue: Pinia formulaStore 구현</li>
+      </ul>
+    </div>
+    <div class="tli">
+      <div class="tld"></div>
+      <div class="tlp">PHASE 3 — Week 5~6</div>
+      <div class="tlt">🤖 에이전트 04~07 + 처방 결과 화면 + 업무일지 기능</div>
+      <ul class="tll">
+        <li>Agent 04+05 병렬 구현 (Regulation + Safety)</li>
+        <li>Agent 06 구현 (QA Validation 17개 체크)</li>
+        <li class="new">Agent 07 구현 (Vue reactive data 변환)</li>
+        <li class="new">Vue: FormulaResult.vue (처방서/전성분표 탭)</li>
+        <li class="new">Vue: 인라인 wt% 편집 + 실시간 재계산 (FormulaEditor.vue)</li>
+        <li class="new">Vue: 메모/태그/진행상태/프로젝트 컴포넌트</li>
+        <li>E2E 테스트: 로그인 → 처방 생성 → 일지 저장 → 편집</li>
+      </ul>
+    </div>
+    <div class="tli">
+      <div class="tld"></div>
+      <div class="tlp">PHASE 4 — Week 7~8</div>
+      <div class="tlt">🚀 coching.kr 통합 배포 + 성능 최적화 + 베타 테스트</div>
+      <ul class="tll">
+        <li class="new">기존 coching.kr 헤더에 "마이랩" 메뉴 추가</li>
+        <li class="new">VPS deploy.sh 자동화 스크립트 완성</li>
+        <li>CF Workers 처방 캐시 3단계 최적화</li>
+        <li>Agent 08 n8n DB 갱신 워크플로우 완성</li>
+        <li>부하 테스트: 동시 50→100→200명 응답 시간 측정</li>
+        <li>베타 테스트: 처방 10건 + 업무일지 사용성 검증</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COST ══ -->
+<div id="tab-cost" class="sec">
+  <div class="sh">
+    <div class="sh-t">💰 비용 분석 v5 <span class="tag">COST — 200명 기준</span></div>
+  </div>
+  <div class="al ag">
+    ✅ <div><strong>v5 비용 핵심:</strong> VPS는 기존 coching.kr 운영 중이므로 추가 비용 없음. PC 서버 전기료만 추가됩니다. 200명 기준 외부 AI API 대비 연간 <strong>₩20,100,000 절감</strong> 유지.</div>
+  </div>
+  <div class="g2">
+    <div class="card" style="--cc:var(--r)">
+      <div class="cl">❌ 외부 AI API 방식 (200명)</div>
+      <table style="margin-top:.4rem">
+        <tr><th>항목</th><th>월 비용</th></tr>
+        <tr><td>Claude API 처방 생산</td><td class="ty">~₩1,200,000</td></tr>
+        <tr><td>규제/성분 API</td><td class="ty">~₩500,000</td></tr>
+        <tr><td><strong>월 합계</strong></td><td class="tt">~₩1,700,000</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--cc:var(--g)">
+      <div class="cl">✅ v5 방식 (VPS+PC, 200명)</div>
+      <table style="margin-top:.4rem">
+        <tr><th>항목</th><th>월 비용</th></tr>
+        <tr><td>처방 생산 AI</td><td class="tg">₩0 (로컬)</td></tr>
+        <tr><td>VPS (기존 운영 중)</td><td class="tg">₩0 추가</td></tr>
+        <tr><td>Cloudflare 전체</td><td class="tg">₩0 (무료)</td></tr>
+        <tr><td>Claude Code Max</td><td class="tg">기존 플랜</td></tr>
+        <tr><td>PC 전기료 (24h)</td><td class="ty">~₩25,000</td></tr>
+        <tr><td><strong>월 합계</strong></td><td class="tg" style="font-size:.92rem;font-weight:900">~₩25,000</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RISK ══ -->
+<div id="tab-risk" class="sec">
+  <div class="sh">
+    <div class="sh-t">⚠️ 리스크 관리 v5 <span class="tag">VPS+PC 이중 서버 기준</span></div>
+    <div class="sh-d">VPS+PC 이중 서버 구조에 특화된 최종 리스크 목록입니다.</div>
+  </div>
+  <div class="risks">
+    <div class="risk" style="--rc:var(--y)">
+      <div class="rlv" style="color:var(--y)">🟡 MEDIUM</div>
+      <div class="rt">VPS users.db 유실 (계정 전체 손실)</div>
+      <div class="rd">VPS 장애 시 모든 회원 계정 정보 유실. 재가입 불가.</div>
+      <div class="rf">✅ VPS users.db → CF R2 매일 자동 백업. 추가로 암호화 후 별도 저장소에 보관.</div>
+    </div>
+    <div class="risk" style="--rc:var(--y)">
+      <div class="rlv" style="color:var(--y)">🟡 MEDIUM</div>
+      <div class="rt">JWT 보안 취약 (XSS/CSRF)</div>
+      <div class="rd">httpOnly Cookie 미적용 시 XSS 공격으로 JWT 탈취. CSRF 공격으로 악의적 요청 가능.</div>
+      <div class="rf">✅ JWT = httpOnly + Secure + SameSite=Strict Cookie. CSRF 방어: Origin 헤더 검증. 모든 API HTTPS 강제.</div>
+    </div>
+    <div class="risk" style="--rc:var(--g)">
+      <div class="rlv" style="color:var(--g)">🟢 LOW</div>
+      <div class="rt">PC 서버 오프라인 시 처방 생성 불가</div>
+      <div class="rd">PC가 꺼져 있으면 처방 생성 요청이 실패합니다.</div>
+      <div class="rf">✅ VPS는 독립적으로 동작 (로그인/UI 정상). 처방 실패 시 "PC 서버 점검 중" 안내. n8n 헬스체크 → Hiworks 알림.</div>
+    </div>
+    <div class="risk" style="--rc:var(--g)">
+      <div class="rlv" style="color:var(--g)">🟢 LOW</div>
+      <div class="rt">VPS-PC 서버 간 통신 지연</div>
+      <div class="rd">VPS → CF Tunnel → PC 경로에서 지연 발생 시 처방 응답 시간 증가.</div>
+      <div class="rf">✅ CF KV 캐시로 80% 요청 흡수. 캐시 미스만 실제 VPS→PC 경로 사용. 응답 시간 모니터링 n8n 대시보드.</div>
+    </div>
+    <div class="risk" style="--rc:var(--g)">
+      <div class="rlv" style="color:var(--g)">🟢 LOW</div>
+      <div class="rt">기존 Vue UI와 마이랩 스타일 충돌</div>
+      <div class="rd">마이랩 CSS가 기존 coching.kr 전역 스타일을 오염.</div>
+      <div class="rf">✅ 모든 마이랩 Vue 컴포넌트에 &lt;style scoped&gt; 필수. 전역 CSS 파일 절대 수정 금지. --ml- 접두사 CSS 변수 사용.</div>
+    </div>
+    <div class="risk" style="--rc:var(--g)">
+      <div class="rlv" style="color:var(--g)">🟢 LOW</div>
+      <div class="rt">무분별한 회원 가입</div>
+      <div class="rd">이메일+비밀번호 방식에서 불특정 다수 가입 시 서버 부하.</div>
+      <div class="rf">✅ 이메일 인증 필수 (Hiworks SMTP). users.status = 'pending' 기본값. 관리자(Daniel) 승인 후 'active' 전환. 미승인 계정 처방 생성 차단.</div>
+    </div>
+  </div>
+
+  <div class="al ay">
+    ⚠️ <div><strong>총괄 책임자 v5 최우선 지시 (순서대로):</strong><br>
+    1️⃣ <strong>Phase 1 필수</strong> — VPS users.db + PC formula.db 모두 CF R2 자동 백업<br>
+    2️⃣ <strong>Phase 1 필수</strong> — JWT = httpOnly + Secure + SameSite=Strict Cookie (절대 LocalStorage 금지)<br>
+    3️⃣ <strong>Phase 1 필수</strong> — 회원가입 후 Daniel 수동 승인 로직 구현 (무분별 가입 방지)<br>
+    4️⃣ <strong>Phase 1 필수</strong> — 모든 마이랩 Vue 컴포넌트 &lt;style scoped&gt;<br>
+    5️⃣ <strong>Phase 4 필수</strong> — VPS→PC 응답 시간 E2E 측정 (목표: 캐시 히트 0.3초, 캐시 미스 3초 이내)</div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>COCHING AI Master Plan v5.0 FINAL — 총괄: Claude — 2026-03-10</span>
+  <span>KPROS CORP · Vue 3 · VPS Nginx · 이메일 인증 · VPS↔PC 이중 서버</span>
+</footer>
+
+<script>
+function S(id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  event.target.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
