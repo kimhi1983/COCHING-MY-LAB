@@ -382,13 +382,9 @@ export default {
         //console.debug(config);
         //console.debug(response);
         if(response && response.status === 404){
-          _vm.$refs["alertModal"].open({title: '파일을 찾을 수 없습니다.',
-            content : ''
-          });
+          console.error('[DEV] 파일을 찾을 수 없습니다. (팝업 숨김)');
         }else{
-          _vm.$refs["alertModal"].open({title: '알 수 없는 오류가 발생했습니다.',
-            content : ''
-          });
+          console.error('[DEV] 알 수 없는 오류 (팝업 숨김):', response?.status);
         }
         
       }
@@ -543,23 +539,18 @@ export default {
       const _vm = this;
       let errorMsg = '알수 없는 오류가 발생했습니다.';
       if(!err.response){
-        console.error(err);
-        _vm.$refs["alertModal"].open({title: errorMsg,
-          content : ''
-        });
+        console.error('[DEV] API 오류 (팝업 숨김):', err);
         return true;
       }
-      
+
       const { resultCode, resultFailMessage, resultMsg } = err.response.data;
       errorMsg = resultFailMessage || resultMsg || '통신이 원할하지 않습니다.\n잠시후 다시 시도해 주십시오.';
-  
+
       if(resultCode != "0000"){
-        _vm.$refs["alertModal"].open({title: errorMsg,
-          content : ''
-        });          
+        console.error('[DEV] API 오류 (팝업 숨김):', errorMsg);
         return true;
       }
-  
+
       return false;
     },
 
@@ -568,23 +559,18 @@ export default {
       const _vm = this;
       let errorMsg = '알수 없는 오류가 발생했습니다.';
       if(!err.response){
-        console.error(err);
-        await _vm.$refs["alertModal"].open({title: errorMsg,
-          content : ''
-        });
+        console.error('[DEV] API 오류 (팝업 숨김):', err);
         return true;
       }
-      
+
       const { resultCode, resultFailMessage, resultMsg } = err.response.data;
       errorMsg = resultFailMessage || resultMsg || '통신이 원할하지 않습니다.\n잠시후 다시 시도해 주십시오.';
-  
+
       if(resultCode != "0000"){
-        await _vm.$refs["alertModal"].open({title: errorMsg,
-          content : ''
-        });          
+        console.error('[DEV] API 오류 (팝업 숨김):', errorMsg);
         return true;
       }
-  
+
       return false;
     },
 
