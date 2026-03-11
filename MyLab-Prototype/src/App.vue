@@ -43,6 +43,8 @@ import AppNavBar from './components/layout/AppNavBar.vue'
   --radius: 10px;
   --radius-lg: 16px;
   --shadow: 0 1px 4px rgba(0,0,0,0.04);
+  --font: 'Inter', 'Pretendard Variable', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
 }
 
 .app-layout {

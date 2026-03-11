@@ -38,14 +38,14 @@ function formatDate(iso) {
 .active-widget { overflow: auto; max-height: 100%; }
 .mini-table { width: 100%; border-collapse: collapse; }
 .mini-table th {
-  background: var(--bg); font-size: 9px; font-family: monospace; text-transform: uppercase;
+  background: var(--bg); font-size: 11px; font-family: var(--font-mono); text-transform: uppercase;
   letter-spacing: 1px; color: var(--text-dim); padding: 6px 10px; text-align: left; position: sticky; top: 0;
 }
 .mini-table td { padding: 7px 10px; font-size: 11px; border-bottom: 1px solid var(--border); }
 .mini-table tbody tr { cursor: pointer; }
 .mini-table tbody tr:hover { background: var(--bg); }
-.cell-id { font-family: monospace; font-size: 9px; color: var(--text-dim); }
+.cell-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
 .cell-title { font-weight: 500; }
-.cell-date { font-family: monospace; font-size: 10px; color: var(--text-dim); }
+.cell-date { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
 .empty { text-align: center; color: var(--text-dim); font-size: 12px; padding: 24px; }
 </style>

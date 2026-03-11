@@ -94,10 +94,10 @@ function getIngFn(name) {
   align-items: center;
   border-bottom: 1px solid var(--border);
 }
-.section-label { font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-dim); }
+.section-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-left: 8px; }
 .header-actions { display: flex; align-items: center; gap: 12px; }
-.gen-time { font-size: 10px; font-family: monospace; color: var(--text-dim); }
+.gen-time { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); }
 
 .result-body { padding: 20px; }
 .result-desc {
@@ -126,8 +126,8 @@ function getIngFn(name) {
 .phase-table, .process-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
 .phase-table th, .process-table th {
   background: var(--bg);
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 11px;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--text-dim);
@@ -140,9 +140,9 @@ function getIngFn(name) {
   border-bottom: 1px solid var(--border);
   color: var(--text);
 }
-.cell-pct { font-family: monospace; font-weight: 700; text-align: right; }
+.cell-pct { font-family: var(--font-mono); font-weight: 700; text-align: right; }
 .cell-fn { font-size: 11px; color: var(--text-sub); }
-.cell-num { font-family: monospace; color: var(--text-dim); font-size: 10px; }
+.cell-num { font-family: var(--font-mono); color: var(--text-dim); font-size: 10px; }
 .cell-note { font-size: 11px; color: var(--text-dim); }
 
 .process-section { margin-top: 20px; }

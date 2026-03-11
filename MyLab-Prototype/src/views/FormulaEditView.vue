@@ -193,7 +193,7 @@ function onDelete() {
 .back-link:hover { color: var(--accent); }
 .page-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 4px; }
 .page-title { font-size: 20px; font-weight: 700; color: var(--text); }
-.page-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.page-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 .title-actions { display: flex; align-items: center; gap: 8px; }
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -208,12 +208,12 @@ function onDelete() {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
 }
-.section-label { font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-dim); }
+.section-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-left: 8px; }
 
 .form-body { padding: 16px 20px; }
 .form-group { margin-bottom: 12px; }
-.form-label { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
+.form-label { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
 .form-input {
   width: 100%;
   padding: 8px 12px;
@@ -252,7 +252,7 @@ function onDelete() {
   border-radius: 3px;
   background: var(--accent-light);
   color: var(--accent);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 .tag-del { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; padding: 0; }
@@ -261,7 +261,7 @@ function onDelete() {
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 12px;
   width: 120px;
 }
 .tag-input:focus { border-color: var(--accent); outline: none; }
@@ -281,11 +281,11 @@ function onDelete() {
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text);
   resize: vertical;
   line-height: 1.5;
-  font-family: inherit;
+  font-family: var(--font);
 }
 .memo-textarea:focus { border-color: var(--accent); outline: none; }
 
@@ -308,7 +308,7 @@ function onDelete() {
 .btn-primary:hover { background: #a68350; }
 .btn-ghost { border: 1px solid var(--border); background: transparent; color: var(--text-sub); }
 .btn-ghost:hover { background: var(--bg); }
-.btn-danger { padding: 6px 12px; border: 1px solid var(--red); border-radius: 4px; background: transparent; color: var(--red); font-size: 11px; cursor: pointer; }
+.btn-danger { padding: 6px 12px; border: 1px solid var(--red); border-radius: 4px; background: transparent; color: var(--red); font-size: 12px; cursor: pointer; }
 .btn-danger:hover { background: var(--red-bg); }
 
 @media (max-width: 1199px) { .form-grid { grid-template-columns: 1fr; } }

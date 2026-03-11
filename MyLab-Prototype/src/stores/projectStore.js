@@ -8,6 +8,29 @@ function generateId() {
   return 'P-' + String(Date.now()).slice(-6) + Math.random().toString(36).slice(2, 5)
 }
 
+const SEED_PROJECTS = [
+  { name: '2025 S/S 쿠션 라인', description: '파운데이션 + 컨실러', color: '#b8935a' },
+  { name: '선케어 리뉴얼', description: 'SPF50+ 라인 업그레이드', color: '#3a6fa8' },
+]
+
+function seedProjects() {
+  if (projects.value.length === 0) {
+    const now = new Date()
+    SEED_PROJECTS.forEach((data, idx) => {
+      projects.value.push({
+        id: generateId(),
+        name: data.name,
+        description: data.description,
+        color: data.color,
+        created_at: new Date(now.getTime() - idx * 3600000 * 24 * 3).toISOString(),
+      })
+    })
+  }
+}
+
+// 앱 초기화 시 seed 실행
+seedProjects()
+
 export function useProjectStore() {
   const { formulas } = useFormulaStore()
 

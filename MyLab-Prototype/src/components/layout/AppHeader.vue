@@ -52,8 +52,8 @@ const currentTitle = computed(() => route.meta?.title || 'MyLab')
   flex-shrink: 0;
 }
 .brand-label {
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 11px;
+  font-family: var(--font-mono);
   color: var(--accent);
   letter-spacing: 3px;
   font-weight: 600;

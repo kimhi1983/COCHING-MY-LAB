@@ -63,13 +63,13 @@ const navItems = [
 }
 .brand-label {
   font-size: 10px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   color: var(--accent);
   letter-spacing: 3px;
   font-weight: 600;
 }
 .brand-title { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 2px; }
-.brand-sub { font-size: 9px; font-family: monospace; color: var(--text-dim); letter-spacing: 1px; }
+.brand-sub { font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); letter-spacing: 1px; }
 
 .sidebar-nav {
   flex: 1;
@@ -129,7 +129,7 @@ const navItems = [
   font-size: 13px;
 }
 .user-name { font-size: 12px; font-weight: 600; color: var(--text); }
-.user-role { font-size: 9px; color: var(--text-dim); }
+.user-role { font-size: 11px; color: var(--text-dim); }
 
 @media (max-width: 1199px) {
   .sidebar { width: 60px; }

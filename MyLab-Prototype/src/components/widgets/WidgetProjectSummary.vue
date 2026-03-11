@@ -34,9 +34,9 @@ const projectList = computed(() => allProjects().slice(0, 5))
 .proj-item:last-child { border-bottom: none; }
 .proj-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
 .proj-name { font-size: 12px; font-weight: 600; color: var(--text); }
-.proj-count { font-size: 10px; font-family: monospace; color: var(--text-dim); }
+.proj-count { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); }
 .proj-bar-wrap { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
 .proj-bar { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s; }
-.proj-stats { display: flex; gap: 10px; font-size: 9px; color: var(--text-dim); }
+.proj-stats { display: flex; gap: 10px; font-size: 11px; color: var(--text-dim); }
 .empty { text-align: center; color: var(--text-dim); font-size: 12px; padding: 24px; }
 </style>

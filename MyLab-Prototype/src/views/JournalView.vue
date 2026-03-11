@@ -93,7 +93,7 @@ function formatTime(iso) {
   box-shadow: 0 0 0 1px var(--accent);
 }
 .day-label { font-size: 14px; font-weight: 600; color: var(--text); }
-.day-count { font-size: 10px; font-family: monospace; color: var(--text-dim); }
+.day-count { font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); }
 
 .day-items { padding-left: 38px; }
 .journal-item {
@@ -109,12 +109,12 @@ function formatTime(iso) {
   box-shadow: var(--shadow);
 }
 .journal-item:hover { border-color: var(--accent-dim); }
-.item-time { font-size: 10px; font-family: monospace; color: var(--text-dim); padding-top: 2px; min-width: 40px; }
+.item-time { font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); padding-top: 2px; min-width: 40px; }
 .item-top { display: flex; align-items: center; gap: 8px; }
 .item-title { font-size: 13px; font-weight: 500; color: var(--text); }
-.item-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.item-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 .item-memo {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-sub);
   margin-top: 4px;
   padding: 4px 8px;

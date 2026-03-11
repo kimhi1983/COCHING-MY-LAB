@@ -37,7 +37,7 @@ function formatTime(iso) {
 }
 .recent-item:hover { background: var(--bg); }
 .recent-item:last-child { border-bottom: none; }
-.recent-time { font-size: 10px; font-family: monospace; color: var(--text-dim); padding-top: 2px; min-width: 36px; }
+.recent-time { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); padding-top: 2px; min-width: 36px; }
 .recent-top { display: flex; align-items: center; gap: 6px; }
 .recent-title { font-size: 12px; font-weight: 500; color: var(--text); }
 .recent-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }

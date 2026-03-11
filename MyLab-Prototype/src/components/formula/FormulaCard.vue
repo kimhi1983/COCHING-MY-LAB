@@ -46,14 +46,14 @@ const formattedDate = computed(() => {
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.card-id { font-size: 10px; font-family: monospace; color: var(--text-dim); letter-spacing: 1px; }
+.card-id { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); letter-spacing: 1px; }
 .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
 .card-type { font-size: 11px; color: var(--text-sub); }
 .card-divider { height: 1px; background: var(--border); margin: 10px 0; }
 .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); }
 .card-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
 .tag {
-  font-size: 9px;
+  font-size: 11px;
   padding: 2px 6px;
   border-radius: 3px;
   background: var(--accent-light);

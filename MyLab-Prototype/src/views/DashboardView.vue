@@ -32,7 +32,7 @@
     </div>
 
     <!-- Grid Layout -->
-    <grid-layout
+    <GridLayout
       :layout="currentLayout"
       :col-num="6"
       :row-height="60"
@@ -42,7 +42,7 @@
       :use-css-transforms="true"
       @layout-updated="onLayoutUpdated"
     >
-      <grid-item
+      <GridItem
         v-for="item in currentLayout"
         :key="item.i"
         :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i"
@@ -59,8 +59,8 @@
             <component :is="widgetComponents[item.i]" />
           </div>
         </div>
-      </grid-item>
-    </grid-layout>
+      </GridItem>
+    </GridLayout>
   </div>
 </template>
 
@@ -76,6 +76,9 @@ import WidgetActiveFormulas from '../components/widgets/WidgetActiveFormulas.vue
 import WidgetProjectSummary from '../components/widgets/WidgetProjectSummary.vue'
 import WidgetStatusChart from '../components/widgets/WidgetStatusChart.vue'
 import WidgetMemo from '../components/widgets/WidgetMemo.vue'
+import WidgetStability from '../components/widgets/WidgetStability.vue'
+import WidgetRegulation from '../components/widgets/WidgetRegulation.vue'
+import WidgetTodayLog from '../components/widgets/WidgetTodayLog.vue'
 
 const widgetComponents = {
   kpi: markRaw(WidgetKpi),
@@ -85,6 +88,9 @@ const widgetComponents = {
   projects: markRaw(WidgetProjectSummary),
   chart: markRaw(WidgetStatusChart),
   memo: markRaw(WidgetMemo),
+  stability: markRaw(WidgetStability),
+  regulation: markRaw(WidgetRegulation),
+  todaylog: markRaw(WidgetTodayLog),
 }
 
 const { layout, availableWidgets, saveLayout, addWidget, removeWidget, resetLayout } = useWidgetStore()
@@ -142,7 +148,7 @@ function getMinH(id) {
 }
 .toolbar-right { display: flex; gap: 6px; }
 .edit-badge {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-light);
@@ -156,7 +162,7 @@ function getMinH(id) {
   50% { opacity: 0.7; }
 }
 
-.btn { border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.btn { border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
 .btn-sm { padding: 6px 12px; }
 .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(184,147,90,0.25); }
 .btn-primary:hover { background: #a68350; }
@@ -173,7 +179,7 @@ function getMinH(id) {
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 .add-panel-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 10px;
@@ -196,9 +202,9 @@ function getMinH(id) {
   background: var(--accent-light);
 }
 .add-icon { font-size: 20px; margin-bottom: 4px; }
-.add-label { font-size: 12px; font-weight: 600; color: var(--text); }
-.add-desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
-.add-empty { text-align: center; font-size: 12px; color: var(--text-dim); padding: 12px; }
+.add-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.add-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.add-empty { text-align: center; font-size: 13px; color: var(--text-dim); padding: 12px; }
 
 /* Widget Cards */
 .widget-item.editing {
@@ -220,12 +226,12 @@ function getMinH(id) {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .editing .widget-card {
-  border-color: var(--accent-dim);
+  border: 2px dashed var(--accent-dim);
   box-shadow: 0 0 0 1px var(--accent-dim), var(--shadow);
 }
 .editing .widget-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(184,147,90,0.2), 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 2px rgba(184,147,90,0.3), 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .widget-header {
@@ -237,10 +243,10 @@ function getMinH(id) {
   flex-shrink: 0;
 }
 .widget-title {
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 11px;
+  font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1.2px;
   color: var(--text-dim);
 }
 .widget-remove {
@@ -278,21 +284,29 @@ function getMinH(id) {
   opacity: 0.6;
 }
 :deep(.vue-grid-item > .vue-resizable-handle) {
-  width: 14px;
-  height: 14px;
-  bottom: 2px;
-  right: 2px;
+  width: 24px;
+  height: 24px;
+  bottom: 0;
+  right: 0;
   background: none;
+  cursor: se-resize;
+  z-index: 10;
 }
 :deep(.vue-grid-item > .vue-resizable-handle::after) {
   content: '';
   position: absolute;
-  right: 3px;
-  bottom: 3px;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--accent);
-  border-bottom: 2px solid var(--accent);
-  border-radius: 0 0 2px 0;
+  right: 4px;
+  bottom: 4px;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid var(--accent);
+  border-bottom: 3px solid var(--accent);
+  border-radius: 0 0 3px 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+:deep(.vue-grid-item > .vue-resizable-handle:hover::after) {
+  opacity: 1;
+  border-color: #a07030;
 }
 </style>

@@ -132,13 +132,13 @@ function formatDate(iso) {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
 }
-.section-label { font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 2.5px; color: var(--text-dim); }
+.section-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-left: 8px; }
 
 .form-body { padding: 20px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-group { margin-bottom: 12px; }
-.form-label { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
+.form-label { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
 .form-input {
   width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
   font-size: 13px; color: var(--text); background: var(--surface);
@@ -171,7 +171,7 @@ function formatDate(iso) {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-title { font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
-.loading-step { font-size: 12px; color: var(--text-sub); }
+.loading-step { font-size: 13px; color: var(--text-sub); }
 
 .history-section { margin-top: 24px; }
 .history-grid {
@@ -188,10 +188,10 @@ function formatDate(iso) {
   transition: all 0.15s;
 }
 .history-card:hover { border-color: var(--accent-dim); }
-.hist-date { font-size: 10px; font-family: monospace; color: var(--text-dim); }
-.hist-title { font-size: 13px; font-weight: 600; margin-top: 4px; color: var(--text); }
-.hist-type { font-size: 11px; color: var(--text-sub); }
-.hist-count { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+.hist-date { font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); }
+.hist-title { font-size: 14px; font-weight: 600; margin-top: 4px; color: var(--text); }
+.hist-type { font-size: 12px; color: var(--text-sub); }
+.hist-count { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
 @media (max-width: 1199px) {
   .form-row { grid-template-columns: 1fr; }

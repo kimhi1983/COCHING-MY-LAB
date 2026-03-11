@@ -63,10 +63,10 @@ const segments = computed(() => {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;
 }
 .donut-value { font-size: 20px; font-weight: 700; color: var(--text); }
-.donut-label { font-size: 8px; font-family: monospace; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.donut-label { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 .legend { display: flex; flex-direction: column; gap: 6px; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 .legend-text { color: var(--text-sub); min-width: 36px; }
-.legend-val { font-family: monospace; font-weight: 600; color: var(--text); }
+.legend-val { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
 </style>

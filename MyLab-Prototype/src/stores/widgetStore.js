@@ -3,23 +3,28 @@ import { useLocalStorage } from '../composables/useLocalStorage.js'
 
 // 사용 가능한 위젯 목록 (카탈로그)
 export const WIDGET_CATALOG = [
-  { id: 'kpi', label: 'KPI 카드', icon: '⚗', description: '총 처방, 진행중, 완료, 프로젝트 현황', minW: 2, minH: 2, defaultW: 4, defaultH: 2 },
+  { id: 'kpi', label: 'KPI 카드', icon: '⚗', description: '진행중 처방, 완료, 안정성, 규제 현황', minW: 2, minH: 2, defaultW: 4, defaultH: 2 },
   { id: 'recent', label: '최근 처방', icon: '◉', description: '최근 수정된 처방 목록', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
   { id: 'quick', label: '빠른 작업', icon: '✦', description: 'MyLab 가이드, 새 처방 등 빠른 액션', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
   { id: 'active', label: '진행중 처방', icon: '◎', description: '현재 진행 중인 처방 테이블', minW: 3, minH: 2, defaultW: 4, defaultH: 3 },
   { id: 'projects', label: '프로젝트 요약', icon: '◈', description: '프로젝트별 진행률 요약', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
   { id: 'chart', label: '상태 차트', icon: '◐', description: '처방 상태별 도넛 차트', minW: 2, minH: 2, defaultW: 2, defaultH: 2 },
   { id: 'memo', label: '메모장', icon: '✎', description: '자유 메모 (자동 저장)', minW: 2, minH: 2, defaultW: 2, defaultH: 2 },
+  { id: 'stability', label: '안정성 현황', icon: '⏱', description: '처방별 안정성 테스트 현황', minW: 3, minH: 3, defaultW: 3, defaultH: 3 },
+  { id: 'regulation', label: '규제 모니터링', icon: '⚠', description: '지역별 성분 규제 현황', minW: 3, minH: 3, defaultW: 3, defaultH: 3 },
+  { id: 'todaylog', label: '오늘의 업무', icon: '◉', description: '오늘 진행한 업무 타임라인', minW: 2, minH: 3, defaultW: 3, defaultH: 3 },
 ]
 
-// 기본 레이아웃 (첫 방문 시)
+// 기본 레이아웃 (첫 방문 시) — 6열 기준
 const DEFAULT_LAYOUT = [
-  { x: 0, y: 0, w: 4, h: 2, i: 'kpi' },
-  { x: 0, y: 2, w: 2, h: 3, i: 'recent' },
-  { x: 2, y: 2, w: 2, h: 3, i: 'quick' },
-  { x: 0, y: 5, w: 4, h: 3, i: 'active' },
-  { x: 4, y: 0, w: 2, h: 2, i: 'chart' },
-  { x: 4, y: 2, w: 2, h: 3, i: 'projects' },
+  { x: 0, y: 0, w: 4, h: 2, i: 'kpi' },        // KPI 카드 (상단 넓게)
+  { x: 4, y: 0, w: 2, h: 2, i: 'chart' },       // 상태 차트 (우상단)
+  { x: 0, y: 2, w: 3, h: 3, i: 'todaylog' },    // 오늘의 업무 (좌)
+  { x: 3, y: 2, w: 3, h: 3, i: 'stability' },   // 안정성 현황 (우)
+  { x: 0, y: 5, w: 4, h: 3, i: 'active' },      // 진행중 처방 (넓게)
+  { x: 4, y: 5, w: 2, h: 3, i: 'quick' },       // 빠른 작업
+  { x: 0, y: 8, w: 3, h: 3, i: 'regulation' },  // 규제 모니터링
+  { x: 3, y: 8, w: 3, h: 3, i: 'projects' },    // 프로젝트 요약
 ]
 
 const savedLayout = useLocalStorage('mylab:dashboard-layout', null)

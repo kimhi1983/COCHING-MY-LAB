@@ -36,7 +36,7 @@ defineProps({
 }
 .stat-label {
   font-size: 10px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   color: var(--text-dim);
   letter-spacing: 1px;

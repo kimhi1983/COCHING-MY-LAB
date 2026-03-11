@@ -115,12 +115,12 @@ function onSearch() {}
 }
 .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
 .filter-group { display: flex; flex-direction: column; gap: 4px; }
-.filter-label { font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
+.filter-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
 .filter-select, .filter-input {
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text);
   background: var(--surface);
   min-width: 120px;
@@ -135,7 +135,7 @@ function onSearch() {}
   border-radius: 4px;
   background: transparent;
   color: var(--text-sub);
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
 }
 .btn-ghost-sm.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent-dim); }
@@ -150,17 +150,17 @@ function onSearch() {}
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th {
   background: var(--bg);
-  font-size: 9px; font-family: monospace; text-transform: uppercase; letter-spacing: 1.5px;
+  font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;
   color: var(--text-dim); padding: 8px 16px; text-align: left;
 }
 .data-table td { padding: 10px 16px; font-size: 12.5px; border-bottom: 1px solid var(--border); }
 .data-table tbody tr { cursor: pointer; }
 .data-table tbody tr:hover { background: var(--bg); }
-.cell-id { font-family: monospace; font-size: 10px; color: var(--text-dim); }
+.cell-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
 .cell-title { font-weight: 500; }
-.cell-num { font-family: monospace; text-align: center; }
-.cell-project { font-size: 11px; color: var(--text-sub); }
-.cell-date { font-family: monospace; font-size: 11px; color: var(--text-dim); }
+.cell-num { font-family: var(--font-mono); text-align: center; }
+.cell-project { font-size: 12px; color: var(--text-sub); }
+.cell-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
 
 .card-grid {
   display: grid;

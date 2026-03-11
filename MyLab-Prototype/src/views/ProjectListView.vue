@@ -103,15 +103,15 @@ function formatDate(iso) {
 .project-card:hover { border-color: var(--accent-dim); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .card-top { padding: 18px 20px 8px; display: flex; justify-content: space-between; align-items: flex-start; }
 .card-name { font-size: 15px; font-weight: 600; color: var(--text); }
-.card-desc { padding: 0 20px; font-size: 11px; color: var(--text-sub); }
+.card-desc { padding: 0 20px; font-size: 12px; color: var(--text-sub); }
 .card-divider { height: 1px; background: var(--border); margin: 10px 20px; }
 .card-stats { padding: 0 20px 8px; }
 .stat-row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
 .stat-key { color: var(--text-dim); }
-.stat-val { font-weight: 600; color: var(--text); font-family: monospace; }
+.stat-val { font-weight: 600; color: var(--text); font-family: var(--font-mono); }
 .card-footer {
   padding: 10px 20px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
   border-top: 1px solid var(--border);
 }
@@ -133,7 +133,7 @@ function formatDate(iso) {
 }
 .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
 .form-group { margin-bottom: 12px; }
-.form-label { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
+.form-label { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; display: block; font-weight: 600; }
 .form-input {
   width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
   font-size: 13px; color: var(--text); background: var(--surface);

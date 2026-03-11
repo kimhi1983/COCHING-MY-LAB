@@ -35,5 +35,5 @@ watch(memoText, (val) => {
 }
 .memo-area::placeholder { color: var(--text-dim); }
 .memo-footer { padding: 4px 12px; text-align: right; }
-.memo-saved { font-size: 10px; color: var(--green); font-family: monospace; }
+.memo-saved { font-size: 10px; color: var(--green); font-family: var(--font-mono); }
 </style>

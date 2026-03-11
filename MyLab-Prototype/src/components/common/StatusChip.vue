@@ -29,7 +29,7 @@ const chipStyle = computed(() => ({
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
-  font-family: monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.5px;
   cursor: default;
 }

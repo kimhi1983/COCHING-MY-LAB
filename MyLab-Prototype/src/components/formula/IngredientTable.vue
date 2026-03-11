@@ -98,10 +98,10 @@ function onPctChange() {
   border-bottom: 1px solid var(--border);
 }
 .section-label {
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 11px;
+  font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 2.5px;
+  letter-spacing: 1.5px;
   color: var(--text-dim);
 }
 .section-title {
@@ -128,8 +128,8 @@ function onPctChange() {
 }
 .ingredient-table th {
   background: var(--bg);
-  font-size: 9px;
-  font-family: monospace;
+  font-size: 11px;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--text-dim);
@@ -144,9 +144,9 @@ function onPctChange() {
   color: var(--text);
 }
 .ingredient-table tbody tr:hover { background: var(--bg); }
-.cell-num { font-family: monospace; color: var(--text-dim); font-size: 10px; }
+.cell-num { font-family: var(--font-mono); color: var(--text-dim); font-size: 10px; }
 .cell-inci { font-size: 11px; color: var(--text-sub); }
-.cell-pct { font-family: monospace; font-weight: 700; font-size: 13px; text-align: right; }
+.cell-pct { font-family: var(--font-mono); font-weight: 700; font-size: 13px; text-align: right; }
 .cell-input {
   width: 100%;
   border: 1px solid transparent;

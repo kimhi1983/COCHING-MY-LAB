@@ -35,7 +35,7 @@ const barColor = computed(() => {
 }
 .progress-label {
   font-size: 10px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-weight: 600;
 }
 </style>
