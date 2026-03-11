@@ -58,5 +58,11 @@ ocr-project-*.json
 files.zip
 files2.zip
 
-# DB 백업
+# DB 백업 및 자동 생성 데이터
 backup/db/
+backup/pgdump/
+backup/formulations/
+backup/excel/
+backup/logs/
+*.sql.gz
+*.sql.gz.sha256

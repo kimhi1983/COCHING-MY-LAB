@@ -1,0 +1,207 @@
+{
+  "name": "COCHING AI — 제품 수집 v1 Gemini+Claude",
+  "nodes": [
+    {
+      "parameters": {"rule":{"interval":[{"field":"hours","hoursInterval":3}]}},
+      "name": "⏰ 3시간 자동실행",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {},
+      "name": "▶ 수동 실행",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== 수집 설정 =====\n// OBF 카테고리 + Gemini 보충 카테고리 맵핑\nconst cats = [\n  {obf:'face-creams', gem:'face cream moisturizer', kr:'수분크림/페이스크림'},\n  {obf:'sunscreens', gem:'sunscreen SPF', kr:'선크림'},\n  {obf:'shampoos', gem:'shampoo', kr:'샴푸'},\n  {obf:'cleansers', gem:'facial cleanser', kr:'클렌저'},\n  {obf:'body-milks', gem:'body lotion milk', kr:'바디로션'},\n  {obf:'toners', gem:'toner skin', kr:'토너/스킨'},\n  {obf:'lip-balms', gem:'lip balm lipstick', kr:'립밤/립스틱'},\n  {obf:'foundations', gem:'foundation BB cream', kr:'파운데이션'},\n  {obf:'eye-creams', gem:'eye cream', kr:'아이크림'},\n  {obf:'face-masks', gem:'sheet mask face mask', kr:'마스크팩'},\n  {obf:'hair-conditioners', gem:'conditioner treatment', kr:'컨디셔너'}\n];\nconst regions = ['korea','japan','usa','europe','china'];\nconst catIdx = Math.floor(Date.now()/10800000) % cats.length;\nconst regIdx = Math.floor(Date.now()/32400000) % regions.length;\nconst cat = cats[catIdx];\n\nreturn [{\n  json: {\n    obf_category: cat.obf,\n    gemini_category: cat.gem,\n    kr_name: cat.kr,\n    region: regions[regIdx],\n    batch_size: 10,\n    run_id: 'prod_' + Date.now(),\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "⚙️ 수집 설정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://world.openbeautyfacts.org/api/v2/search?categories_tags={{ $json.obf_category }}&page_size={{ $json.batch_size }}&fields=product_name,brands,ingredients_text,image_url,categories,countries_tags,quantity&page={{ Math.floor(Math.random()*10)+1 }}",
+        "options": {"timeout": 30000}
+      },
+      "name": "🌍 Open Beauty Facts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== OBF 응답 파싱 =====\n// 전성분이 있는 제품만 필터링\nconst data = $input.first().json;\nconst products = (data.products || []).filter(p => (p.ingredients_text || '').length > 20);\n\nif (products.length === 0) {\n  return [{ json: { source: 'obf', count: 0, no_data: true } }];\n}\n\nreturn products.map(p => ({\n  json: {\n    brand_name: (p.brands || '').split(',')[0].trim(),\n    product_name: (p.product_name || '').trim(),\n    product_name_local: '',\n    full_ingredients: (p.ingredients_text || '').trim(),\n    key_ingredients: '',\n    product_type: '',\n    target_skin_type: 'all',\n    ph_range: '',\n    viscosity_type: '',\n    country_of_origin: (p.countries_tags || []).join(', '),\n    retail_price_usd: null,\n    volume_ml: p.quantity || '',\n    image_url: (p.image_url || '').trim(),\n    brand_website: '',\n    notable_claims: '',\n    launch_year: null,\n    category: (p.categories || '').trim(),\n    source: 'open_beauty_facts',\n    collected_at: new Date().toISOString()\n  }\n}));"
+      },
+      "name": "🔄 OBF 파싱",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== Gemini 보충 수집 요청 구성 =====\n// OBF에 없는 한국/일본/지역 브랜드 중심\nconst config = $('⚙️ 수집 설정').first().json;\nconst obfCount = $('🔄 OBF 파싱').all().length;\n\nconst prompt = `You are a cosmetic product database researcher. I already have ${obfCount} products from Open Beauty Facts for ${config.kr_name}.\n\nFind 5 ADDITIONAL real commercial cosmetic products NOT commonly found in international databases.\n\nCategory: ${config.gemini_category} (${config.kr_name})\nRegion focus: ${config.region}\n\nFor EACH product provide:\n- brand_name: Brand name (English)\n- product_name: Full product name (English)\n- product_name_local: Local language name\n- full_ingredients: Complete INCI ingredient list (MUST be real from actual product)\n- key_ingredients: Top 5 key active ingredients with estimated %\n- product_type: cream/serum/lotion/gel/foam/powder/liquid/stick/spray\n- target_skin_type: oily/dry/combination/sensitive/normal/all\n- pH_range: Estimated pH range (e.g. \"5.0-6.0\")\n- viscosity_type: water-thin/light/medium/thick/paste\n- country_of_origin, retail_price_usd, volume_ml\n- image_url: Official product image URL\n- brand_website, notable_claims, launch_year\n\nFocus on popular K-beauty (Sulwhasoo, Laneige, COSRX, Innisfree, Dr.Jart+, Missha, Etude House), J-beauty (Shiseido, SK-II, Hada Labo, Canmake), or region-specific brands.\nOnly REAL products with REAL ingredients. JSON array only. No explanation.`;\n\nreturn [{ json: { prompt, run_id: config.run_id } }];"
+      },
+      "name": "🔄 Gemini 보충 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 550]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.prompt }] }], generationConfig: { temperature: 0.3, maxOutputTokens: 8192, responseMimeType: 'application/json' } }) }}",
+        "options": {"timeout": 60000}
+      },
+      "name": "🌐 Gemini 제품검색",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 550]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== Gemini 응답 파싱 =====\nconst input = $input.first().json;\nlet products = [];\n\ntry {\n  const text = input.candidates?.[0]?.content?.parts?.[0]?.text || '[]';\n  const cleaned = text.replace(/```json\\n?|```\\n?/g, '').trim();\n  products = JSON.parse(cleaned);\n  if (!Array.isArray(products)) products = [products];\n} catch(e) {\n  return [{ json: { error: 'gemini_parse_failed', message: e.message } }];\n}\n\nreturn products.filter(p => p.brand_name && p.product_name).map(p => ({\n  json: {\n    brand_name: (p.brand_name || '').trim(),\n    product_name: (p.product_name || '').trim(),\n    product_name_local: (p.product_name_local || '').trim(),\n    full_ingredients: (p.full_ingredients || '').trim(),\n    key_ingredients: JSON.stringify(p.key_ingredients || []),\n    product_type: (p.product_type || '').trim(),\n    target_skin_type: (p.target_skin_type || 'all').trim(),\n    ph_range: (p.pH_range || p.ph_range || '').trim(),\n    viscosity_type: (p.viscosity_type || '').trim(),\n    country_of_origin: (p.country_of_origin || '').trim(),\n    retail_price_usd: parseFloat(p.retail_price_usd) || null,\n    volume_ml: parseFloat(p.volume_ml) || null,\n    image_url: (p.image_url || '').trim(),\n    brand_website: (p.brand_website || '').trim(),\n    notable_claims: (p.notable_claims || '').trim(),\n    launch_year: parseInt(p.launch_year) || null,\n    category: '',\n    source: 'gemini_search',\n    collected_at: new Date().toISOString()\n  }\n}));"
+      },
+      "name": "🔄 Gemini 파싱",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 550]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== OBF + Gemini 데이터 통합 및 중복 제거 =====\nconst obfItems = $('🔄 OBF 파싱').all().map(i => i.json).filter(i => !i.no_data);\nconst geminiItems = $('🔄 Gemini 파싱').all().map(i => i.json).filter(i => !i.error);\nconst all = [...obfItems, ...geminiItems];\n\n// 중복 제거 (brand+product 기준)\nconst seen = new Set();\nconst unique = all.filter(p => {\n  const key = ((p.brand_name||'') + (p.product_name||'')).toLowerCase().replace(/\\s+/g, '');\n  if (seen.has(key) || !p.product_name) return false;\n  seen.add(key);\n  return true;\n});\n\nconsole.log(`통합 결과: OBF ${obfItems.length}건 + Gemini ${geminiItems.length}건 = 중복제거 후 ${unique.length}건`);\nreturn unique.map(p => ({ json: p }));"
+      },
+      "name": "🔗 데이터 통합",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO product_master\n  (brand_name, product_name, product_name_local, category,\n   full_ingredients, key_ingredients, product_type, target_skin_type,\n   ph_range, viscosity_type, country_of_origin, retail_price_usd,\n   volume_ml, image_url, brand_website, notable_claims, launch_year,\n   source, collected_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,\n        $12::numeric, $13, $14, $15, $16, $17::integer, $18, $19::timestamp)\nON CONFLICT (brand_name, product_name)\nDO UPDATE SET\n  full_ingredients = COALESCE(NULLIF(EXCLUDED.full_ingredients, ''), product_master.full_ingredients),\n  key_ingredients = COALESCE(NULLIF(EXCLUDED.key_ingredients, ''), product_master.key_ingredients),\n  image_url = COALESCE(NULLIF(EXCLUDED.image_url, ''), product_master.image_url),\n  ph_range = COALESCE(NULLIF(EXCLUDED.ph_range, ''), product_master.ph_range),\n  updated_at = NOW()",
+        "options": {}
+      },
+      "name": "💾 제품 저장",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1500, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, brand_name, product_name, full_ingredients\nFROM product_master\nWHERE ph_value IS NULL AND length(full_ingredients) > 20\nORDER BY id LIMIT 5",
+        "options": {}
+      },
+      "name": "🔍 물성미확인 제품",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1750, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== 물성 분석 Gemini 요청 구성 =====\nconst items = $input.all();\nif (!items.length || !items[0].json.id) {\n  return [{ json: { skip: true, reason: 'no_candidates' } }];\n}\n\nconst products = items.map(i => ({\n  id: i.json.id,\n  name: i.json.brand_name + ' ' + i.json.product_name,\n  ingredients: (i.json.full_ingredients || '').substring(0, 500)\n}));\n\nconst prompt = `You are a cosmetic formulation scientist. Estimate physical properties for these products based on their ingredient lists.\n\nProducts:\n${JSON.stringify(products, null, 2)}\n\nFor EACH product estimate:\n1. ph_value: Estimated pH (number, e.g. 5.5)\n2. viscosity_cp: Estimated viscosity in centipoise (number)\n3. specific_gravity: Estimated specific gravity (number)\n4. appearance: Visual description\n5. texture: Texture description\n6. shelf_life_months: Estimated shelf life in months (number)\n\nBe scientific and realistic. Respond as JSON array with product id included. No explanation.`;\n\nreturn [{ json: { prompt } }];"
+      },
+      "name": "🔄 물성분석 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 4096, responseMimeType: 'application/json' } }) }}",
+        "options": {"timeout": 60000}
+      },
+      "name": "🌐 Gemini 물성분석",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== 물성 응답 파싱 =====\nconst input = $input.first().json;\nif (input.skip) return [{ json: { skip: true } }];\n\nlet results = [];\ntry {\n  const text = input.candidates?.[0]?.content?.parts?.[0]?.text || '[]';\n  results = JSON.parse(text.replace(/```json\\n?|```\\n?/g, '').trim());\n  if (!Array.isArray(results)) results = [results];\n} catch(e) {\n  return [{ json: { error: 'property_parse_failed', message: e.message } }];\n}\n\nreturn results.map(r => ({\n  json: {\n    product_id: r.id || r.product_id,\n    ph_value: parseFloat(r.ph_value) || null,\n    viscosity_cp: parseFloat(r.viscosity_cp) || null,\n    specific_gravity: parseFloat(r.specific_gravity) || null,\n    appearance: (r.appearance || '').trim(),\n    texture: (r.texture || '').trim(),\n    shelf_life_months: parseInt(r.shelf_life_months) || null\n  }\n}));"
+      },
+      "name": "🔄 물성 파싱",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE product_master SET\n  ph_value = $2::numeric,\n  viscosity_cp = $3::numeric,\n  specific_gravity = $4::numeric,\n  appearance = $5,\n  texture = $6,\n  shelf_life_months = $7::integer,\n  updated_at = NOW()\nWHERE id = $1::integer",
+        "options": {}
+      },
+      "name": "💾 물성 저장",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2750, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== Claude 분석 준비 =====\nconst timestamp = new Date().toISOString();\nconst prompt = '최근 수집된 화장품 제품 전성분 검증 및 가이드처방 DB 연계 분석을 JSON으로 요약해줘.';\n\nreturn [{\n  json: {\n    command: \"cd /home/kpros && echo '\" + prompt.replace(/'/g, \"'\\\\'\") + \"' | /home/kpros/.npm-global/bin/claude -p --output-format json 2>/dev/null | head -c 5000\",\n    timestamp\n  }\n}];"
+      },
+      "name": "🧠 Claude 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3000, 400]
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}",
+        "cwd": "/home/kpros"
+      },
+      "name": "🧠 Claude 분석",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [3250, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== 실행 리포트 =====\nconst input = $input.first().json;\nlet analysis = {};\ntry {\n  analysis = JSON.parse(input.stdout || '{}');\n} catch(e) {\n  analysis = { raw_output: (input.stdout || '').substring(0, 2000) };\n}\n\nreturn [{\n  json: {\n    report: '✅ 제품 수집 완료 (OBF + Gemini 혼합)',\n    claude_analysis: analysis,\n    timestamp: new Date().toISOString(),\n    next_run: new Date(Date.now() + 3*60*60*1000).toISOString()\n  }\n}];"
+      },
+      "name": "📊 실행 리포트",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3500, 400]
+    }
+  ],
+  "connections": {
+    "⏰ 3시간 자동실행": {"main": [[{"node": "⚙️ 수집 설정", "type": "main", "index": 0}]]},
+    "▶ 수동 실행": {"main": [[{"node": "⚙️ 수집 설정", "type": "main", "index": 0}]]},
+    "⚙️ 수집 설정": {"main": [[
+      {"node": "🌍 Open Beauty Facts", "type": "main", "index": 0},
+      {"node": "🔄 Gemini 보충 구성", "type": "main", "index": 0}
+    ]]},
+    "🌍 Open Beauty Facts": {"main": [[{"node": "🔄 OBF 파싱", "type": "main", "index": 0}]]},
+    "🔄 OBF 파싱": {"main": [[{"node": "🔗 데이터 통합", "type": "main", "index": 0}]]},
+    "🔄 Gemini 보충 구성": {"main": [[{"node": "🌐 Gemini 제품검색", "type": "main", "index": 0}]]},
+    "🌐 Gemini 제품검색": {"main": [[{"node": "🔄 Gemini 파싱", "type": "main", "index": 0}]]},
+    "🔄 Gemini 파싱": {"main": [[{"node": "🔗 데이터 통합", "type": "main", "index": 0}]]},
+    "🔗 데이터 통합": {"main": [[{"node": "💾 제품 저장", "type": "main", "index": 0}]]},
+    "💾 제품 저장": {"main": [[{"node": "🔍 물성미확인 제품", "type": "main", "index": 0}]]},
+    "🔍 물성미확인 제품": {"main": [[{"node": "🔄 물성분석 구성", "type": "main", "index": 0}]]},
+    "🔄 물성분석 구성": {"main": [[{"node": "🌐 Gemini 물성분석", "type": "main", "index": 0}]]},
+    "🌐 Gemini 물성분석": {"main": [[{"node": "🔄 물성 파싱", "type": "main", "index": 0}]]},
+    "🔄 물성 파싱": {"main": [[{"node": "💾 물성 저장", "type": "main", "index": 0}]]},
+    "💾 물성 저장": {"main": [[{"node": "🧠 Claude 준비", "type": "main", "index": 0}]]},
+    "🧠 Claude 준비": {"main": [[{"node": "🧠 Claude 분석", "type": "main", "index": 0}]]},
+    "🧠 Claude 분석": {"main": [[{"node": "📊 실행 리포트", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}
