@@ -1,110 +1,114 @@
 <template>
   <nav class="nav-bar">
-    <div class="nav-pills">
+    <div class="nav-tabs">
       <router-link
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
-        class="nav-pill"
+        class="nav-tab"
         active-class="active"
         :exact="item.exact"
       >
-        <span class="pill-icon">{{ item.icon }}</span>
-        <span class="pill-label">{{ item.label }}</span>
+        <span class="tab-label">{{ item.label }}</span>
       </router-link>
-    </div>
-    <div class="nav-tools">
-      <slot name="tools" />
+      <div class="nav-tools">
+        <slot name="tools" />
+      </div>
     </div>
   </nav>
 </template>
 
 <script setup>
 const navItems = [
-  { to: '/', icon: '◈', label: '대시보드', exact: true },
-  { to: '/formulas', icon: '⚗', label: '처방 목록', exact: false },
-  { to: '/formulas/new', icon: '+', label: '생성', exact: true },
-  { to: '/journal', icon: '◉', label: '일지', exact: true },
-  { to: '/projects', icon: '◎', label: '프로젝트', exact: true },
-  { to: '/ai-guide', icon: '✦', label: 'AI 가이드', exact: true },
+  { to: '/', label: '대시보드', exact: true },
+  { to: '/formulas', label: '처방 목록', exact: false },
+  { to: '/formulas/new', label: '+ 생성', exact: true },
+  { to: '/journal', label: '일지', exact: true },
+  { to: '/projects', label: '프로젝트', exact: true },
+  { to: '/ai-guide', label: 'AI 가이드', exact: true },
 ]
 </script>
 
 <style scoped>
 .nav-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 36px;
-  border-bottom: 1px solid var(--border);
+  justify-content: center;
   background: var(--surface);
-  min-height: 44px;
+  border-bottom: 1px solid var(--border);
+  min-height: 38px;
 }
 
-.nav-pills {
+.nav-tabs {
   display: flex;
-  gap: 4px;
+  align-items: flex-end;
+  gap: 0;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 6px 0;
 }
-.nav-pills::-webkit-scrollbar { display: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
 
-.nav-pill {
+.nav-tab {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 8px 20px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-sub);
+  color: var(--text-dim);
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.15s;
   border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: -1px;
+  background: transparent;
 }
 
-.nav-pill:hover {
+.nav-tab:hover {
+  color: var(--text-sub);
   background: var(--bg);
-  color: var(--text);
 }
 
-.nav-pill.active {
-  background: var(--accent-light);
+.nav-tab.active {
   color: var(--accent);
   font-weight: 600;
-  border-color: var(--accent-dim);
+  background: var(--bg);
+  border-color: var(--border);
+  border-bottom: 1px solid var(--bg);
 }
 
-.pill-icon {
-  font-size: 13px;
-  width: 16px;
-  text-align: center;
-  flex-shrink: 0;
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
 }
 
-.pill-label {
+.tab-label {
   font-size: 12px;
+  letter-spacing: 0.2px;
 }
 
 .nav-tools {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 0;
-  padding-left: 12px;
+  padding-left: 8px;
+  margin-left: 4px;
+  border-left: 1px solid var(--border);
+  align-self: center;
+  padding: 4px 0 4px 12px;
 }
 
 @media (max-width: 767px) {
-  .nav-bar {
-    padding: 0 16px;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .nav-pills { flex: 1; min-width: 0; }
-  .pill-label { display: none; }
-  .nav-pill { padding: 6px 10px; }
+  .nav-bar { justify-content: flex-start; overflow-x: auto; }
+  .nav-tab { padding: 8px 14px; }
+  .tab-label { font-size: 11px; }
 }
 </style>
