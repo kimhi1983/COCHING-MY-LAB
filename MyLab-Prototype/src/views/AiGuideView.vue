@@ -34,7 +34,9 @@
               <label class="form-label">제품 유형 *</label>
               <select v-model="guide.productType" class="form-input">
                 <option value="">선택하세요</option>
-                <option v-for="t in productTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+                <optgroup v-for="cat in productCategories" :key="cat.group" :label="cat.group">
+                  <option v-for="t in cat.items" :key="t.value" :value="t.value">{{ t.label }}</option>
+                </optgroup>
               </select>
             </div>
           </div>
@@ -143,7 +145,7 @@ import { useRouter } from 'vue-router'
 import { useIngredientStore } from '../stores/ingredientStore.js'
 import { useFormulaStore } from '../stores/formulaStore.js'
 import { useAPI } from '../composables/useAPI.js'
-import { productTypes } from '../tokens.js'
+import { productTypes, productCategories } from '../tokens.js'
 import AiResultPanel from '../components/formula/AiResultPanel.vue'
 
 const router = useRouter()

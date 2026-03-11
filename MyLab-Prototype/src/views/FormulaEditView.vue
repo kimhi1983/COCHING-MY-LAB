@@ -70,10 +70,15 @@
           </div>
           <div class="form-group">
             <label class="form-label">제품 유형</label>
-            <select v-model="form.product_type" class="form-input">
-              <option value="">선택</option>
-              <option v-for="t in productTypes" :key="t.value" :value="t.label">{{ t.label }}</option>
-            </select>
+            <input
+              v-model="form.product_type"
+              list="product-type-list"
+              class="form-input"
+              placeholder="선택 또는 직접 입력"
+            >
+            <datalist id="product-type-list">
+              <option v-for="t in allProductOptions" :key="t.value" :value="t.label">{{ t.group }} — {{ t.label }}</option>
+            </datalist>
           </div>
           <div class="form-group">
             <label class="form-label">프로젝트</label>
@@ -100,7 +105,7 @@
         </div>
       </div>
 
-      <!-- Status -->
+      <!-- Status (기존 처방) / 물성·안정성 (새 처방 AI 생성 후) -->
       <div class="panel" v-if="!isNew">
         <div class="panel-header">
           <span class="section-label">STATUS</span>
@@ -115,6 +120,34 @@
           </button>
         </div>
       </div>
+
+      <!-- 물성 / 안정성 스펙 패널 -->
+      <div class="panel" v-if="hasPhysicalProps">
+        <div class="panel-header">
+          <span class="section-label">PHYSICAL SPEC</span>
+          <span class="section-title">물성 · 안정성</span>
+        </div>
+        <div class="props-body">
+          <div class="props-grid">
+            <div class="prop-item" v-for="p in physicalPropsList" :key="p.key">
+              <span class="prop-label">{{ p.label }}</span>
+              <span class="prop-value" :class="p.cls || ''">{{ p.value }}</span>
+            </div>
+          </div>
+          <div class="props-section" v-if="physicalProps.stability.length">
+            <div class="props-section-title">안정성 시험 조건</div>
+            <div class="stability-item" v-for="(st, i) in physicalProps.stability" :key="i">
+              <span class="stab-cond">{{ st.condition }}</span>
+              <span class="stab-period">{{ st.period }}</span>
+              <span class="stab-check" :class="st.expected === 'pass' ? 'pass' : 'warn'">{{ st.expected === 'pass' ? '적합' : '관찰' }}</span>
+            </div>
+          </div>
+          <div class="props-section" v-if="physicalProps.micro">
+            <div class="props-section-title">미생물 한도</div>
+            <div class="micro-info">{{ physicalProps.micro }}</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Ingredient Table -->
@@ -123,34 +156,32 @@
         @update:ingredients="val => form.formula_data.ingredients = val" />
     </div>
 
-    <!-- Tags & Memo -->
-    <div class="form-grid" style="margin-top: 16px">
-      <div class="panel">
-        <div class="panel-header">
-          <span class="section-label">TAGS</span>
-          <span class="section-title">태그</span>
-        </div>
-        <div class="tags-body">
-          <span class="tag" v-for="(tag, i) in form.tags" :key="i">
-            {{ tag }} <button class="tag-del" @click="form.tags.splice(i, 1)">×</button>
-          </span>
-          <div class="tag-input-wrap">
-            <input v-model="newTag" class="tag-input" placeholder="태그 추가..." @keydown.enter.prevent="addTag">
-            <button class="btn-add-tag" @click="addTag">+</button>
+    <!-- Memo -->
+    <div class="panel" style="margin-top: 16px">
+      <div class="panel-header">
+        <span class="section-label">MEMO</span>
+        <span class="section-title">메모</span>
+        <button v-if="form.memo" class="btn-memo-expand" @click="showMemoModal = true" title="메모 확대 보기">확대 ↗</button>
+      </div>
+      <div class="memo-body">
+        <textarea v-model="form.memo" class="memo-textarea" placeholder="메모를 입력하세요..." rows="8"></textarea>
+      </div>
+    </div>
+
+    <!-- 메모 확대 모달 -->
+    <Teleport to="body">
+      <div v-if="showMemoModal" class="memo-modal-overlay" @click.self="showMemoModal = false">
+        <div class="memo-modal">
+          <div class="memo-modal-header">
+            <span class="memo-modal-title">메모 상세</span>
+            <button class="memo-modal-close" @click="showMemoModal = false">×</button>
+          </div>
+          <div class="memo-modal-body">
+            <textarea v-model="form.memo" class="memo-modal-textarea"></textarea>
           </div>
         </div>
       </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <span class="section-label">MEMO</span>
-          <span class="section-title">메모</span>
-        </div>
-        <div class="memo-body">
-          <textarea v-model="form.memo" class="memo-textarea" placeholder="메모를 입력하세요..." rows="5"></textarea>
-        </div>
-      </div>
-    </div>
+    </Teleport>
 
     <!-- Actions -->
     <div class="form-actions">
@@ -166,7 +197,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useFormulaStore } from '../stores/formulaStore.js'
 import { useProjectStore } from '../stores/projectStore.js'
 import { useAPI } from '../composables/useAPI.js'
-import { productTypes, statusStyles } from '../tokens.js'
+import { productCategories, statusStyles } from '../tokens.js'
 import { useExport } from '../composables/useExport.js'
 import StatusChip from '../components/common/StatusChip.vue'
 import IngredientTable from '../components/formula/IngredientTable.vue'
@@ -178,6 +209,9 @@ const { projects } = useProjectStore()
 const { exportFormulaCsv, exportFormulaPdf } = useExport()
 const api = useAPI()
 
+const allProductOptions = computed(() =>
+  productCategories.flatMap(cat => cat.items.map(t => ({ ...t, group: cat.group })))
+)
 const isNew = computed(() => route.name === 'formula-new')
 const formula = ref({})
 const newTag = ref('')
@@ -187,6 +221,30 @@ const showVersionPanel = ref(false)
 const aiRequirements = ref('')
 const isAiFilling = ref(false)
 const aiFillStep = ref('')
+
+// 메모 모달
+const showMemoModal = ref(false)
+
+// 물성·안정성
+const physicalProps = reactive({
+  ph: '', viscosity: '', hardness: '', specificGravity: '',
+  color: '', odor: '', appearance: '', spreadability: '',
+  shelfLife: '', storage: '', micro: '',
+  stability: [],
+})
+const hasPhysicalProps = computed(() => !!physicalProps.ph)
+const physicalPropsList = computed(() => [
+  { key: 'ph', label: 'pH', value: physicalProps.ph },
+  { key: 'viscosity', label: '점도 (cps)', value: physicalProps.viscosity },
+  { key: 'hardness', label: '경도', value: physicalProps.hardness },
+  { key: 'specificGravity', label: '비중', value: physicalProps.specificGravity },
+  { key: 'appearance', label: '외관', value: physicalProps.appearance },
+  { key: 'color', label: '색상', value: physicalProps.color },
+  { key: 'odor', label: '향', value: physicalProps.odor },
+  { key: 'spreadability', label: '도포성', value: physicalProps.spreadability },
+  { key: 'shelfLife', label: '유통기한', value: physicalProps.shelfLife },
+  { key: 'storage', label: '보관조건', value: physicalProps.storage },
+].filter(p => p.value))
 
 // 버전 관련 computed
 const currentVersion = computed(() => formula.value.version || 1)
@@ -306,6 +364,176 @@ function onExportPdf() {
   exportFormulaPdf(formula.value)
 }
 
+function getProcessByType(productType) {
+  const processes = {
+    '토너': [
+      '1. Phase A: 정제수에 수용성 원료(글리세린, 히알루론산 등) 투입 → 상온 교반',
+      '2. Phase C: 활성성분(나이아신아마이드 등) 투입 → 저속 교반',
+      '3. Phase D: 방부제, 향료 투입 → 균일 혼합',
+      '4. pH 확인 (5.0~6.5) → 필요시 pH 조절제로 보정',
+      '5. 여과 → 충진',
+    ],
+    '로션': [
+      '1. Phase A(수상): 정제수 + 수용성 원료 → 75°C 가열 용해',
+      '2. Phase B(유상): 오일 + 유화제 + 왁스류 → 별도 용기 75°C 가열 용해',
+      '3. 유화: B상을 A상에 서서히 투입 → 호모믹서 5,000rpm, 5분',
+      '4. 냉각: 교반하며 40°C까지 냉각',
+      '5. Phase C: 활성성분 투입 → 저속 교반',
+      '6. Phase D: 방부제, 향료 투입 → 균일 혼합',
+      '7. pH 확인 → 탈포 → 충진',
+    ],
+    '크림': [
+      '1. Phase A(수상): 정제수 + 수용성 원료 → 75~80°C 가열 용해',
+      '2. Phase B(유상): 오일 + 유화제 + 버터/왁스 → 별도 용기 75~80°C 가열 용해',
+      '3. 유화: B상을 A상에 서서히 투입 → 호모믹서 6,000rpm, 10분',
+      '4. 냉각: 패들 교반하며 45°C까지 서서히 냉각',
+      '5. Phase C: 활성성분, 증점제 투입 → 저속 교반 5분',
+      '6. Phase D: 방부제, 향료 투입 → 균일 혼합',
+      '7. pH 확인 (5.5~7.0) → 점도 확인 → 탈포 → 충진',
+    ],
+    '세럼': [
+      '1. Phase A: 정제수에 수용성 고분자(카보머 등) 분산 → 상온 팽윤 30분',
+      '2. 가열: 70°C까지 승온 → 글리세린, BG 등 투입',
+      '3. 냉각: 40°C까지 냉각',
+      '4. Phase C: 활성성분(펩타이드, 비타민 등) 투입 → 저속 교반',
+      '5. 중화: TEA 또는 NaOH로 pH 보정 → 겔화 확인',
+      '6. Phase D: 방부제, 향료 투입 → 탈포 → 충진',
+    ],
+    '클렌징': [
+      '1. Phase A: 정제수 + 계면활성제 → 50°C 가열 용해',
+      '2. Phase B: 오일상 원료 투입 → 교반 혼합',
+      '3. 냉각: 상온까지 교반하며 냉각',
+      '4. Phase D: 방부제, 향료 투입 → 균일 혼합',
+      '5. pH 확인 → 점도 확인 → 충진',
+    ],
+    '선크림': [
+      '1. Phase A(수상): 정제수 + 수용성 원료 → 75°C 가열',
+      '2. Phase B(유상): 오일 + UV 필터(유기자차) + 유화제 → 75°C 가열',
+      '3. 분산: 무기자차(TiO2, ZnO)를 B상에 3-roll mill 또는 비드밀로 분산',
+      '4. 유화: B상을 A상에 투입 → 호모믹서 7,000rpm, 10분',
+      '5. 냉각: 40°C까지 냉각 → Phase C/D 투입',
+      '6. SPF 측정용 시료 채취 → pH 확인 → 충진',
+    ],
+    '샴푸': [
+      '1. Phase A: 정제수를 60°C로 가열',
+      '2. 계면활성제(SLES, 코카미도프로필베타인 등) 순차 투입 → 저속 교반',
+      '3. 증점: 소금(NaCl) 또는 증점제로 점도 조절',
+      '4. 냉각: 40°C까지 냉각',
+      '5. Phase C/D: 컨디셔닝제, 방부제, 향료 투입',
+      '6. pH 확인 (5.0~7.0) → 충진',
+    ],
+  }
+
+  // 부분 매칭
+  const pt = productType || ''
+  for (const [key, steps] of Object.entries(processes)) {
+    if (pt.includes(key) || key.includes(pt)) return steps
+  }
+  // 에멀전/로션 계열 기본
+  if (pt.includes('에멀') || pt.includes('바디')) return processes['로션']
+  if (pt.includes('에센스') || pt.includes('앰플')) return processes['세럼']
+  if (pt.includes('자외선') || pt.includes('선')) return processes['선크림']
+  if (pt.includes('폼') || pt.includes('워터') || pt.includes('오일')) return processes['클렌징']
+
+  // 범용 크림/로션 공정
+  return processes['크림']
+}
+
+function buildAiMemo(source, data, existingMemo) {
+  const lines = []
+  lines.push(`[${source} 자동 생성] ${data.description || ''}`)
+  lines.push('')
+
+  // 복합원료만 기록
+  const ings = data.ingredients || []
+  const compounds = ings.filter(i => i.is_compound)
+
+  if (compounds.length > 0) {
+    lines.push('━━ 사용 복합원료 ━━')
+    for (const ing of compounds) {
+      const name = ing.compound_name || ing.korean_name || ing.name || ''
+      const inci = ing.inci_name || ''
+      const pct = ing.percentage ?? '—'
+      lines.push(`▸ ${name} (${pct}%)`)
+      lines.push(`  INCI: ${inci}`)
+      lines.push('')
+    }
+  }
+
+  // 간략 제조방법
+  const productType = data._productType || ''
+  const steps = getProcessByType(productType)
+  lines.push('━━ 제조방법 (Lab 시험용) ━━')
+  for (const step of steps) {
+    lines.push(step)
+  }
+  lines.push('')
+
+  lines.push(`---`)
+  lines.push(`총 ${ings.length}종 | ${new Date(data.generatedAt || Date.now()).toLocaleString('ko-KR')}`)
+
+  if (existingMemo) {
+    lines.push('')
+    lines.push('--- 이전 메모 ---')
+    lines.push(existingMemo)
+  }
+
+  return lines.join('\n')
+}
+
+function generatePhysicalProps(productType, ingredients) {
+  // 제품 유형별 기본 물성 스펙
+  const specs = {
+    '토너/스킨':     { ph: '5.0 ~ 6.5', viscosity: '5 ~ 50', hardness: '—', appearance: '투명~반투명 액상', spreadability: '우수' },
+    '로션/에멀전':    { ph: '5.5 ~ 7.0', viscosity: '3,000 ~ 10,000', hardness: '—', appearance: '유백색 에멀전', spreadability: '양호' },
+    '크림':          { ph: '5.5 ~ 7.0', viscosity: '15,000 ~ 80,000', hardness: '중간', appearance: '유백색~백색 크림', spreadability: '보통' },
+    '세럼/에센스/앰플': { ph: '5.0 ~ 6.5', viscosity: '500 ~ 5,000', hardness: '—', appearance: '투명~반투명 겔', spreadability: '우수' },
+    '아이크림':       { ph: '5.5 ~ 7.0', viscosity: '20,000 ~ 60,000', hardness: '중간~높음', appearance: '백색 크림', spreadability: '보통' },
+    '마스크/팩':      { ph: '5.0 ~ 7.0', viscosity: '10,000 ~ 50,000', hardness: '—', appearance: '겔~크림 타입', spreadability: '양호' },
+    '미스트':         { ph: '5.0 ~ 6.5', viscosity: '1 ~ 10', hardness: '—', appearance: '투명 액상', spreadability: '우수' },
+    '클렌징 폼':      { ph: '6.0 ~ 8.0', viscosity: '5,000 ~ 30,000', hardness: '—', appearance: '백색 페이스트', spreadability: '양호' },
+    '클렌징 오일/밤':  { ph: '—', viscosity: '50 ~ 500', hardness: '—', appearance: '투명 오일', spreadability: '우수' },
+    '샴푸':          { ph: '5.0 ~ 7.0', viscosity: '3,000 ~ 15,000', hardness: '—', appearance: '투명~반투명 액상', spreadability: '우수' },
+    '자외선 차단':    { ph: '6.0 ~ 8.0', viscosity: '10,000 ~ 50,000', hardness: '—', appearance: '백색 크림/로션', spreadability: '양호' },
+    '파운데이션/베이스': { ph: '6.0 ~ 8.0', viscosity: '10,000 ~ 50,000', hardness: '—', appearance: '피부색 에멀전', spreadability: '양호' },
+    '바디로션/크림':   { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 30,000', hardness: '—', appearance: '유백색 에멀전', spreadability: '양호' },
+  }
+
+  // 매칭 시도 (부분 일치)
+  let matched = null
+  for (const [key, val] of Object.entries(specs)) {
+    if (productType.includes(key) || key.includes(productType)) {
+      matched = val
+      break
+    }
+  }
+  if (!matched) {
+    // 기본 크림 스펙
+    matched = { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 50,000', hardness: '—', appearance: '크림/로션', spreadability: '양호' }
+  }
+
+  Object.assign(physicalProps, {
+    ph: matched.ph,
+    viscosity: matched.viscosity,
+    hardness: matched.hardness,
+    specificGravity: '0.98 ~ 1.05',
+    color: '백색~미색',
+    odor: '고유의 향',
+    appearance: matched.appearance,
+    spreadability: matched.spreadability,
+    shelfLife: '제조일로부터 30개월',
+    storage: '직사광선 차단, 상온(15~25℃)',
+    micro: '총 호기성 생균수 ≤ 500 CFU/g, 대장균·녹농균·황색포도상구균 불검출',
+    stability: [
+      { condition: '고온 (45±2℃)', period: '8주', expected: 'pass' },
+      { condition: '실온 (25±2℃)', period: '12주', expected: 'pass' },
+      { condition: '저온 (4±2℃)', period: '8주', expected: 'pass' },
+      { condition: '냉동-해동 반복 (-15℃↔25℃)', period: '3 cycle', expected: 'warn' },
+      { condition: '광안정성 (UV 조사)', period: '4주', expected: 'pass' },
+    ],
+  })
+}
+
 async function onAiFill() {
   if (!form.product_type || isAiFilling.value) return
 
@@ -339,9 +567,13 @@ async function onAiFill() {
       }
       // 태그 추가
       if (!form.tags.includes('자동처방')) form.tags.push('자동처방')
-      // 메모에 생성 정보 추가
-      const source = res.data.source === 'openai' ? 'LLM' : 'DB'
-      form.memo = `[${source} 자동 생성] ${res.data.description || ''}\n${form.memo || ''}`
+      // 메모에 복합원료 + 제조방법 생성
+      const source = res.data.source?.includes('gemini') ? 'Gemini' : res.data.source?.includes('openai') ? 'LLM' : 'DB'
+      res.data._productType = form.product_type
+      form.memo = buildAiMemo(source, res.data, form.memo)
+
+      // 물성·안정성 스펙 자동 생성
+      generatePhysicalProps(form.product_type, form.formula_data.ingredients)
     } else {
       alert('처방 생성에 실패했습니다. 다시 시도해주세요.')
     }
@@ -514,6 +746,8 @@ async function onAiFill() {
 .panel-header {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
 }
 .section-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); }
 .section-title { font-size: 13px; font-weight: 600; color: var(--text); margin-left: 8px; }
@@ -668,6 +902,168 @@ async function onAiFill() {
   margin-top: 4px;
   font-size: 11px;
   color: var(--text-dim);
+}
+
+/* 메모 확대 버튼 */
+.btn-memo-expand {
+  margin-left: auto;
+  padding: 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-memo-expand:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* 메모 모달 */
+.memo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.memo-modal {
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  background: var(--surface, #fff);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.memo-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.memo-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.memo-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.memo-modal-close:hover { color: var(--text); }
+.memo-modal-body {
+  flex: 1;
+  padding: 20px 24px;
+  overflow: auto;
+}
+.memo-modal-textarea {
+  width: 100%;
+  min-height: 60vh;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  font-family: var(--font-mono, monospace);
+  resize: vertical;
+  background: var(--bg, #f8f7f5);
+}
+.memo-modal-textarea:focus { border-color: var(--accent); outline: none; }
+
+/* 물성·안정성 패널 */
+.props-body {
+  padding: 14px 20px;
+}
+.props-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.prop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--bg, #f8f7f5);
+}
+.prop-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.prop-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono, monospace);
+  text-align: right;
+}
+.props-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.props-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.stability-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.stab-cond {
+  flex: 1;
+  color: var(--text);
+}
+.stab-period {
+  color: var(--text-sub);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.stab-check {
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.stab-check.pass {
+  background: var(--green-bg, #f0f8f4);
+  color: var(--green, #3a9068);
+}
+.stab-check.warn {
+  background: var(--amber-bg, #fdf8f0);
+  color: var(--amber, #b07820);
+}
+.micro-info {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 @media (max-width: 1199px) { .form-grid { grid-template-columns: 1fr; } }

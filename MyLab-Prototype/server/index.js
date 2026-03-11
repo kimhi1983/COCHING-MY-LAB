@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import pool from './db.js'
@@ -226,13 +227,22 @@ app.post('/api/guide-formula', async (req, res) => {
       const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
       totalPct += pct
 
+      // 복합원료 판별: INCI에 콤마/and 포함 또는 composition 데이터 존재
+      const isCompound = !!(
+        (inciName && (inciName.includes(',') || / and /i.test(inciName))) ||
+        data.composition || data.components
+      )
+
       formulaIngredients.push({
         id: row.id,
         name: row.search_key,
+        korean_name: data.korean_name || row.search_key,
         inci_name: inciName,
         percentage: pct,
         type: guessType(inciName, data),
         function: guessFunction(inciName, data),
+        is_compound: isCompound,
+        compound_name: isCompound ? (data.trade_name || data.korean_name || row.search_key) : null,
         regulations: regMap[inciName] || [],
         safety: data.ewg_score ? {
           ewg_score: data.ewg_score,
@@ -409,15 +419,22 @@ async function buildDbFormula(productType, requirements, targetMarket) {
     const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
     totalPct += pct
 
+    const isCompound = !!(
+      (inciName && (inciName.includes(',') || / and /i.test(inciName))) ||
+      data.composition || data.components
+    )
+
     formulaIngredients.push({
       id: row.id,
       name: row.search_key,
       inci_name: inciName,
-      korean_name: row.search_key,
+      korean_name: data.korean_name || row.search_key,
       percentage: pct,
       phase: assignPhase(inciName, type),
       type,
       function: guessFunction(inciName, data),
+      is_compound: isCompound,
+      compound_name: isCompound ? (data.trade_name || data.korean_name || row.search_key) : null,
       regulations: regMap[inciName] || [],
       safety: data.ewg_score ? {
         ewg_score: data.ewg_score,
@@ -460,7 +477,45 @@ async function buildDbFormula(productType, requirements, targetMarket) {
   }
 }
 
-// ─── LLM 정밀 처방 생성 ───
+// ─── Gemini API 호출 헬퍼 ───
+async function callGemini(prompt) {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return null
+
+  const geminiRes = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.3,
+          responseMimeType: 'application/json',
+        },
+      }),
+    }
+  )
+
+  if (!geminiRes.ok) {
+    const errBody = await geminiRes.text()
+    throw new Error(`Gemini API 오류 (${geminiRes.status}): ${errBody}`)
+  }
+
+  const geminiData = await geminiRes.json()
+  const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!text) throw new Error('Gemini 응답에 content가 없습니다.')
+
+  // JSON 파싱 (코드블록 래핑 제거)
+  const cleaned = text.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim()
+  try {
+    return JSON.parse(cleaned)
+  } catch {
+    throw new Error('Gemini 응답 JSON 파싱 실패: ' + cleaned.substring(0, 200))
+  }
+}
+
+// ─── LLM 정밀 처방 생성 (Gemini) ───
 app.post('/api/ai-formula', async (req, res) => {
   try {
     const { productType, requirements, targetMarket = 'KR', customIngredients = [] } = req.body
@@ -469,8 +524,7 @@ app.post('/api/ai-formula', async (req, res) => {
       return res.status(400).json({ success: false, error: 'productType은 필수입니다.' })
     }
 
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
+    if (!process.env.GEMINI_API_KEY) {
       // 폴백: DB 기반 Phase 분류 처방
       const formula = await buildDbFormula(productType, requirements, targetMarket)
       return res.json({ success: true, data: formula })
@@ -497,7 +551,7 @@ app.post('/api/ai-formula', async (req, res) => {
       ? '\n\n반드시 포함할 원료:\n' + customIngredients.map(c => `- ${c.name}: ${c.percentage}%`).join('\n')
       : ''
 
-    const systemPrompt = `당신은 화장품 처방 전문가입니다. 다음 조건으로 처방을 생성하세요.
+    const prompt = `당신은 화장품 처방 전문가입니다. 다음 조건으로 처방을 생성하세요.
 
 규칙:
 1. 배합비 합계는 정확히 100.00%
@@ -519,9 +573,9 @@ app.post('/api/ai-formula', async (req, res) => {
   ],
   "description": "...",
   "cautions": ["..."]
-}`
+}
 
-    const userMessage = `제형: ${productType}
+제형: ${productType}
 요구사항: ${requirements || '없음'}
 타겟 시장: ${targetMarket}
 ${customList}
@@ -531,39 +585,7 @@ ${ingredientList}
 
 위 원료에서 적합한 것을 선택하여 처방을 완성하세요.`
 
-    const openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        temperature: 0.3,
-        response_format: { type: 'json_object' },
-      }),
-    })
-
-    if (!openAiRes.ok) {
-      const errBody = await openAiRes.text()
-      throw new Error(`OpenAI API 오류 (${openAiRes.status}): ${errBody}`)
-    }
-
-    const openAiData = await openAiRes.json()
-    const content = openAiData.choices?.[0]?.message?.content
-    if (!content) throw new Error('OpenAI 응답에 content가 없습니다.')
-
-    let parsed
-    try {
-      parsed = JSON.parse(content)
-    } catch {
-      throw new Error('OpenAI 응답 JSON 파싱 실패')
-    }
-
+    const parsed = await callGemini(prompt)
     const totalPct = parsed.ingredients?.reduce((sum, i) => sum + (i.percentage || 0), 0) ?? 0
 
     return res.json({
@@ -576,8 +598,7 @@ ${ingredientList}
         cautions: parsed.cautions || [],
         totalPercentage: Math.round(totalPct * 100) / 100,
         generatedAt: new Date().toISOString(),
-        source: 'openai-gpt4o-mini',
-        usage: openAiData.usage,
+        source: 'gemini-2.0-flash',
       },
     })
   } catch (err) {
@@ -585,7 +606,7 @@ ${ingredientList}
   }
 })
 
-// ─── 카피 처방 (역처방) ───
+// ─── 카피 처방 (역처방, Gemini) ───
 app.post('/api/copy-formula', async (req, res) => {
   try {
     const { productName, targetMarket = 'KR' } = req.body
@@ -594,8 +615,7 @@ app.post('/api/copy-formula', async (req, res) => {
       return res.status(400).json({ success: false, error: 'productName은 필수입니다.' })
     }
 
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
+    if (!process.env.GEMINI_API_KEY) {
       // 폴백: 제품명 키워드 기반 템플릿
       const lowerName = productName.toLowerCase()
       let templateType = 'moisturizing-serum'
@@ -610,7 +630,7 @@ app.post('/api/copy-formula', async (req, res) => {
       return res.json({ success: true, data: formula })
     }
 
-    const systemPrompt = `당신은 화장품 역처방(reverse formulation) 전문가입니다.
+    const prompt = `당신은 화장품 역처방(reverse formulation) 전문가입니다.
 
 다음 제품의 공개 전성분 표기 순서를 기반으로 배합비를 역산하세요.
 
@@ -633,46 +653,14 @@ app.post('/api/copy-formula', async (req, res) => {
   ],
   "description": "...",
   "cautions": ["..."]
-}`
+}
 
-    const userMessage = `제품명: ${productName}
+제품명: ${productName}
 타겟 시장: ${targetMarket}
 
 위 제품의 공개 전성분 정보를 기반으로 역처방을 추정하세요. 해당 제품 유형에 전형적인 배합비를 참조하여 합계 100%가 되도록 처방을 완성하세요.`
 
-    const openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        temperature: 0.3,
-        response_format: { type: 'json_object' },
-      }),
-    })
-
-    if (!openAiRes.ok) {
-      const errBody = await openAiRes.text()
-      throw new Error(`OpenAI API 오류 (${openAiRes.status}): ${errBody}`)
-    }
-
-    const openAiData = await openAiRes.json()
-    const content = openAiData.choices?.[0]?.message?.content
-    if (!content) throw new Error('OpenAI 응답에 content가 없습니다.')
-
-    let parsed
-    try {
-      parsed = JSON.parse(content)
-    } catch {
-      throw new Error('OpenAI 응답 JSON 파싱 실패')
-    }
-
+    const parsed = await callGemini(prompt)
     const totalPct = parsed.ingredients?.reduce((sum, i) => sum + (i.percentage || 0), 0) ?? 0
 
     return res.json({
@@ -685,8 +673,7 @@ app.post('/api/copy-formula', async (req, res) => {
         cautions: parsed.cautions || [],
         totalPercentage: Math.round(totalPct * 100) / 100,
         generatedAt: new Date().toISOString(),
-        source: 'openai-gpt4o-mini',
-        usage: openAiData.usage,
+        source: 'gemini-2.0-flash',
       },
     })
   } catch (err) {

@@ -32,12 +32,66 @@
             <span v-else-if="ing.phase" class="phase-chip" :class="'phase-chip-' + ing.phase">{{ ing.phase }}</span>
             <span v-else class="phase-chip phase-chip-none">—</span>
           </td>
-          <td>
-            <input v-if="editable" v-model="ing.name" class="cell-input" placeholder="원료명">
+          <td class="cell-name-wrap">
+            <template v-if="editable">
+              <input
+                v-model="ing.name"
+                class="cell-input"
+                placeholder="원료명"
+                @input="onSearchInput(idx, 'name', $event.target.value)"
+                @focus="onSearchInput(idx, 'name', ing.name)"
+                @blur="closeSuggestionsDelayed(idx)"
+                @keydown.down.prevent="moveSuggestion(idx, 1)"
+                @keydown.up.prevent="moveSuggestion(idx, -1)"
+                @keydown.enter.prevent="selectHighlighted(idx, ing)"
+                @keydown.escape="closeSuggestions(idx)"
+                autocomplete="off"
+              >
+              <div v-if="suggestions[idx]?.show && suggestions[idx]?.items?.length" class="suggestions-dropdown">
+                <div
+                  v-for="(s, si) in suggestions[idx].items"
+                  :key="s.id || si"
+                  class="suggestion-item"
+                  :class="{ highlighted: suggestions[idx].highlight === si }"
+                  @mousedown.prevent="pickSuggestion(idx, ing, s)"
+                >
+                  <span class="sug-name">{{ s.korean_name || s.inci_name }}</span>
+                  <span class="sug-inci">{{ s.inci_name }}</span>
+                  <span v-if="s.ewg_score != null" class="sug-ewg" :class="ewgClass(s.ewg_score)">EWG {{ s.ewg_score }}</span>
+                </div>
+              </div>
+            </template>
             <span v-else>{{ ing.name }}</span>
           </td>
-          <td class="cell-inci">
-            <input v-if="editable" v-model="ing.inci_name" class="cell-input" placeholder="INCI">
+          <td class="cell-inci cell-inci-wrap">
+            <template v-if="editable">
+              <input
+                v-model="ing.inci_name"
+                class="cell-input"
+                placeholder="INCI"
+                @input="onSearchInput(idx, 'inci', $event.target.value)"
+                @focus="onSearchInput(idx, 'inci', ing.inci_name)"
+                @blur="closeSuggestionsDelayed(idx)"
+                @keydown.down.prevent="moveSuggestion(idx, 1)"
+                @keydown.up.prevent="moveSuggestion(idx, -1)"
+                @keydown.enter.prevent="selectHighlighted(idx, ing)"
+                @keydown.escape="closeSuggestions(idx)"
+                autocomplete="off"
+              >
+              <div v-if="suggestions[idx]?.show && suggestions[idx]?.items?.length" class="suggestions-dropdown">
+                <div
+                  v-for="(s, si) in suggestions[idx].items"
+                  :key="s.id || si"
+                  class="suggestion-item"
+                  :class="{ highlighted: suggestions[idx].highlight === si }"
+                  @mousedown.prevent="pickSuggestion(idx, ing, s)"
+                >
+                  <span class="sug-inci">{{ s.inci_name }}</span>
+                  <span class="sug-name">{{ s.korean_name }}</span>
+                  <span v-if="s.ewg_score != null" class="sug-ewg" :class="ewgClass(s.ewg_score)">EWG {{ s.ewg_score }}</span>
+                </div>
+              </div>
+            </template>
             <span v-else>{{ ing.inci_name }}</span>
           </td>
           <td class="cell-pct">
@@ -83,7 +137,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
+import { useAPI } from '../../composables/useAPI.js'
+
+const api = useAPI()
 
 const props = defineProps({
   ingredients: { type: Array, default: () => [] },
@@ -92,6 +149,71 @@ const props = defineProps({
 const emit = defineEmits(['update:ingredients'])
 
 const PHASES = ['A', 'B', 'C', 'D']
+
+// ─── 자동완성 ───
+const suggestions = reactive({}) // { [rowIdx]: { show, items, highlight, timer } }
+let searchTimers = {}
+
+function onSearchInput(idx, field, val) {
+  const q = (val || '').trim()
+  if (q.length < 1) {
+    closeSuggestions(idx)
+    return
+  }
+  // 디바운스 300ms
+  clearTimeout(searchTimers[idx])
+  searchTimers[idx] = setTimeout(() => fetchSuggestions(idx, q), 300)
+}
+
+async function fetchSuggestions(idx, q) {
+  const data = await api.getIngredients({ q, limit: 8 })
+  if (data?.items?.length) {
+    suggestions[idx] = { show: true, items: data.items, highlight: -1 }
+  } else {
+    closeSuggestions(idx)
+  }
+}
+
+function pickSuggestion(idx, ing, s) {
+  ing.name = s.korean_name || s.inci_name || ''
+  ing.inci_name = s.inci_name || ''
+  if (s.max_concentration) {
+    const match = s.max_concentration.match(/([\d.]+)/)
+    if (match && !ing.percentage) ing.percentage = parseFloat(match[1])
+  }
+  closeSuggestions(idx)
+  emit('update:ingredients', [...props.ingredients])
+}
+
+function moveSuggestion(idx, dir) {
+  const s = suggestions[idx]
+  if (!s?.items?.length) return
+  let next = (s.highlight || 0) + dir
+  if (next < 0) next = s.items.length - 1
+  if (next >= s.items.length) next = 0
+  s.highlight = next
+}
+
+function selectHighlighted(idx, ing) {
+  const s = suggestions[idx]
+  if (s?.show && s.highlight >= 0 && s.items[s.highlight]) {
+    pickSuggestion(idx, ing, s.items[s.highlight])
+  }
+}
+
+function closeSuggestions(idx) {
+  if (suggestions[idx]) suggestions[idx].show = false
+}
+
+function closeSuggestionsDelayed(idx) {
+  setTimeout(() => closeSuggestions(idx), 200)
+}
+
+function ewgClass(score) {
+  if (score <= 2) return 'ewg-low'
+  if (score <= 6) return 'ewg-mid'
+  return 'ewg-high'
+}
 
 const totalPct = computed(() =>
   props.ingredients.reduce((s, i) => s + (Number(i.percentage) || 0), 0)
@@ -277,4 +399,62 @@ function onPhaseChange() {
 .total-pct.over { color: var(--red); }
 .total-pct.under { color: var(--amber); }
 .empty-row { text-align: center; color: var(--text-dim); padding: 24px !important; font-size: 12px; }
+
+/* 자동완성 */
+.cell-name-wrap, .cell-inci-wrap { position: relative; }
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 280px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-mid, var(--border));
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 200;
+}
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.suggestion-item:hover, .suggestion-item.highlighted {
+  background: var(--accent-light, rgba(184,147,90,0.08));
+}
+.sug-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sug-inci {
+  font-size: 11px;
+  color: var(--text-sub);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sug-ewg {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.ewg-low { background: rgba(58,144,104,0.12); color: var(--green, #3a9068); }
+.ewg-mid { background: rgba(184,147,90,0.12); color: var(--amber, #b8935a); }
+.ewg-high { background: rgba(196,78,78,0.12); color: var(--red, #c44e4e); }
 </style>
