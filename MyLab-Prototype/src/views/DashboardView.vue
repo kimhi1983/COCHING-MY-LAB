@@ -32,42 +32,62 @@
     </div>
 
     <!-- Grid Layout -->
-    <GridLayout
-      :layout="currentLayout"
-      :col-num="6"
-      :row-height="60"
-      :is-draggable="editMode"
-      :is-resizable="editMode"
-      :margin="[12, 12]"
-      :use-css-transforms="true"
-      @layout-updated="onLayoutUpdated"
-    >
-      <GridItem
-        v-for="item in currentLayout"
-        :key="item.i"
-        :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i"
-        :min-w="getMinW(item.i)" :min-h="getMinH(item.i)"
-        class="widget-item"
-        :class="{ editing: editMode }"
+    <div class="grid-wrapper" :class="{ 'show-grid': editMode }">
+      <!-- 편집 모드 격자 오버레이 -->
+      <div v-if="editMode" class="grid-overlay">
+        <div class="grid-col" v-for="n in GRID_COL_NUM" :key="n"></div>
+      </div>
+
+      <!-- 그리드 정보 표시 -->
+      <div v-if="editMode" class="grid-info">
+        <span class="grid-info-text">{{ GRID_COL_NUM }}컬럼 그리드</span>
+        <span class="grid-info-sep">·</span>
+        <span class="grid-info-text">{{ currentLayout.length }}개 위젯</span>
+      </div>
+
+      <GridLayout
+        :layout="currentLayout"
+        :col-num="GRID_COL_NUM"
+        :row-height="GRID_ROW_HEIGHT"
+        :is-draggable="editMode"
+        :is-resizable="editMode"
+        :margin="[10, 10]"
+        :use-css-transforms="true"
+        :vertical-compact="true"
+        @layout-updated="onLayoutUpdated"
       >
-        <div class="widget-card">
-          <div class="widget-header">
-            <span class="widget-title">{{ getWidgetLabel(item.i) }}</span>
-            <button v-if="editMode" class="widget-remove" @click="onRemoveWidget(item.i)" title="위젯 제거">×</button>
+        <GridItem
+          v-for="item in currentLayout"
+          :key="item.i"
+          :x="item.x" :y="item.y" :w="item.w" :h="item.h" :i="item.i"
+          :min-w="getMinW(item.i)" :min-h="getMinH(item.i)"
+          :max-w="GRID_COL_NUM"
+          class="widget-item"
+          :class="{ editing: editMode }"
+          drag-allow-from=".widget-header"
+        >
+          <div class="widget-card">
+            <div class="widget-header">
+              <span class="widget-title">{{ getWidgetLabel(item.i) }}</span>
+              <div class="widget-header-right">
+                <span v-if="editMode" class="widget-size-badge">{{ item.w }}×{{ item.h }}</span>
+                <button v-if="editMode" class="widget-remove" @click="onRemoveWidget(item.i)" title="위젯 제거">×</button>
+              </div>
+            </div>
+            <div class="widget-body">
+              <component :is="widgetComponents[item.i]" />
+            </div>
           </div>
-          <div class="widget-body">
-            <component :is="widgetComponents[item.i]" />
-          </div>
-        </div>
-      </GridItem>
-    </GridLayout>
+        </GridItem>
+      </GridLayout>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, markRaw } from 'vue'
 import { GridLayout, GridItem } from 'grid-layout-plus'
-import { useWidgetStore, WIDGET_CATALOG } from '../stores/widgetStore.js'
+import { useWidgetStore, WIDGET_CATALOG, GRID_COL_NUM, GRID_ROW_HEIGHT } from '../stores/widgetStore.js'
 
 import WidgetKpi from '../components/widgets/WidgetKpi.vue'
 import WidgetRecentFormulas from '../components/widgets/WidgetRecentFormulas.vue'
@@ -206,11 +226,59 @@ function getMinH(id) {
 .add-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
 .add-empty { text-align: center; font-size: 13px; color: var(--text-dim); padding: 12px; }
 
+/* Grid Wrapper & Overlay */
+.grid-wrapper {
+  position: relative;
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  padding: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-col {
+  background: var(--accent-light);
+  opacity: 0.25;
+  border-radius: 4px;
+  min-height: 100%;
+}
+
+.grid-info {
+  position: absolute;
+  top: -28px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 5;
+}
+
+.grid-info-text {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.grid-info-sep {
+  color: var(--border-mid);
+  font-size: 10px;
+}
+
 /* Widget Cards */
 .widget-item.editing {
+  z-index: 2;
+}
+.widget-item.editing .widget-header {
   cursor: grab;
 }
-.widget-item.editing:active {
+.widget-item.editing .widget-header:active {
   cursor: grabbing;
 }
 
@@ -223,7 +291,7 @@ function getMinH(id) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .editing .widget-card {
   border: 2px dashed var(--accent-dim);
@@ -248,6 +316,22 @@ function getMinH(id) {
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--text-dim);
+}
+.widget-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.widget-size-badge {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--accent-dim);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 .widget-remove {
   width: 20px; height: 20px;
@@ -276,14 +360,28 @@ function getMinH(id) {
 }
 
 /* grid-layout-plus overrides */
+:deep(.vue-grid-layout) {
+  position: relative;
+  z-index: 1;
+}
 :deep(.vue-grid-item) {
   transition: all 0.2s ease;
+}
+:deep(.vue-grid-item.vue-draggable-dragging) {
+  z-index: 100 !important;
+  opacity: 0.9;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+:deep(.vue-grid-item.resizing) {
+  z-index: 100 !important;
+  opacity: 0.95;
 }
 :deep(.vue-grid-item.vue-grid-placeholder) {
   background: var(--accent-light) !important;
   border: 2px dashed var(--accent) !important;
   border-radius: var(--radius);
-  opacity: 0.6;
+  opacity: 0.5;
+  z-index: 0 !important;
 }
 :deep(.vue-grid-item > .vue-resizable-handle) {
   width: 24px;
