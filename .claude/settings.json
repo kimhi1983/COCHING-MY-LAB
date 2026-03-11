@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PGPASSWORD=coching2024 psql -h 127.0.0.1 -U coching -d erns_es_dev -c \"SELECT count\\(*\\) as table_count FROM information_schema.tables WHERE table_schema NOT IN \\(''information_schema'', ''pg_catalog''\\);\")",
+      "Bash(PGPASSWORD=ernsEs2024dev psql -h 127.0.0.1 -U erns_es_dev -d erns_es_dev -c \"SELECT count\\(*\\) as table_count FROM information_schema.tables WHERE table_schema NOT IN \\(''information_schema'', ''pg_catalog''\\);\")",
+      "Bash(PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -c l)",
+      "Bash(PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -c \"\\\\l\")",
+      "Bash(\"C:/Program Files/PostgreSQL/17/bin/psql.exe\" -h 127.0.0.1 -U postgres -c \"\\\\l\")",
+      "Bash(PGPASSWORD=postgres \"C:/Program Files/PostgreSQL/17/bin/psql.exe\" -h 127.0.0.1 -U postgres -c \"SELECT datname FROM pg_database WHERE datname LIKE ''%erns%'' OR datname LIKE ''%coching%'';\")"
+    ]
+  }
+}
