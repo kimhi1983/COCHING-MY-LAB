@@ -28,7 +28,7 @@
         </div>
         <div class="form-actions">
           <button class="btn btn-primary btn-lg" @click="onGenerate" :disabled="isGenerating">
-            {{ isGenerating ? '생성 중...' : '✦ AI 처방 생성하기' }}
+            {{ isGenerating ? '생성 중...' : '✦ MyLab 처방 생성하기' }}
           </button>
         </div>
       </div>
@@ -38,7 +38,7 @@
     <div v-if="isGenerating" class="loading-panel">
       <div class="loading-box">
         <div class="spinner"></div>
-        <div class="loading-title">AI 처방 생성 중...</div>
+        <div class="loading-title">MyLab 처방 생성 중...</div>
         <div class="loading-step">{{ progress }}</div>
       </div>
     </div>
@@ -50,7 +50,7 @@
 
     <!-- History -->
     <div v-if="history.length" class="history-section">
-      <div class="section-label" style="margin-bottom: 12px">AI HISTORY · 생성 이력</div>
+      <div class="section-label" style="margin-bottom: 12px">MYLAB HISTORY · 생성 이력</div>
       <div class="history-grid">
         <div class="history-card" v-for="(h, i) in history" :key="i" @click="result = h">
           <div class="hist-date">{{ formatDate(h.generatedAt) }}</div>
@@ -101,15 +101,15 @@ function onSave() {
   if (!result.value) return
   const typeLabel = productTypes.find(t => t.value === request.productType)?.label || request.productType
   const created = addFormula({
-    title: request.title || 'AI 생성 처방',
+    title: request.title || 'MyLab 생성 처방',
     product_type: typeLabel,
     formula_data: {
       ingredients: result.value.ingredients,
       total_percentage: result.value.totalPercentage,
       notes: result.value.description,
     },
-    memo: `AI 생성 처방\n${result.value.description}`,
-    tags: ['AI생성'],
+    memo: `MyLab 생성 처방\n${result.value.description}`,
+    tags: ['MyLab생성'],
   })
   router.push('/formulas/' + created.id)
 }

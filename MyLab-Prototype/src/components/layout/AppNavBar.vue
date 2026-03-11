@@ -25,7 +25,7 @@ const navItems = [
   { to: '/formulas/new', label: '+ 생성', exact: true },
   { to: '/journal', label: '일지', exact: true },
   { to: '/projects', label: '프로젝트', exact: true },
-  { to: '/ai-guide', label: 'AI 가이드', exact: true },
+  { to: '/ai-guide', label: 'MyLab 가이드', exact: true },
 ]
 </script>
 

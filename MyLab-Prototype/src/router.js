@@ -7,7 +7,7 @@ const routes = [
   { path: '/formulas/:id', name: 'formula-edit', component: () => import('./views/FormulaEditView.vue'), meta: { title: '처방 편집' } },
   { path: '/journal', name: 'journal', component: () => import('./views/JournalView.vue'), meta: { title: '처방 일지' } },
   { path: '/projects', name: 'projects', component: () => import('./views/ProjectListView.vue'), meta: { title: '프로젝트' } },
-  { path: '/ai-guide', name: 'ai-guide', component: () => import('./views/AiGuideView.vue'), meta: { title: 'AI 가이드 처방' } },
+  { path: '/ai-guide', name: 'ai-guide', component: () => import('./views/AiGuideView.vue'), meta: { title: 'MyLab 가이드 처방' } },
 ]
 
 const router = createRouter({

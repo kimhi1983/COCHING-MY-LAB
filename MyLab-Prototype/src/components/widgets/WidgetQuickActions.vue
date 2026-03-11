@@ -3,8 +3,8 @@
     <router-link to="/ai-guide" class="action-btn primary">
       <span class="action-icon">✦</span>
       <div>
-        <div class="action-label">AI 가이드 처방</div>
-        <div class="action-desc">AI가 최적 처방을 자동 생성</div>
+        <div class="action-label">MyLab 가이드 처방</div>
+        <div class="action-desc">최적 처방을 자동 생성</div>
       </div>
     </router-link>
     <router-link to="/formulas/new" class="action-btn secondary">

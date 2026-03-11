@@ -5,7 +5,7 @@ import { useLocalStorage } from '../composables/useLocalStorage.js'
 export const WIDGET_CATALOG = [
   { id: 'kpi', label: 'KPI 카드', icon: '⚗', description: '총 처방, 진행중, 완료, 프로젝트 현황', minW: 2, minH: 2, defaultW: 4, defaultH: 2 },
   { id: 'recent', label: '최근 처방', icon: '◉', description: '최근 수정된 처방 목록', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
-  { id: 'quick', label: '빠른 작업', icon: '✦', description: 'AI 가이드, 새 처방 등 빠른 액션', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
+  { id: 'quick', label: '빠른 작업', icon: '✦', description: 'MyLab 가이드, 새 처방 등 빠른 액션', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
   { id: 'active', label: '진행중 처방', icon: '◎', description: '현재 진행 중인 처방 테이블', minW: 3, minH: 2, defaultW: 4, defaultH: 3 },
   { id: 'projects', label: '프로젝트 요약', icon: '◈', description: '프로젝트별 진행률 요약', minW: 2, minH: 2, defaultW: 2, defaultH: 3 },
   { id: 'chart', label: '상태 차트', icon: '◐', description: '처방 상태별 도넛 차트', minW: 2, minH: 2, defaultW: 2, defaultH: 2 },

@@ -2,7 +2,7 @@
   <div class="ai-result-panel">
     <div class="panel-header">
       <div>
-        <span class="section-label">AI RESULT</span>
+        <span class="section-label">MYLAB RESULT</span>
         <span class="section-title">생성 결과</span>
       </div>
       <div class="header-actions">
