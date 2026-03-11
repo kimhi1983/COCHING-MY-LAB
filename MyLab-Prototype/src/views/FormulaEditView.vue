@@ -105,7 +105,45 @@
         </div>
       </div>
 
-      <!-- Status (기존 처방) / 물성·안정성 (새 처방 AI 생성 후) -->
+      <!-- 물성 / 안정성 스펙 패널 (항상 표시, 편집 가능) -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="section-label">PHYSICAL SPEC</span>
+          <span class="section-title">물성 · 안정성</span>
+          <span v-if="!form.product_type" class="props-hint">제품 유형을 선택하면 기본값이 채워집니다</span>
+        </div>
+        <div class="props-body">
+          <div class="props-grid">
+            <div class="prop-item" v-for="p in physicalPropsFields" :key="p.key">
+              <span class="prop-label">{{ p.label }}</span>
+              <input
+                v-model="physicalProps[p.key]"
+                class="prop-input"
+                :placeholder="p.placeholder || '—'"
+              >
+            </div>
+          </div>
+          <div class="props-section">
+            <div class="props-section-title">안정성 시험 조건</div>
+            <div class="stability-item" v-for="(st, i) in physicalProps.stability" :key="i">
+              <span class="stab-cond">{{ st.condition }}</span>
+              <input v-model="st.period" class="stab-input" placeholder="기간">
+              <button
+                class="stab-toggle"
+                :class="st.expected === 'pass' ? 'pass' : 'warn'"
+                @click="st.expected = st.expected === 'pass' ? 'warn' : 'pass'"
+                :title="st.expected === 'pass' ? '적합 → 관찰로 변경' : '관찰 → 적합으로 변경'"
+              >{{ st.expected === 'pass' ? '적합' : '관찰' }}</button>
+            </div>
+          </div>
+          <div class="props-section">
+            <div class="props-section-title">미생물 한도</div>
+            <input v-model="physicalProps.micro" class="micro-input" placeholder="예: 총 호기성 생균수 ≤ 500 CFU/g">
+          </div>
+        </div>
+      </div>
+
+      <!-- Status (기존 처방) -->
       <div class="panel" v-if="!isNew">
         <div class="panel-header">
           <span class="section-label">STATUS</span>
@@ -118,34 +156,6 @@
             @click="form.status = s.value">
             {{ s.label }}
           </button>
-        </div>
-      </div>
-
-      <!-- 물성 / 안정성 스펙 패널 -->
-      <div class="panel" v-if="hasPhysicalProps">
-        <div class="panel-header">
-          <span class="section-label">PHYSICAL SPEC</span>
-          <span class="section-title">물성 · 안정성</span>
-        </div>
-        <div class="props-body">
-          <div class="props-grid">
-            <div class="prop-item" v-for="p in physicalPropsList" :key="p.key">
-              <span class="prop-label">{{ p.label }}</span>
-              <span class="prop-value" :class="p.cls || ''">{{ p.value }}</span>
-            </div>
-          </div>
-          <div class="props-section" v-if="physicalProps.stability.length">
-            <div class="props-section-title">안정성 시험 조건</div>
-            <div class="stability-item" v-for="(st, i) in physicalProps.stability" :key="i">
-              <span class="stab-cond">{{ st.condition }}</span>
-              <span class="stab-period">{{ st.period }}</span>
-              <span class="stab-check" :class="st.expected === 'pass' ? 'pass' : 'warn'">{{ st.expected === 'pass' ? '적합' : '관찰' }}</span>
-            </div>
-          </div>
-          <div class="props-section" v-if="physicalProps.micro">
-            <div class="props-section-title">미생물 한도</div>
-            <div class="micro-info">{{ physicalProps.micro }}</div>
-          </div>
         </div>
       </div>
     </div>
@@ -192,7 +202,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFormulaStore } from '../stores/formulaStore.js'
 import { useProjectStore } from '../stores/projectStore.js'
@@ -230,21 +240,31 @@ const physicalProps = reactive({
   ph: '', viscosity: '', hardness: '', specificGravity: '',
   color: '', odor: '', appearance: '', spreadability: '',
   shelfLife: '', storage: '', micro: '',
-  stability: [],
+  stability: [
+    { condition: '고온 (45±2℃)', period: '8주', expected: 'pass' },
+    { condition: '실온 (25±2℃)', period: '12주', expected: 'pass' },
+    { condition: '저온 (4±2℃)', period: '8주', expected: 'pass' },
+    { condition: '냉동-해동 반복 (-15℃↔25℃)', period: '3 cycle', expected: 'warn' },
+    { condition: '광안정성 (UV 조사)', period: '4주', expected: 'pass' },
+  ],
 })
-const hasPhysicalProps = computed(() => !!physicalProps.ph)
-const physicalPropsList = computed(() => [
-  { key: 'ph', label: 'pH', value: physicalProps.ph },
-  { key: 'viscosity', label: '점도 (cps)', value: physicalProps.viscosity },
-  { key: 'hardness', label: '경도', value: physicalProps.hardness },
-  { key: 'specificGravity', label: '비중', value: physicalProps.specificGravity },
-  { key: 'appearance', label: '외관', value: physicalProps.appearance },
-  { key: 'color', label: '색상', value: physicalProps.color },
-  { key: 'odor', label: '향', value: physicalProps.odor },
-  { key: 'spreadability', label: '도포성', value: physicalProps.spreadability },
-  { key: 'shelfLife', label: '유통기한', value: physicalProps.shelfLife },
-  { key: 'storage', label: '보관조건', value: physicalProps.storage },
-].filter(p => p.value))
+const physicalPropsFields = [
+  { key: 'ph', label: 'pH', placeholder: '5.5 ~ 7.0' },
+  { key: 'viscosity', label: '점도 (cps)', placeholder: '5,000 ~ 50,000' },
+  { key: 'hardness', label: '경도', placeholder: '—' },
+  { key: 'specificGravity', label: '비중', placeholder: '0.98 ~ 1.05' },
+  { key: 'appearance', label: '외관', placeholder: '크림/로션' },
+  { key: 'color', label: '색상', placeholder: '백색~미색' },
+  { key: 'odor', label: '향', placeholder: '고유의 향' },
+  { key: 'spreadability', label: '도포성', placeholder: '양호' },
+  { key: 'shelfLife', label: '유통기한', placeholder: '제조일로부터 30개월' },
+  { key: 'storage', label: '보관조건', placeholder: '직사광선 차단, 상온(15~25℃)' },
+]
+
+// 제품 유형 변경 시 물성 기본값 자동 채움
+watch(() => form.product_type, (newType) => {
+  if (newType) generatePhysicalProps(newType)
+})
 
 // 버전 관련 computed
 const currentVersion = computed(() => formula.value.version || 1)
@@ -481,7 +501,7 @@ function buildAiMemo(source, data, existingMemo) {
   return lines.join('\n')
 }
 
-function generatePhysicalProps(productType, ingredients) {
+function generatePhysicalProps(productType) {
   // 제품 유형별 기본 물성 스펙
   const specs = {
     '토너/스킨':     { ph: '5.0 ~ 6.5', viscosity: '5 ~ 50', hardness: '—', appearance: '투명~반투명 액상', spreadability: '우수' },
@@ -497,6 +517,8 @@ function generatePhysicalProps(productType, ingredients) {
     '자외선 차단':    { ph: '6.0 ~ 8.0', viscosity: '10,000 ~ 50,000', hardness: '—', appearance: '백색 크림/로션', spreadability: '양호' },
     '파운데이션/베이스': { ph: '6.0 ~ 8.0', viscosity: '10,000 ~ 50,000', hardness: '—', appearance: '피부색 에멀전', spreadability: '양호' },
     '바디로션/크림':   { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 30,000', hardness: '—', appearance: '유백색 에멀전', spreadability: '양호' },
+    '쿠션':          { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 50,000', hardness: '—', appearance: '크림/로션', spreadability: '양호' },
+    '립':            { ph: '—', viscosity: '—', hardness: '높음', appearance: '고체/반고체', spreadability: '양호' },
   }
 
   // 매칭 시도 (부분 일치)
@@ -507,12 +529,16 @@ function generatePhysicalProps(productType, ingredients) {
       break
     }
   }
+  // 추가 매칭
   if (!matched) {
-    // 기본 크림 스펙
-    matched = { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 50,000', hardness: '—', appearance: '크림/로션', spreadability: '양호' }
+    if (productType.includes('에멀') || productType.includes('바디')) matched = specs['로션/에멀전']
+    else if (productType.includes('에센스') || productType.includes('앰플')) matched = specs['세럼/에센스/앰플']
+    else if (productType.includes('선') || productType.includes('자외선')) matched = specs['자외선 차단']
+    else matched = { ph: '5.5 ~ 7.0', viscosity: '5,000 ~ 50,000', hardness: '—', appearance: '크림/로션', spreadability: '양호' }
   }
 
-  Object.assign(physicalProps, {
+  // 기본값 채움 (기존 사용자 입력이 있으면 유지)
+  const defaults = {
     ph: matched.ph,
     viscosity: matched.viscosity,
     hardness: matched.hardness,
@@ -524,14 +550,10 @@ function generatePhysicalProps(productType, ingredients) {
     shelfLife: '제조일로부터 30개월',
     storage: '직사광선 차단, 상온(15~25℃)',
     micro: '총 호기성 생균수 ≤ 500 CFU/g, 대장균·녹농균·황색포도상구균 불검출',
-    stability: [
-      { condition: '고온 (45±2℃)', period: '8주', expected: 'pass' },
-      { condition: '실온 (25±2℃)', period: '12주', expected: 'pass' },
-      { condition: '저온 (4±2℃)', period: '8주', expected: 'pass' },
-      { condition: '냉동-해동 반복 (-15℃↔25℃)', period: '3 cycle', expected: 'warn' },
-      { condition: '광안정성 (UV 조사)', period: '4주', expected: 'pass' },
-    ],
-  })
+  }
+  for (const [key, val] of Object.entries(defaults)) {
+    physicalProps[key] = val
+  }
 }
 
 async function onAiFill() {
@@ -545,9 +567,14 @@ async function onAiFill() {
 
   try {
     aiFillStep.value = '처방 생성 중...'
+    // 물성 조건을 AI에 전달
+    const specEntries = physicalPropsFields
+      .filter(f => physicalProps[f.key])
+      .map(f => `${f.label}: ${physicalProps[f.key]}`)
     const res = await api.generateAiFormula({
       productType: form.product_type,
       requirements: aiRequirements.value || form.product_type,
+      physicalSpecs: specEntries.length ? specEntries : undefined,
     })
 
     if (res?.success && res.data?.ingredients) {
@@ -572,8 +599,6 @@ async function onAiFill() {
       res.data._productType = form.product_type
       form.memo = buildAiMemo(source, res.data, form.memo)
 
-      // 물성·안정성 스펙 자동 생성
-      generatePhysicalProps(form.product_type, form.formula_data.ingredients)
     } else {
       alert('처방 생성에 실패했습니다. 다시 시도해주세요.')
     }
@@ -1010,12 +1035,28 @@ async function onAiFill() {
   color: var(--text-sub);
   white-space: nowrap;
 }
-.prop-value {
+.prop-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
   font-family: var(--font-mono, monospace);
   text-align: right;
+  background: transparent;
+  transition: border-color 0.15s;
+}
+.prop-input:hover { border-color: var(--border); }
+.prop-input:focus { border-color: var(--accent); outline: none; background: var(--surface); }
+.prop-input::placeholder { color: var(--text-dim); font-weight: 400; }
+.props-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
 }
 .props-section {
   margin-top: 12px;
@@ -1046,25 +1087,49 @@ async function onAiFill() {
   font-family: var(--font-mono);
   font-size: 11px;
 }
-.stab-check {
+.stab-input {
+  width: 80px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-sub);
+  text-align: center;
+  background: transparent;
+}
+.stab-input:hover { border-color: var(--border); }
+.stab-input:focus { border-color: var(--accent); outline: none; }
+.stab-toggle {
   padding: 1px 8px;
+  border: none;
   border-radius: 3px;
   font-size: 11px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
 }
-.stab-check.pass {
+.stab-toggle.pass {
   background: var(--green-bg, #f0f8f4);
   color: var(--green, #3a9068);
 }
-.stab-check.warn {
+.stab-toggle.warn {
   background: var(--amber-bg, #fdf8f0);
   color: var(--amber, #b07820);
 }
-.micro-info {
+.stab-toggle:hover { opacity: 0.8; }
+.micro-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   font-size: 12px;
   color: var(--text);
   line-height: 1.5;
+  background: transparent;
 }
+.micro-input:hover { border-color: var(--border); }
+.micro-input:focus { border-color: var(--accent); outline: none; background: var(--surface); }
 
 @media (max-width: 1199px) { .form-grid { grid-template-columns: 1fr; } }
 </style>

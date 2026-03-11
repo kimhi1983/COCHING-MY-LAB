@@ -97,6 +97,109 @@ PATTERNS_MD = load_file(BASE_DIR / "memories/patterns.md")
 log.info(f"CORE SKILL 로드 완료: {len(CORE_SKILLS):,} chars")
 log.info(f"카테고리 SKILL — basic:{len(SKILL_CAT['basic']):,} | hair_sun:{len(SKILL_CAT['hair_sun']):,} | household:{len(SKILL_CAT['household']):,}")
 
+# ─── 가이드처방 학습 인덱스 ──────────────────────────────────────────────────────
+LEARNING_DIR = BASE_DIR / "data" / "learning"
+LEARNING_DIR.mkdir(parents=True, exist_ok=True)
+
+GUIDE_INDEX: list[dict] = []  # [{product_type, skin_type, ingredients, filepath}, ...]
+
+def load_guide_index():
+    """ai-server/data/learning/ 에서 마이랩 학습용 가이드처방 로드"""
+    global GUIDE_INDEX
+    dirs = [
+        LEARNING_DIR,
+    ]
+    seen_files = set()
+    entries = []
+    for d in dirs:
+        if not d.exists():
+            continue
+        for f in sorted(d.glob("guide_*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+            if f.name in seen_files:
+                continue
+            seen_files.add(f.name)
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+                # 처방 텍스트에서 성분명 추출
+                formulation_text = data.get("formulation", "")
+                ingredients = set()
+                for line in formulation_text.split("\n"):
+                    if "inci_name" in line.lower():
+                        # JSON 값에서 INCI명 추출
+                        import re
+                        matches = re.findall(r'"inci_name":\s*"([^"]+)"', line)
+                        ingredients.update(m.lower().strip() for m in matches)
+                entries.append({
+                    "product_type": data.get("product_type", ""),
+                    "skin_type": data.get("skin_type", ""),
+                    "ingredients": ingredients,
+                    "metadata": data.get("metadata", {}),
+                    "formulation": formulation_text[:8000],  # 프롬프트용 (크기 제한)
+                    "filepath": str(f),
+                })
+            except Exception:
+                continue
+    GUIDE_INDEX = entries
+    log.info(f"가이드처방 인덱스 로드: {len(GUIDE_INDEX)}건")
+
+def find_similar_guides(product_type: str = None, skin_type: str = None,
+                        ingredients: list[str] = None, top_k: int = 2) -> list[dict]:
+    """입력 조건에 가장 유사한 가이드처방 검색"""
+    if not GUIDE_INDEX:
+        return []
+    scored = []
+    input_ings = {x.strip().lower() for x in (ingredients or [])}
+    for entry in GUIDE_INDEX:
+        score = 0
+        # 제품유형 일치
+        if product_type and entry["product_type"] == product_type:
+            score += 10
+        elif product_type:
+            # 유사 카테고리 보너스
+            pt_map = {"수분크림": "로션", "에센스": "세럼", "아이크림": "수분크림"}
+            if pt_map.get(product_type) == entry["product_type"]:
+                score += 5
+        # 피부타입 일치
+        if skin_type and entry["skin_type"] == skin_type:
+            score += 3
+        elif skin_type and entry["skin_type"] == "all":
+            score += 1
+        # 성분 겹침 (Jaccard-like)
+        if input_ings and entry["ingredients"]:
+            overlap = len(input_ings & entry["ingredients"])
+            if overlap:
+                score += overlap * 2
+        scored.append((score, entry))
+    scored.sort(key=lambda x: -x[0])
+    return [e for s, e in scored[:top_k] if s > 0]
+
+def format_guide_reference(guides: list[dict]) -> str:
+    """유사 가이드처방을 프롬프트 텍스트로 변환"""
+    if not guides:
+        return ""
+    lines = ["\n[참조 가이드처방 — 학습 데이터]"]
+    for i, g in enumerate(guides, 1):
+        lines.append(f"\n### 참조 #{i}: {g['product_type']} / {g['skin_type']}")
+        lines.append(f"모델: {g['metadata'].get('model', '?')} | "
+                     f"DB원료: {g['metadata'].get('db_ingredients', '?')}종")
+        # 처방 텍스트 중 배합표 부분만 추출 (토큰 절약)
+        text = g["formulation"]
+        # formulation_table 또는 배합표 섹션 추출
+        start_idx = text.find('"2_formulation_table"')
+        if start_idx == -1:
+            start_idx = text.find('"formulation"')
+        if start_idx >= 0:
+            end_idx = text.find('"3_physical_properties', start_idx)
+            if end_idx == -1:
+                end_idx = start_idx + 3000
+            lines.append(text[start_idx:end_idx][:3000])
+        else:
+            lines.append(text[:2000])
+    return "\n".join(lines)
+
+# 서버 시작 시 인덱스 로드
+load_guide_index()
+
 # ─── 캐시 시스템 (Redis 우선, 없으면 메모리 폴백) ─────────────────────────────
 PRESCRIPTION_CACHE: dict[str, dict] = {}   # 메모리 폴백
 RESEARCH_CACHE: dict[str, dict]     = {}   # 메모리 폴백
@@ -493,6 +596,49 @@ PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.
 
     return response.content[0].text
 
+
+def run_formulation_gemini(req: FormulationRequest, gemini_data: str,
+                           db_enrichment: str = "", guide_ref: str = "") -> str:
+    """Gemini 기반 처방 생성 (가이드처방 학습 데이터 참조)"""
+    category = detect_category(req.product_name, req.ingredients_list)
+    category_skill = SKILL_CAT.get(category, SKILL_CAT["basic"])
+    memory_snippet = MEMORY_MD[:2000] if MEMORY_MD else "(메모리 없음)"
+
+    system_content = (
+        f"{SYSTEM_PROMPT}\n\n"
+        f"--- CORE SKILLS ---\n{CORE_SKILLS}\n\n"
+        f"--- CATEGORY GUIDE ({category.upper()}) ---\n{category_skill}\n\n"
+        f"--- MEMORY ---\n{memory_snippet}"
+    )
+
+    user_message = f"""카피 가이드처방 생성 요청:
+
+[제품명] {req.product_name}
+[전성분] {req.ingredients_list}
+[제형] {req.product_type or "자동 판별"}
+[목표 pH] {req.target_pH or "자동 계산"}
+[목표 점도] {req.target_viscosity or "자동 계산"} cP
+[카테고리] {category}
+{db_enrichment}
+{guide_ref}
+[Gemini 리서치]
+{gemini_data if gemini_data else "해당 없음"}
+
+PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.
+8개 필수 섹션 포함 처방전을 출력해줘. 불필요한 설명 최소화, 핵심만."""
+
+    full_prompt = f"{system_content}\n\n---\n\n{user_message}"
+    response = gemini_client.models.generate_content(
+        model="gemini-2.5-pro",
+        contents=full_prompt,
+        config=genai_types.GenerateContentConfig(
+            temperature=0.1,
+            max_output_tokens=6000,
+        ),
+    )
+    return response.text
+
+
 # ─── 메모리 학습 저장 ──────────────────────────────────────────────────────────
 def learn_from_result(req: FormulationRequest, result: str, elapsed: float):
     """처방 결과에서 패턴 학습 → 메모리 파일 업데이트"""
@@ -527,7 +673,7 @@ def learn_from_result(req: FormulationRequest, result: str, elapsed: float):
     log.info(f"메모리 학습 저장 완료: {req.product_name}")
 
 
-# ─── 가이드처방 이중 백업 ─────────────────────────────────────────────────────
+# ─── 가이드처방 저장 (백업 + 학습 데이터) ─────────────────────────────────────
 BACKUP_DIRS = [
     Path("/home/kpros/backup/formulations"),
     Path("/mnt/e/COCHING/backup/formulations"),
@@ -535,7 +681,7 @@ BACKUP_DIRS = [
 
 def save_formulation_backup(product_type: str, skin_type: str, result_text: str,
                             metadata: dict):
-    """가이드처방 결과를 이중 백업"""
+    """가이드처방 결과를 백업(2중) + 학습 데이터(마이랩용)로 저장"""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"guide_{product_type}_{skin_type}_{ts}.json"
 
@@ -547,12 +693,22 @@ def save_formulation_backup(product_type: str, skin_type: str, result_text: str,
         "formulation": result_text,
     }
 
+    json_text = json.dumps(backup_data, ensure_ascii=False, indent=2)
+
+    # 1) 마이랩 학습 데이터 저장 (AI 서버 로컬)
+    try:
+        learning_path = LEARNING_DIR / filename
+        learning_path.write_text(json_text, encoding="utf-8")
+        log.info(f"학습 데이터 저장: {learning_path}")
+    except Exception as e:
+        log.warning(f"학습 데이터 저장 실패: {e}")
+
+    # 2) 백업 2중 저장 (안전 보관)
     for backup_dir in BACKUP_DIRS:
         try:
             backup_dir.mkdir(parents=True, exist_ok=True)
             filepath = backup_dir / filename
-            filepath.write_text(json.dumps(backup_data, ensure_ascii=False, indent=2),
-                                encoding="utf-8")
+            filepath.write_text(json_text, encoding="utf-8")
             log.info(f"처방 백업 저장: {filepath}")
         except Exception as e:
             log.warning(f"처방 백업 실패 ({backup_dir}): {e}")
@@ -573,6 +729,7 @@ async def health():
         "database": "connected" if _db_avail else "not_connected",
         "db_stats": db_stats,
         "skills_loaded": len(CORE_SKILLS) > 1000,
+        "guide_index_count": len(GUIDE_INDEX),
         "cache_stats": {
             "prescription_cache": len(PRESCRIPTION_CACHE),
             "research_cache": len(RESEARCH_CACHE),
@@ -597,7 +754,7 @@ async def create_formulation(req: FormulationRequest):
 
     # ② 복잡도 판단 → 모델 선택
     complexity = estimate_complexity(req.ingredients_list)
-    model = get_model_for_task(complexity)
+    model = "gemini-2.5-pro"
     log.info(f"복잡도: {complexity} → 모델: {model}")
 
     # ②-b DB 원료 데이터 조회 (v2.4)
@@ -609,6 +766,18 @@ async def create_formulation(req: FormulationRequest):
         db_enrichment = format_db_enrichment(details)
         if details:
             log.info(f"DB 원료 매칭: {len(details)}건")
+
+    # ②-c 유사 가이드처방 참조 (학습 데이터)
+    guide_ref = ""
+    ingredient_names = [x.strip() for x in req.ingredients_list.split(",") if x.strip()]
+    similar_guides = find_similar_guides(
+        product_type=req.product_type,
+        ingredients=ingredient_names,
+        top_k=2,
+    )
+    if similar_guides:
+        guide_ref = format_guide_reference(similar_guides)
+        log.info(f"가이드처방 참조: {len(similar_guides)}건 매칭")
 
     # ③ Gemini 리서치 (필요 시)
     gemini_data = ""
@@ -622,12 +791,12 @@ async def create_formulation(req: FormulationRequest):
                 gemini_data = result["data"]
                 gemini_used = result["status"] == "ok"
 
-    # ④ Claude 처방 생성 (DB 데이터 주입)
+    # ④ Gemini 처방 생성 (DB 데이터 + 가이드처방 참조 주입)
     try:
         prescription = await asyncio.to_thread(
-            run_formulation, req, gemini_data, model, db_enrichment)
-    except anthropic.APIError as e:
-        raise HTTPException(status_code=502, detail=f"Claude API 오류: {e}")
+            run_formulation_gemini, req, gemini_data, db_enrichment, guide_ref)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Gemini API 오류: {e}")
 
     elapsed = round(time.time() - start, 2)
     log.info(f"처방 완료: {elapsed}초 | 모델:{model} | Gemini:{gemini_used} | DB:{bool(db_enrichment)}")
@@ -685,9 +854,9 @@ def create_formulation_stream(req: FormulationRequest):
             return StreamingResponse(cache_stream(), media_type="text/event-stream")
 
     complexity = estimate_complexity(req.ingredients_list)
-    model = get_model_for_task(complexity)
+    model = "gemini-2.5-pro"
 
-    # Gemini (병목 주의 — 스트리밍에서는 비동기 처리 안 됨)
+    # Gemini 리서치 (필요 시)
     gemini_data = ""
     gemini_used = False
     if req.use_gemini and gemini_client:
@@ -698,7 +867,13 @@ def create_formulation_stream(req: FormulationRequest):
                 gemini_data = result["data"]
                 gemini_used = result["status"] == "ok"
 
-    # 시스템 프롬프트 구성 (run_formulation과 동일)
+    # 유사 가이드처방 참조
+    ingredient_names = [x.strip() for x in req.ingredients_list.split(",") if x.strip()]
+    similar_guides = find_similar_guides(
+        product_type=req.product_type, ingredients=ingredient_names, top_k=2)
+    guide_ref = format_guide_reference(similar_guides) if similar_guides else ""
+
+    # 시스템 프롬프트 구성
     category = detect_category(req.product_name, req.ingredients_list)
     category_skill = SKILL_CAT.get(category, SKILL_CAT["basic"])
     memory_snippet = MEMORY_MD[:2000] if MEMORY_MD else "(메모리 없음)"
@@ -708,58 +883,54 @@ def create_formulation_stream(req: FormulationRequest):
         f"--- CATEGORY GUIDE ({category.upper()}) ---\n{category_skill}\n\n"
         f"--- MEMORY ---\n{memory_snippet}"
     )
-    max_tokens = {"simple": 3500, "normal": 5000, "complex": 7168}.get(complexity, 5000)
     user_message = (
         f"카피 가이드처방 생성 요청:\n\n"
         f"[제품명] {req.product_name}\n[전성분] {req.ingredients_list}\n"
         f"[제형] {req.product_type or '자동 판별'}\n"
         f"[목표 pH] {req.target_pH or '자동 계산'}\n"
-        f"[카테고리] {category}\n\n"
+        f"[카테고리] {category}\n"
+        f"{guide_ref}\n\n"
         f"[Gemini 리서치]\n{gemini_data if gemini_data else '해당 없음'}\n\n"
         "PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.\n"
         "8개 필수 섹션 포함 처방전을 출력해줘. 불필요한 설명 최소화, 핵심만."
     )
 
     def stream_generator():
-        # 메타 정보 먼저 전송
         meta = json.dumps({
-            "type": "meta",
-            "model": model,
-            "complexity": complexity,
-            "gemini_used": gemini_used,
-            "from_cache": False,
+            "type": "meta", "model": model, "complexity": complexity,
+            "gemini_used": gemini_used, "from_cache": False,
+            "guide_references": len(similar_guides),
         }, ensure_ascii=False)
         yield f"data: {meta}\n\n"
 
-        # Claude 스트리밍
-        full_text = []
         try:
-            with claude_client.messages.stream(
-                model=model,
-                max_tokens=max_tokens,
-                temperature=0.1,
-                system=[{"type": "text", "text": system_content, "cache_control": {"type": "ephemeral"}}],
-                messages=[{"role": "user", "content": user_message}],
-            ) as stream:
-                for text_chunk in stream.text_stream:
-                    full_text.append(text_chunk)
-                    chunk_data = json.dumps({"type": "text", "text": text_chunk}, ensure_ascii=False)
-                    yield f"data: {chunk_data}\n\n"
+            if not gemini_client:
+                yield f"data: {json.dumps({'type':'error','message':'Gemini API 미설정'}, ensure_ascii=False)}\n\n"
+                return
+            full_prompt = f"{system_content}\n\n---\n\n{user_message}"
+            response = gemini_client.models.generate_content(
+                model=model, contents=full_prompt,
+                config=genai_types.GenerateContentConfig(
+                    temperature=0.1, max_output_tokens=6000),
+            )
+            prescription = response.text
+            # 청크 분할 전송
+            chunk_size = 80
+            for i in range(0, len(prescription), chunk_size):
+                chunk = prescription[i:i+chunk_size]
+                yield f"data: {json.dumps({'type':'text','text':chunk}, ensure_ascii=False)}\n\n"
 
-        except anthropic.APIError as e:
-            err = json.dumps({"type": "error", "message": str(e)}, ensure_ascii=False)
-            yield f"data: {err}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type':'error','message':str(e)}, ensure_ascii=False)}\n\n"
             return
 
         elapsed = round(time.time() - start, 2)
-        prescription = "".join(full_text)
-        log.info(f"스트리밍 처방 완료: {elapsed}초 | 모델:{model}")
+        log.info(f"스트리밍 처방 완료: {elapsed}초 | 모델:{model} | 가이드참조:{len(similar_guides)}")
 
-        done_data = json.dumps({"type": "done", "processing_time": elapsed}, ensure_ascii=False)
-        yield f"data: {done_data}\n\n"
+        yield f"data: {json.dumps({'type':'done','processing_time':elapsed}, ensure_ascii=False)}\n\n"
         yield "data: [DONE]\n\n"
 
-        # 캐시 저장 (Redis + 메모리) + 메모리 학습
+        # 캐시 저장 + 메모리 학습
         if req.use_cache:
             ck = cache_key(req.ingredients_list)
             save_data = {
@@ -940,41 +1111,36 @@ async def guide_formulation(req: GuideFormulationRequest):
 PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.
 8개 필수 섹션 포함 처방전을 출력해줘. 불필요한 설명 최소화, 핵심만."""
 
-    # ④ Claude 호출 (가이드처방은 normal 이상)
-    model = get_model_for_task("normal")
-    max_tokens = 6000
+    # ④ Gemini 호출 (가이드처방)
+    model = "gemini-2.5-pro"
+    if not gemini_client:
+        raise HTTPException(status_code=503, detail="Gemini API 미설정")
 
     try:
+        full_prompt = f"{system_content}\n\n---\n\n{user_message}"
         prescription = await asyncio.to_thread(
-            lambda: claude_client.messages.create(
+            lambda: gemini_client.models.generate_content(
                 model=model,
-                max_tokens=max_tokens,
-                temperature=0.15,
-                system=[{
-                    "type": "text",
-                    "text": system_content,
-                    "cache_control": {"type": "ephemeral"}
-                }],
-                messages=[{"role": "user", "content": user_message}]
+                contents=full_prompt,
+                config=genai_types.GenerateContentConfig(
+                    temperature=0.15,
+                    max_output_tokens=6000,
+                ),
             )
         )
-        result_text = prescription.content[0].text
+        result_text = prescription.text
 
-        usage = prescription.usage
-        if hasattr(usage, "cache_read_input_tokens") and usage.cache_read_input_tokens:
-            log.info(f"Prompt Cache 히트: {usage.cache_read_input_tokens:,} tokens 절감")
-
-    except anthropic.APIError as e:
-        raise HTTPException(status_code=502, detail=f"Claude API 오류: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Gemini API 오류: {e}")
 
     elapsed = round(time.time() - start, 2)
-    log.info(f"가이드처방 완료: {elapsed}초 | 모델:{model} | DB원료:{sum(len(v) for v in ingredient_candidates.values())}종")
+    log.info(f"가이드처방 완료: {elapsed}초 | 모델:gemini-2.5-pro | DB원료:{sum(len(v) for v in ingredient_candidates.values())}종")
 
     response_data = {
         "resultCode": "00",
         "resultMessage": "SUCCESS",
         "processing_time": elapsed,
-        "model": model,
+        "model": "gemini-2.5-pro",
         "product_type": req.product_type,
         "skin_type": req.skin_type,
         "db_ingredients_count": sum(len(v) for v in ingredient_candidates.values()),
@@ -983,12 +1149,14 @@ PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.
         "resultData": result_text,
     }
 
-    # ⑤ 가이드처방 이중 백업
+    # ⑤ 가이드처방 이중 백업 + 인덱스 갱신
     save_formulation_backup(
         req.product_type, req.skin_type, result_text,
         {"model": model, "elapsed": elapsed,
          "db_ingredients": sum(len(v) for v in ingredient_candidates.values()),
          "regulations": len(regulation_info)})
+    # 학습 인덱스 갱신 (새 가이드처방 즉시 반영)
+    load_guide_index()
 
     return response_data
 
@@ -1061,7 +1229,7 @@ async def guide_formulation_stream(req: GuideFormulationRequest):
         "8개 필수 섹션 포함 처방전을 출력해줘."
     )
 
-    model = get_model_for_task("normal")
+    model = "gemini-2.5-pro"
 
     def stream_generator():
         meta = json.dumps({
@@ -1070,18 +1238,26 @@ async def guide_formulation_stream(req: GuideFormulationRequest):
         }, ensure_ascii=False)
         yield f"data: {meta}\n\n"
 
-        full_text = []
         try:
-            with claude_client.messages.stream(
-                model=model, max_tokens=6000, temperature=0.15,
-                system=[{"type": "text", "text": system_content,
-                         "cache_control": {"type": "ephemeral"}}],
-                messages=[{"role": "user", "content": user_message}],
-            ) as stream:
-                for text_chunk in stream.text_stream:
-                    full_text.append(text_chunk)
-                    yield f"data: {json.dumps({'type':'text','text':text_chunk}, ensure_ascii=False)}\n\n"
-        except anthropic.APIError as e:
+            if not gemini_client:
+                yield f"data: {json.dumps({'type':'error','message':'Gemini API 미설정'}, ensure_ascii=False)}\n\n"
+                return
+            full_prompt = f"{system_content}\n\n---\n\n{user_message}"
+            response = gemini_client.models.generate_content(
+                model=model,
+                contents=full_prompt,
+                config=genai_types.GenerateContentConfig(
+                    temperature=0.15,
+                    max_output_tokens=6000,
+                ),
+            )
+            result_text = response.text
+            # Gemini는 스트리밍 대신 전체 텍스트를 청크로 분할 전송
+            chunk_size = 100
+            for i in range(0, len(result_text), chunk_size):
+                chunk = result_text[i:i+chunk_size]
+                yield f"data: {json.dumps({'type':'text','text':chunk}, ensure_ascii=False)}\n\n"
+        except Exception as e:
             yield f"data: {json.dumps({'type':'error','message':str(e)}, ensure_ascii=False)}\n\n"
             return
 

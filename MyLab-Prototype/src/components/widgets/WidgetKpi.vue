@@ -78,32 +78,81 @@ const kpis = computed(() => [
 </script>
 
 <style scoped>
-.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; height: 100%; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  height: 100%;
+}
 .kpi-item {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: clamp(6px, 2cqi, 14px) clamp(8px, 2.5cqi, 16px);
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   min-width: 0;
+  min-height: 0;
 }
-.kpi-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.kpi-label { font-size: clamp(8px, 2.2cqi, 12px); font-family: var(--font-mono); text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.kpi-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .kpi-icon {
-  width: clamp(16px, 4cqi, 24px); height: clamp(16px, 4cqi, 24px); border-radius: 5px;
-  display: flex; align-items: center; justify-content: center; font-size: clamp(9px, 2.5cqi, 13px); flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
 }
-.kpi-value { font-size: clamp(16px, 5cqi, 28px); font-weight: 700; margin-top: clamp(2px, 1cqi, 8px); }
-.kpi-unit { font-size: clamp(8px, 2cqi, 12px); color: var(--text-dim); font-weight: 400; }
-.kpi-sub { font-size: clamp(8px, 2cqi, 12px); color: var(--text-dim); margin-top: clamp(1px, 0.5cqi, 4px); font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-value {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.kpi-unit {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 2px;
+}
+.kpi-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-/* 좁은 위젯: 1열로 전환 */
+/* 좁은 위젯: 1열, 더 작은 폰트 */
 @container widget (max-width: 280px) {
   .kpi-grid { grid-template-columns: 1fr; gap: 6px; }
+  .kpi-item { padding: 8px 10px; }
+  .kpi-value { font-size: 20px; }
+  .kpi-icon { width: 18px; height: 18px; font-size: 10px; }
 }
 /* 넓은 위젯: 4열 */
 @container widget (min-width: 600px) {
   .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  .kpi-value { font-size: 28px; }
+  .kpi-icon { width: 26px; height: 26px; font-size: 14px; }
 }
 </style>

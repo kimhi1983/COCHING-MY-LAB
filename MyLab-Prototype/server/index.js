@@ -518,7 +518,7 @@ async function callGemini(prompt) {
 // ─── LLM 정밀 처방 생성 (Gemini) ───
 app.post('/api/ai-formula', async (req, res) => {
   try {
-    const { productType, requirements, targetMarket = 'KR', customIngredients = [] } = req.body
+    const { productType, requirements, targetMarket = 'KR', customIngredients = [], physicalSpecs = [] } = req.body
 
     if (!productType) {
       return res.status(400).json({ success: false, error: 'productType은 필수입니다.' })
@@ -551,6 +551,10 @@ app.post('/api/ai-formula', async (req, res) => {
       ? '\n\n반드시 포함할 원료:\n' + customIngredients.map(c => `- ${c.name}: ${c.percentage}%`).join('\n')
       : ''
 
+    const physSpecBlock = physicalSpecs.length
+      ? '\n\n목표 물성 스펙 (처방이 이 물성을 달성하도록 원료를 선정하세요):\n' + physicalSpecs.map(s => `- ${s}`).join('\n')
+      : ''
+
     const prompt = `당신은 화장품 처방 전문가입니다. 다음 조건으로 처방을 생성하세요.
 
 규칙:
@@ -559,6 +563,7 @@ app.post('/api/ai-formula', async (req, res) => {
 3. Phase A(수상)/B(유상)/C(첨가)/D(방부/향) 구분
 4. 규제 최대 농도를 초과하지 않을 것
 5. 제조 공정(Manufacturing Process) 포함
+6. 목표 물성(pH, 점도 등)을 달성할 수 있는 원료 조합으로 처방할 것
 
 응답은 반드시 JSON 형식:
 {
@@ -578,7 +583,7 @@ app.post('/api/ai-formula', async (req, res) => {
 제형: ${productType}
 요구사항: ${requirements || '없음'}
 타겟 시장: ${targetMarket}
-${customList}
+${customList}${physSpecBlock}
 
 사용 가능한 DB 원료 목록:
 ${ingredientList}
