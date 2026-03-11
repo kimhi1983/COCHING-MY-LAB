@@ -1,0 +1,47 @@
+export const tokens = {
+  bg: '#f8f7f5',
+  surface: '#ffffff',
+  sidebar: '#fafaf8',
+  border: '#ece9e3',
+  borderMid: '#d8d4cc',
+  accent: '#b8935a',
+  accentLight: '#f0e8d8',
+  accentDim: '#e8dece',
+  text: '#1a1814',
+  textSub: '#6b6560',
+  textDim: '#aba59d',
+  green: '#3a9068',
+  greenBg: '#f0f8f4',
+  red: '#c44e4e',
+  redBg: '#fdf2f2',
+  amber: '#b07820',
+  amberBg: '#fdf8f0',
+  blue: '#3a6fa8',
+  blueBg: '#f0f4fb',
+  purple: '#7c5cbf',
+  purpleBg: '#f6f2fd',
+  radius: '10px',
+  radiusLg: '16px',
+  shadow: '0 1px 4px rgba(0,0,0,0.04)',
+  fontFamily: "'Pretendard Variable', 'Pretendard', -apple-system, sans-serif",
+  fontMono: "'JetBrains Mono', 'Courier New', monospace",
+}
+
+export const statusStyles = {
+  draft: { color: tokens.amber, bg: tokens.amberBg, border: '#e8d4a0', label: '초안' },
+  review: { color: tokens.blue, bg: tokens.blueBg, border: '#b8cce8', label: '검토중' },
+  done: { color: tokens.green, bg: tokens.greenBg, border: '#b8dece', label: '완료' },
+}
+
+export const productTypes = [
+  { value: 'moisturizing-serum', label: '보습 세럼' },
+  { value: 'brightening-cream', label: '미백 크림' },
+  { value: 'sunscreen-spf50', label: '선크림 SPF50+' },
+  { value: 'cleansing-foam', label: '클렌징 폼' },
+  { value: 'anti-aging-serum', label: '안티에이징 세럼' },
+  { value: 'toner', label: '토너/스킨' },
+  { value: 'essence', label: '에센스' },
+  { value: 'eye-cream', label: '아이크림' },
+  { value: 'body-lotion', label: '바디로션' },
+  { value: 'lip-balm', label: '립밤' },
+]
