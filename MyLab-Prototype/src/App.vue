@@ -1,21 +1,20 @@
 <template>
   <div class="app-layout">
-    <AppSidebar :collapsed="sidebarCollapsed" @toggle="sidebarCollapsed = !sidebarCollapsed" />
-    <div class="app-main" :class="{ collapsed: sidebarCollapsed }">
-      <AppHeader />
-      <main class="app-content">
-        <router-view />
-      </main>
-    </div>
+    <AppHeader />
+    <AppNavBar>
+      <template #tools>
+        <slot name="nav-tools" />
+      </template>
+    </AppNavBar>
+    <main class="app-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import AppSidebar from './components/layout/AppSidebar.vue'
 import AppHeader from './components/layout/AppHeader.vue'
-
-const sidebarCollapsed = ref(false)
+import AppNavBar from './components/layout/AppNavBar.vue'
 </script>
 
 <style>
@@ -48,32 +47,24 @@ const sidebarCollapsed = ref(false)
 
 .app-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: var(--bg);
 }
 
-.app-main {
-  flex: 1;
-  margin-left: 210px;
-  transition: margin-left 0.3s ease;
-}
-
-.app-main.collapsed {
-  margin-left: 60px;
-}
-
 .app-content {
-  padding: 32px 36px;
+  flex: 1;
+  padding: 24px 36px;
   max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (max-width: 1199px) {
-  .app-main { margin-left: 60px; }
-  .app-content { padding: 24px 20px; }
+  .app-content { padding: 20px 20px; }
 }
 
 @media (max-width: 767px) {
-  .app-main { margin-left: 0; }
   .app-content { padding: 16px; }
 }
 </style>
