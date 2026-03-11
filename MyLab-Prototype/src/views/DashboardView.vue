@@ -271,6 +271,8 @@ function getMinH(id) {
   flex: 1;
   overflow: auto;
   padding: 8px;
+  container-type: inline-size;
+  container-name: widget;
 }
 
 /* grid-layout-plus overrides */

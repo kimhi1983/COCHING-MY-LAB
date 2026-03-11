@@ -30,13 +30,13 @@ const projectList = computed(() => allProjects().slice(0, 5))
 
 <style scoped>
 .project-list { overflow-y: auto; max-height: 100%; }
-.proj-item { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.proj-item { padding: clamp(6px, 2cqi, 10px) clamp(6px, 2.5cqi, 12px); border-bottom: 1px solid var(--border); }
 .proj-item:last-child { border-bottom: none; }
-.proj-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
-.proj-name { font-size: 12px; font-weight: 600; color: var(--text); }
-.proj-count { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); }
-.proj-bar-wrap { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
+.proj-top { display: flex; justify-content: space-between; margin-bottom: clamp(3px, 1.2cqi, 6px); }
+.proj-name { font-size: clamp(10px, 2.8cqi, 12px); font-weight: 600; color: var(--text); }
+.proj-count { font-size: clamp(8px, 2cqi, 10px); font-family: var(--font-mono); color: var(--text-dim); }
+.proj-bar-wrap { height: clamp(2px, 0.8cqi, 3px); background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: clamp(2px, 0.8cqi, 4px); }
 .proj-bar { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s; }
-.proj-stats { display: flex; gap: 10px; font-size: 11px; color: var(--text-dim); }
-.empty { text-align: center; color: var(--text-dim); font-size: 12px; padding: 24px; }
+.proj-stats { display: flex; gap: clamp(5px, 2cqi, 10px); font-size: clamp(9px, 2.2cqi, 11px); color: var(--text-dim); }
+.empty { text-align: center; color: var(--text-dim); font-size: clamp(10px, 2.8cqi, 12px); padding: clamp(12px, 5cqi, 24px); }
 </style>

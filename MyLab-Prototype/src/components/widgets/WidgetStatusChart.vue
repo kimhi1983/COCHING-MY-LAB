@@ -56,17 +56,17 @@ const segments = computed(() => {
 </script>
 
 <style scoped>
-.chart-widget { display: flex; align-items: center; justify-content: center; gap: 16px; height: 100%; padding: 8px; }
-.donut-chart { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+.chart-widget { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 3cqi, 16px); height: 100%; padding: clamp(4px, 1.5cqi, 8px); }
+.donut-chart { position: relative; width: clamp(60px, 22cqi, 100px); height: clamp(60px, 22cqi, 100px); flex-shrink: 0; }
 .donut-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .donut-center {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;
 }
-.donut-value { font-size: 20px; font-weight: 700; color: var(--text); }
-.donut-label { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-.legend { display: flex; flex-direction: column; gap: 6px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
-.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-.legend-text { color: var(--text-sub); min-width: 36px; }
+.donut-value { font-size: clamp(14px, 4.5cqi, 20px); font-weight: 700; color: var(--text); }
+.donut-label { font-size: clamp(8px, 2cqi, 10px); font-family: var(--font-mono); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; }
+.legend { display: flex; flex-direction: column; gap: clamp(3px, 1.2cqi, 6px); }
+.legend-item { display: flex; align-items: center; gap: clamp(3px, 1.2cqi, 6px); font-size: clamp(9px, 2.5cqi, 11px); }
+.legend-dot { width: clamp(6px, 1.8cqi, 8px); height: clamp(6px, 1.8cqi, 8px); border-radius: 2px; flex-shrink: 0; }
+.legend-text { color: var(--text-sub); min-width: clamp(24px, 8cqi, 36px); }
 .legend-val { font-family: var(--font-mono); font-weight: 600; color: var(--text); }
 </style>

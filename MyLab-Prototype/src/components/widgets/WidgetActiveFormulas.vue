@@ -38,14 +38,14 @@ function formatDate(iso) {
 .active-widget { overflow: auto; max-height: 100%; }
 .mini-table { width: 100%; border-collapse: collapse; }
 .mini-table th {
-  background: var(--bg); font-size: 11px; font-family: var(--font-mono); text-transform: uppercase;
-  letter-spacing: 1px; color: var(--text-dim); padding: 6px 10px; text-align: left; position: sticky; top: 0;
+  background: var(--bg); font-size: clamp(9px, 2.5cqi, 11px); font-family: var(--font-mono); text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-dim); padding: clamp(3px, 1cqi, 6px) clamp(4px, 1.5cqi, 10px); text-align: left; position: sticky; top: 0; white-space: nowrap;
 }
-.mini-table td { padding: 7px 10px; font-size: 11px; border-bottom: 1px solid var(--border); }
+.mini-table td { padding: clamp(4px, 1.2cqi, 7px) clamp(4px, 1.5cqi, 10px); font-size: clamp(9px, 2.5cqi, 11px); border-bottom: 1px solid var(--border); }
 .mini-table tbody tr { cursor: pointer; }
 .mini-table tbody tr:hover { background: var(--bg); }
-.cell-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
-.cell-title { font-weight: 500; }
-.cell-date { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
-.empty { text-align: center; color: var(--text-dim); font-size: 12px; padding: 24px; }
+.cell-id { font-family: var(--font-mono); font-size: clamp(9px, 2cqi, 11px); color: var(--text-dim); }
+.cell-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: clamp(60px, 20cqi, 140px); }
+.cell-date { font-family: var(--font-mono); font-size: clamp(8px, 2cqi, 10px); color: var(--text-dim); }
+.empty { text-align: center; color: var(--text-dim); font-size: clamp(10px, 2.8cqi, 12px); padding: clamp(12px, 5cqi, 24px); }
 </style>

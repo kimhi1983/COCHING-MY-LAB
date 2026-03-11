@@ -33,13 +33,13 @@ function formatTime(iso) {
 <style scoped>
 .recent-list { overflow-y: auto; max-height: 100%; }
 .recent-item {
-  display: flex; gap: 10px; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; gap: clamp(5px, 2cqi, 10px); padding: clamp(4px, 1.5cqi, 8px) clamp(6px, 2.5cqi, 12px); cursor: pointer; border-bottom: 1px solid var(--border);
 }
 .recent-item:hover { background: var(--bg); }
 .recent-item:last-child { border-bottom: none; }
-.recent-time { font-size: 10px; font-family: var(--font-mono); color: var(--text-dim); padding-top: 2px; min-width: 36px; }
-.recent-top { display: flex; align-items: center; gap: 6px; }
-.recent-title { font-size: 12px; font-weight: 500; color: var(--text); }
-.recent-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
-.empty { text-align: center; color: var(--text-dim); font-size: 12px; padding: 24px; }
+.recent-time { font-size: clamp(8px, 2cqi, 10px); font-family: var(--font-mono); color: var(--text-dim); padding-top: 2px; min-width: clamp(28px, 8cqi, 36px); }
+.recent-top { display: flex; align-items: center; gap: clamp(3px, 1.2cqi, 6px); }
+.recent-title { font-size: clamp(10px, 2.8cqi, 12px); font-weight: 500; color: var(--text); }
+.recent-sub { font-size: clamp(8px, 2cqi, 10px); color: var(--text-dim); margin-top: 1px; }
+.empty { text-align: center; color: var(--text-dim); font-size: clamp(10px, 2.8cqi, 12px); padding: clamp(12px, 5cqi, 24px); }
 </style>

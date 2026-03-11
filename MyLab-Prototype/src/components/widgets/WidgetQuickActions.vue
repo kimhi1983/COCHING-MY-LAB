@@ -26,9 +26,9 @@
 </template>
 
 <style scoped>
-.quick-widget { display: flex; flex-direction: column; gap: 6px; }
+.quick-widget { display: flex; flex-direction: column; gap: clamp(3px, 1.2cqi, 6px); }
 .action-btn {
-  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  display: flex; align-items: center; gap: clamp(6px, 2cqi, 10px); padding: clamp(6px, 2cqi, 10px) clamp(8px, 2.5cqi, 14px);
   border-radius: 7px; text-decoration: none; transition: all 0.15s;
 }
 .action-btn.primary { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(184,147,90,0.25); }
@@ -38,7 +38,7 @@
 .action-btn.secondary .action-desc { color: var(--text-sub); }
 .action-btn.ghost { border: 1px solid var(--border); color: var(--text-sub); background: transparent; }
 .action-btn.ghost:hover { background: var(--bg); }
-.action-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
-.action-label { font-size: 12px; font-weight: 600; }
-.action-desc { font-size: 10px; margin-top: 1px; }
+.action-icon { font-size: clamp(11px, 3cqi, 14px); width: clamp(14px, 4cqi, 18px); text-align: center; flex-shrink: 0; }
+.action-label { font-size: clamp(10px, 2.8cqi, 12px); font-weight: 600; }
+.action-desc { font-size: clamp(8px, 2cqi, 10px); margin-top: 1px; }
 </style>

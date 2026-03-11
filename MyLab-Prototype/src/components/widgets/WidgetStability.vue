@@ -65,110 +65,40 @@ function getResultLabel(result) {
 </script>
 
 <style scoped>
-.stability-widget {
-  overflow: auto;
-  max-height: 100%;
-}
+.stability-widget { overflow: auto; max-height: 100%; }
 
-.mini-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
+.mini-table { width: 100%; border-collapse: collapse; }
 .mini-table th {
   background: var(--bg);
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 12px);
   font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: var(--text-dim);
-  padding: 6px 8px;
-  text-align: left;
-  position: sticky;
-  top: 0;
-  white-space: nowrap;
+  padding: clamp(3px, 1cqi, 7px) clamp(4px, 1.5cqi, 10px);
+  text-align: left; position: sticky; top: 0; white-space: nowrap;
 }
-
 .mini-table td {
-  padding: 7px 8px;
-  font-size: 12px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
+  padding: clamp(4px, 1.2cqi, 8px) clamp(4px, 1.5cqi, 10px);
+  font-size: clamp(10px, 2.5cqi, 13px);
+  border-bottom: 1px solid var(--border); vertical-align: middle;
 }
+.mini-table tbody tr:hover { background: var(--bg); }
 
-.mini-table tbody tr:hover {
-  background: var(--bg);
-}
+.cell-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: clamp(60px, 20cqi, 140px); }
+.cell-cond { font-family: var(--font-mono); font-size: clamp(9px, 2cqi, 11px); color: var(--text-sub); }
+.cell-week { font-family: var(--font-mono); font-size: clamp(9px, 2cqi, 11px); color: var(--text-dim); }
 
-.cell-name {
-  font-weight: 500;
-  font-size: 12px;
-  max-width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.delta-e { font-family: var(--font-mono); font-size: clamp(10px, 2.5cqi, 12px); font-weight: 600; padding: 2px 5px; border-radius: 3px; }
+.delta-ok { color: var(--green); background: rgba(58, 144, 104, 0.1); }
+.delta-bad { color: var(--red); background: rgba(196, 78, 78, 0.1); }
 
-.cell-cond {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-sub);
-}
-
-.cell-week {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.delta-e {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 5px;
-  border-radius: 3px;
-}
-
-.delta-ok {
-  color: var(--green);
-  background: rgba(58, 144, 104, 0.1);
-}
-
-.delta-bad {
-  color: var(--red);
-  background: rgba(196, 78, 78, 0.1);
-}
-
-.cell-visc {
-  font-family: var(--font-mono);
-  font-size: 10px;
-}
-
+.cell-visc { font-family: var(--font-mono); font-size: clamp(9px, 2cqi, 11px); }
 .visc-ok { color: var(--text-sub); }
 .visc-bad { color: var(--red); font-weight: 600; }
 
-/* 결과 칩 */
-.result-chip {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.chip-green {
-  background: rgba(58, 144, 104, 0.15);
-  color: var(--green);
-}
-
-.chip-red {
-  background: rgba(196, 78, 78, 0.15);
-  color: var(--red);
-}
-
-.chip-blue {
-  background: rgba(58, 111, 168, 0.15);
-  color: var(--blue);
-}
+.result-chip { display: inline-block; padding: 2px clamp(4px, 1.5cqi, 8px); border-radius: 3px; font-size: clamp(9px, 2cqi, 11px); font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; }
+.chip-green { background: rgba(58, 144, 104, 0.15); color: var(--green); }
+.chip-red { background: rgba(196, 78, 78, 0.15); color: var(--red); }
+.chip-blue { background: rgba(58, 111, 168, 0.15); color: var(--blue); }
 </style>

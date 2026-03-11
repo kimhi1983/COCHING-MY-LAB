@@ -152,11 +152,11 @@ function getStatusLabel(status) {
 }
 
 .region-tab {
-  padding: 3px 10px;
+  padding: clamp(2px, 0.8cqi, 3px) clamp(6px, 2cqi, 10px);
   border: 1px solid var(--border);
   border-radius: 4px;
   background: transparent;
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-family: var(--font-mono);
   font-weight: 600;
   color: var(--text-dim);
@@ -183,12 +183,12 @@ function getStatusLabel(status) {
 
 .mini-table th {
   background: var(--bg);
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: var(--text-dim);
-  padding: 6px 8px;
+  padding: clamp(3px, 1cqi, 6px) clamp(4px, 1.5cqi, 8px);
   text-align: left;
   position: sticky;
   top: 0;
@@ -196,8 +196,8 @@ function getStatusLabel(status) {
 }
 
 .mini-table td {
-  padding: 7px 8px;
-  font-size: 12px;
+  padding: clamp(4px, 1.2cqi, 7px) clamp(4px, 1.5cqi, 8px);
+  font-size: clamp(10px, 2.5cqi, 12px);
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -208,7 +208,7 @@ function getStatusLabel(status) {
 
 .cell-name {
   font-weight: 500;
-  max-width: 130px;
+  max-width: clamp(80px, 25cqi, 130px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -216,14 +216,14 @@ function getStatusLabel(status) {
 
 .cell-limit {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: clamp(9px, 2.2cqi, 11px);
   color: var(--text-sub);
   white-space: nowrap;
 }
 
 .cell-date {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: clamp(9px, 2.2cqi, 11px);
   color: var(--text-dim);
   white-space: nowrap;
 }
@@ -231,9 +231,9 @@ function getStatusLabel(status) {
 /* 지역 칩 */
 .region-chip {
   display: inline-block;
-  padding: 2px 6px;
+  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.2cqi, 6px);
   border-radius: 3px;
-  font-size: 11px;
+  font-size: clamp(9px, 2.2cqi, 11px);
   font-weight: 700;
   font-family: var(--font-mono);
 }
@@ -256,9 +256,9 @@ function getStatusLabel(status) {
 /* 상태 칩 */
 .status-chip {
   display: inline-block;
-  padding: 2px 8px;
+  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.5cqi, 8px);
   border-radius: 3px;
-  font-size: 11px;
+  font-size: clamp(9px, 2.2cqi, 11px);
   font-weight: 600;
 }
 
@@ -280,7 +280,7 @@ function getStatusLabel(status) {
 .empty {
   text-align: center;
   color: var(--text-dim);
-  font-size: 12px;
-  padding: 24px;
+  font-size: clamp(10px, 2.8cqi, 12px);
+  padding: clamp(12px, 5cqi, 24px);
 }
 </style>

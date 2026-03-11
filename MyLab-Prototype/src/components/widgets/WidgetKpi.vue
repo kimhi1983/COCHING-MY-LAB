@@ -91,17 +91,27 @@ const kpis = computed(() => [
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: clamp(6px, 2cqi, 14px) clamp(8px, 2.5cqi, 16px);
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .kpi-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.kpi-label { font-size: 11px; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.8px; }
+.kpi-label { font-size: clamp(8px, 2.2cqi, 12px); font-family: var(--font-mono); text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi-icon {
-  width: 22px; height: 22px; border-radius: 5px;
-  display: flex; align-items: center; justify-content: center; font-size: 11px;
+  width: clamp(16px, 4cqi, 24px); height: clamp(16px, 4cqi, 24px); border-radius: 5px;
+  display: flex; align-items: center; justify-content: center; font-size: clamp(9px, 2.5cqi, 13px); flex-shrink: 0;
 }
-.kpi-value { font-size: 22px; font-weight: 700; margin-top: 6px; }
-.kpi-unit { font-size: 10px; color: var(--text-dim); font-weight: 400; }
-.kpi-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; font-family: var(--font-mono); }
+.kpi-value { font-size: clamp(16px, 5cqi, 28px); font-weight: 700; margin-top: clamp(2px, 1cqi, 8px); }
+.kpi-unit { font-size: clamp(8px, 2cqi, 12px); color: var(--text-dim); font-weight: 400; }
+.kpi-sub { font-size: clamp(8px, 2cqi, 12px); color: var(--text-dim); margin-top: clamp(1px, 0.5cqi, 4px); font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 좁은 위젯: 1열로 전환 */
+@container widget (max-width: 280px) {
+  .kpi-grid { grid-template-columns: 1fr; gap: 6px; }
+}
+/* 넓은 위젯: 4열 */
+@container widget (min-width: 600px) {
+  .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+}
 </style>

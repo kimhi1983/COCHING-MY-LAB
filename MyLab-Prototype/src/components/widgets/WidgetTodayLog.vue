@@ -133,12 +133,12 @@ function getStatusLabel(status) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: clamp(6px, 2cqi, 10px);
   flex-shrink: 0;
 }
 
 .log-date {
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-family: var(--font-mono);
   font-weight: 700;
   color: var(--text-sub);
@@ -147,12 +147,12 @@ function getStatusLabel(status) {
 }
 
 .log-count {
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-family: var(--font-mono);
   color: var(--text-dim);
   background: var(--bg);
   border: 1px solid var(--border);
-  padding: 2px 7px;
+  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.5cqi, 7px);
   border-radius: 10px;
 }
 
@@ -167,14 +167,14 @@ function getStatusLabel(status) {
 
 .timeline-item {
   display: grid;
-  grid-template-columns: 36px 20px 1fr;
-  gap: 0 6px;
+  grid-template-columns: clamp(28px, 8cqi, 36px) 20px 1fr;
+  gap: 0 clamp(3px, 1.5cqi, 6px);
   position: relative;
 }
 
 /* 시간 */
 .timeline-time {
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-family: var(--font-mono);
   color: var(--text-dim);
   padding-top: 4px;
@@ -190,8 +190,8 @@ function getStatusLabel(status) {
 }
 
 .timeline-dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(6px, 2cqi, 8px);
+  height: clamp(6px, 2cqi, 8px);
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 5px;
@@ -210,31 +210,31 @@ function getStatusLabel(status) {
 
 /* 내용 */
 .timeline-content {
-  padding-bottom: 12px;
+  padding-bottom: clamp(6px, 2.5cqi, 12px);
 }
 
 .content-top {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: clamp(3px, 1cqi, 5px);
   margin-bottom: 3px;
 }
 
 /* 타입 칩 */
 .type-chip {
   display: inline-block;
-  padding: 2px 7px;
+  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.5cqi, 7px);
   border-radius: 3px;
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-weight: 600;
 }
 
 /* 상태 칩 */
 .status-chip {
   display: inline-block;
-  padding: 2px 7px;
+  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.5cqi, 7px);
   border-radius: 3px;
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   font-weight: 600;
 }
 
@@ -259,14 +259,14 @@ function getStatusLabel(status) {
 }
 
 .content-title {
-  font-size: 12px;
+  font-size: clamp(10px, 2.8cqi, 12px);
   font-weight: 500;
   color: var(--text);
   line-height: 1.4;
 }
 
 .content-detail {
-  font-size: 11px;
+  font-size: clamp(9px, 2.5cqi, 11px);
   color: var(--text-dim);
   margin-top: 2px;
   line-height: 1.4;
@@ -275,7 +275,7 @@ function getStatusLabel(status) {
 .empty {
   text-align: center;
   color: var(--text-dim);
-  font-size: 12px;
-  padding: 24px;
+  font-size: clamp(10px, 2.8cqi, 12px);
+  padding: clamp(12px, 5cqi, 24px);
 }
 </style>
