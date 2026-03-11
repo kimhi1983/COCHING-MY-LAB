@@ -82,6 +82,21 @@
               <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
           </div>
+
+          <!-- 전성분 자동 채우기 -->
+          <div class="form-group ai-fill-group">
+            <label class="form-label">추가 요구사항 (선택)</label>
+            <input v-model="aiRequirements" class="form-input" placeholder="예: 고보습, 민감성 피부, 비건">
+            <button
+              class="btn-ai-fill"
+              :disabled="!form.product_type || isAiFilling"
+              @click="onAiFill"
+            >
+              <span v-if="isAiFilling" class="ai-spinner"></span>
+              {{ isAiFilling ? aiFillStep : '전성분 자동 채우기' }}
+            </button>
+            <div v-if="!form.product_type" class="ai-hint">제품 유형을 먼저 선택하세요</div>
+          </div>
         </div>
       </div>
 
@@ -150,6 +165,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useFormulaStore } from '../stores/formulaStore.js'
 import { useProjectStore } from '../stores/projectStore.js'
+import { useAPI } from '../composables/useAPI.js'
 import { productTypes, statusStyles } from '../tokens.js'
 import { useExport } from '../composables/useExport.js'
 import StatusChip from '../components/common/StatusChip.vue'
@@ -160,11 +176,17 @@ const router = useRouter()
 const { getById, addFormula, updateFormula, deleteFormula, saveVersion, restoreVersion } = useFormulaStore()
 const { projects } = useProjectStore()
 const { exportFormulaCsv, exportFormulaPdf } = useExport()
+const api = useAPI()
 
 const isNew = computed(() => route.name === 'formula-new')
 const formula = ref({})
 const newTag = ref('')
 const showVersionPanel = ref(false)
+
+// AI 자동 채우기
+const aiRequirements = ref('')
+const isAiFilling = ref(false)
+const aiFillStep = ref('')
 
 // 버전 관련 computed
 const currentVersion = computed(() => formula.value.version || 1)
@@ -282,6 +304,53 @@ function onExportCsv() {
 function onExportPdf() {
   if (!formula.value?.id) return
   exportFormulaPdf(formula.value)
+}
+
+async function onAiFill() {
+  if (!form.product_type || isAiFilling.value) return
+
+  const hasIngredients = form.formula_data.ingredients.length > 0
+  if (hasIngredients && !confirm('기존 원료 배합표를 덮어씌웁니다. 계속하시겠습니까?')) return
+
+  isAiFilling.value = true
+  aiFillStep.value = '원료 검색 중...'
+
+  try {
+    aiFillStep.value = '처방 생성 중...'
+    const res = await api.generateAiFormula({
+      productType: form.product_type,
+      requirements: aiRequirements.value || form.product_type,
+    })
+
+    if (res?.success && res.data?.ingredients) {
+      aiFillStep.value = '배합표 적용 중...'
+      form.formula_data.ingredients = res.data.ingredients.map(ing => ({
+        name: ing.korean_name || ing.name || '',
+        inci_name: ing.inci_name || '',
+        percentage: ing.percentage || 0,
+        function: ing.function || '',
+        phase: ing.phase || '',
+      }))
+      form.formula_data.total_percentage = res.data.totalPercentage || 100
+
+      // 처방명이 비어있으면 자동 설정
+      if (!form.title.trim()) {
+        form.title = `${form.product_type} 처방`
+      }
+      // 태그 추가
+      if (!form.tags.includes('자동처방')) form.tags.push('자동처방')
+      // 메모에 생성 정보 추가
+      const source = res.data.source === 'openai' ? 'LLM' : 'DB'
+      form.memo = `[${source} 자동 생성] ${res.data.description || ''}\n${form.memo || ''}`
+    } else {
+      alert('처방 생성에 실패했습니다. 다시 시도해주세요.')
+    }
+  } catch (err) {
+    alert('서버 연결 오류: ' + (err.message || '알 수 없는 오류'))
+  } finally {
+    isAiFilling.value = false
+    aiFillStep.value = ''
+  }
 }
 </script>
 
@@ -550,6 +619,56 @@ function onExportPdf() {
 .btn-export:hover { background: var(--bg); border-color: var(--accent); color: var(--accent); }
 .btn-danger { padding: 6px 12px; border: 1px solid var(--red); border-radius: 4px; background: transparent; color: var(--red); font-size: 12px; cursor: pointer; }
 .btn-danger:hover { background: var(--red-bg); }
+
+/* AI 자동 채우기 */
+.ai-fill-group {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.btn-ai-fill {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--surface) 100%);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-ai-fill:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(184,147,90,0.35);
+}
+.btn-ai-fill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-dim);
+  background: var(--bg);
+}
+.ai-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--accent-dim, rgba(184,147,90,0.3));
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+.ai-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
 
 @media (max-width: 1199px) { .form-grid { grid-template-columns: 1fr; } }
 </style>

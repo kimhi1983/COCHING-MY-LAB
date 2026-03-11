@@ -1,26 +1,40 @@
 """
-COCHING AI 처방 서버 v2.3 (최적화)
-속도 최적화:
+COCHING AI 처방 서버 v2.4 (DB 연동 + 가이드처방)
+v2.3 최적화 유지:
   1. 카테고리별 SKILL 선택 로드 (78K → ~25K)
   2. Prompt Caching (5분 내 재호출 시 90% 비용/속도 절감)
   3. 모델 자동 선택 (Haiku/Sonnet/Opus)
   4. 메모리 학습 (반복 성분 캐시 → Gemini 호출 감소)
   5. 처방 결과 캐시 (동일 성분 조합 재사용)
+v2.4 신규:
+  6. PostgreSQL DB 연동 (ingredient_master, regulation_cache 등)
+  7. 가이드처방 생성 (제품유형 입력 → DB 원료 자동선택 → 처방)
+  8. 원료 검색 API
 """
 
-import os, time, json, hashlib, logging
+import os, time, json, hashlib, logging, asyncio
 from pathlib import Path
 from typing import Optional, AsyncGenerator
 from datetime import datetime, timedelta
+from contextlib import asynccontextmanager
 
 import anthropic
 from google import genai
 from google.genai import types as genai_types
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
+
+from db import (
+    init_db_pool, close_db_pool, DB_AVAILABLE,
+    search_ingredients as db_search_ingredients,
+    get_ingredients_by_types, get_regulation_data,
+    get_reference_products, get_ingredient_details,
+    get_db_known_ingredients, get_db_stats,
+    format_db_enrichment, format_reference_products,
+)
 
 # Redis (옵션 — 없으면 메모리 딕셔너리로 폴백)
 try:
@@ -185,8 +199,19 @@ def estimate_complexity(ingredients: str) -> str:
 claude_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
-# ─── FastAPI ───────────────────────────────────────────────────────────────────
-app = FastAPI(title="COCHING AI Formulator", version="2.3.1-optimized")
+# ─── FastAPI (lifespan으로 DB 연결 관리) ────────────────────────────────────────
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    await init_db_pool()
+    if DB_AVAILABLE:
+        db_ingredients = await get_db_known_ingredients()
+        KNOWN_INGREDIENTS.update(db_ingredients)
+        log.info(f"DB 원료 {len(db_ingredients)}개 → KNOWN_INGREDIENTS 통합 (총 {len(KNOWN_INGREDIENTS)}개)")
+    yield
+    await close_db_pool()
+
+app = FastAPI(title="COCHING AI Formulator", version="2.4.0-db",
+              lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # ─── 요청/응답 모델 ────────────────────────────────────────────────────────────
@@ -199,12 +224,80 @@ class FormulationRequest(BaseModel):
     use_gemini: bool = True
     use_cache: bool = True   # 처방 캐시 사용 여부
 
+class GuideFormulationRequest(BaseModel):
+    product_type: str           # "수분크림", "토너", "선크림", "에센스", "클렌저" 등
+    skin_type: str = "all"      # "건성", "지성", "복합성", "민감성", "all"
+    target_pH: Optional[float] = None
+    target_viscosity: Optional[int] = None
+    special_requirements: Optional[str] = None  # "비건", "EWG그린등급", "무향" 등
+    use_gemini: bool = True
+    use_cache: bool = True
+
 class FeedbackRequest(BaseModel):
     formulation_id: str
     score: int          # 1~5
     comment: str
     actual_pH: Optional[float] = None
     actual_viscosity: Optional[int] = None
+
+# ─── 제품유형 → 원료유형 매핑 ──────────────────────────────────────────────────
+PRODUCT_TYPE_MAP = {
+    "수분크림": {
+        "required": ["HUMECTANT", "EMULSIFIER", "THICKENER", "EMOLLIENT"],
+        "optional": ["ACTIVE", "ANTIOXIDANT", "PRESERVATIVE", "PH_ADJUSTER"],
+        "default_pH": 5.5, "default_viscosity": 25000, "category": "basic",
+    },
+    "토너": {
+        "required": ["HUMECTANT", "PH_ADJUSTER"],
+        "optional": ["ACTIVE", "ANTIOXIDANT", "PRESERVATIVE"],
+        "default_pH": 5.5, "default_viscosity": 50, "category": "basic",
+    },
+    "에센스": {
+        "required": ["HUMECTANT", "ACTIVE"],
+        "optional": ["THICKENER", "ANTIOXIDANT", "PRESERVATIVE", "PH_ADJUSTER"],
+        "default_pH": 5.5, "default_viscosity": 500, "category": "basic",
+    },
+    "세럼": {
+        "required": ["HUMECTANT", "ACTIVE", "ANTIOXIDANT"],
+        "optional": ["THICKENER", "PRESERVATIVE", "PH_ADJUSTER", "EMOLLIENT"],
+        "default_pH": 5.5, "default_viscosity": 800, "category": "basic",
+    },
+    "로션": {
+        "required": ["HUMECTANT", "EMULSIFIER", "EMOLLIENT"],
+        "optional": ["ACTIVE", "THICKENER", "PRESERVATIVE", "PH_ADJUSTER"],
+        "default_pH": 5.5, "default_viscosity": 5000, "category": "basic",
+    },
+    "클렌저": {
+        "required": ["SURFACTANT", "HUMECTANT"],
+        "optional": ["THICKENER", "PRESERVATIVE", "PH_ADJUSTER"],
+        "default_pH": 5.5, "default_viscosity": 3000, "category": "basic",
+    },
+    "선크림": {
+        "required": ["UV_FILTER", "EMULSIFIER", "EMOLLIENT"],
+        "optional": ["HUMECTANT", "THICKENER", "ANTIOXIDANT", "PRESERVATIVE"],
+        "default_pH": 6.5, "default_viscosity": 20000, "category": "hair_sun",
+    },
+    "샴푸": {
+        "required": ["SURFACTANT", "HUMECTANT", "THICKENER"],
+        "optional": ["PRESERVATIVE", "FRAGRANCE", "PH_ADJUSTER", "ACTIVE"],
+        "default_pH": 5.5, "default_viscosity": 3000, "category": "hair_sun",
+    },
+    "마스크팩": {
+        "required": ["HUMECTANT", "THICKENER", "ACTIVE"],
+        "optional": ["ANTIOXIDANT", "PRESERVATIVE", "PH_ADJUSTER"],
+        "default_pH": 5.5, "default_viscosity": 15000, "category": "basic",
+    },
+    "아이크림": {
+        "required": ["HUMECTANT", "EMULSIFIER", "EMOLLIENT", "ACTIVE"],
+        "optional": ["THICKENER", "ANTIOXIDANT", "PRESERVATIVE"],
+        "default_pH": 5.5, "default_viscosity": 30000, "category": "basic",
+    },
+    "립밤": {
+        "required": ["EMOLLIENT", "FILM_FORMER"],
+        "optional": ["HUMECTANT", "ACTIVE", "FRAGRANCE", "COLORANT"],
+        "default_pH": 6.0, "default_viscosity": 50000, "category": "basic",
+    },
+}
 
 # ─── Gemini 리서치 ─────────────────────────────────────────────────────────────
 REGULATION_WATCHLIST = ["zpt", "zinc pyrithione", "트리클로산", "파라벤",
@@ -341,12 +434,14 @@ def gemini_research(query: str) -> dict:
         return {"status": "fallback", "reason": str(e)}
 
 # ─── Claude 처방 생성 ──────────────────────────────────────────────────────────
-def run_formulation(req: FormulationRequest, gemini_data: str, model: str) -> str:
+def run_formulation(req: FormulationRequest, gemini_data: str, model: str,
+                    db_enrichment: str = "") -> str:
     """
     최적화 포인트:
     - 카테고리별 SKILL만 포함 (78K → ~30K)
     - cache_control로 Prompt Caching 활성화
     - max_tokens 최적화 (요청 복잡도 기반)
+    - DB 원료 데이터 주입 (v2.4)
     """
     category = detect_category(req.product_name, req.ingredients_list)
     category_skill = SKILL_CAT.get(category, SKILL_CAT["basic"])
@@ -372,7 +467,7 @@ def run_formulation(req: FormulationRequest, gemini_data: str, model: str) -> st
 [목표 pH] {req.target_pH or "자동 계산"}
 [목표 점도] {req.target_viscosity or "자동 계산"} cP
 [카테고리] {category}
-
+{db_enrichment}
 [Gemini 리서치]
 {gemini_data if gemini_data else "해당 없음"}
 
@@ -431,16 +526,52 @@ def learn_from_result(req: FormulationRequest, result: str, elapsed: float):
 
     log.info(f"메모리 학습 저장 완료: {req.product_name}")
 
+
+# ─── 가이드처방 이중 백업 ─────────────────────────────────────────────────────
+BACKUP_DIRS = [
+    Path("/home/kpros/backup/formulations"),
+    Path("/mnt/e/COCHING/backup/formulations"),
+]
+
+def save_formulation_backup(product_type: str, skin_type: str, result_text: str,
+                            metadata: dict):
+    """가이드처방 결과를 이중 백업"""
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"guide_{product_type}_{skin_type}_{ts}.json"
+
+    backup_data = {
+        "timestamp": datetime.now().isoformat(),
+        "product_type": product_type,
+        "skin_type": skin_type,
+        "metadata": metadata,
+        "formulation": result_text,
+    }
+
+    for backup_dir in BACKUP_DIRS:
+        try:
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            filepath = backup_dir / filename
+            filepath.write_text(json.dumps(backup_data, ensure_ascii=False, indent=2),
+                                encoding="utf-8")
+            log.info(f"처방 백업 저장: {filepath}")
+        except Exception as e:
+            log.warning(f"처방 백업 실패 ({backup_dir}): {e}")
+
+
 # ─── 엔드포인트 ───────────────────────────────────────────────────────────────
 @app.get("/health")
-def health():
+async def health():
+    from db import DB_AVAILABLE as _db_avail
     redis_status = "connected" if REDIS_AVAILABLE else "not_installed"
+    db_stats = await get_db_stats() if _db_avail else {}
     return {
         "status": "ok",
-        "version": "2.3.2",
+        "version": "2.4.0",
         "claude": "connected" if ANTHROPIC_API_KEY else "no_key",
         "gemini": "connected" if GEMINI_API_KEY else "no_key",
         "redis": redis_status,
+        "database": "connected" if _db_avail else "not_connected",
+        "db_stats": db_stats,
         "skills_loaded": len(CORE_SKILLS) > 1000,
         "cache_stats": {
             "prescription_cache": len(PRESCRIPTION_CACHE),
@@ -450,7 +581,7 @@ def health():
     }
 
 @app.post("/api/v1/formulate")
-def create_formulation(req: FormulationRequest):
+async def create_formulation(req: FormulationRequest):
     start = time.time()
     log.info(f"처방 요청: {req.product_name}")
 
@@ -469,6 +600,16 @@ def create_formulation(req: FormulationRequest):
     model = get_model_for_task(complexity)
     log.info(f"복잡도: {complexity} → 모델: {model}")
 
+    # ②-b DB 원료 데이터 조회 (v2.4)
+    db_enrichment = ""
+    from db import DB_AVAILABLE as _db_avail
+    if _db_avail:
+        names = [x.strip() for x in req.ingredients_list.split(",") if x.strip()]
+        details = await get_ingredient_details(names)
+        db_enrichment = format_db_enrichment(details)
+        if details:
+            log.info(f"DB 원료 매칭: {len(details)}건")
+
     # ③ Gemini 리서치 (필요 시)
     gemini_data = ""
     gemini_used = False
@@ -481,14 +622,15 @@ def create_formulation(req: FormulationRequest):
                 gemini_data = result["data"]
                 gemini_used = result["status"] == "ok"
 
-    # ④ Claude 처방 생성
+    # ④ Claude 처방 생성 (DB 데이터 주입)
     try:
-        prescription = run_formulation(req, gemini_data, model)
+        prescription = await asyncio.to_thread(
+            run_formulation, req, gemini_data, model, db_enrichment)
     except anthropic.APIError as e:
         raise HTTPException(status_code=502, detail=f"Claude API 오류: {e}")
 
     elapsed = round(time.time() - start, 2)
-    log.info(f"처방 완료: {elapsed}초 | 모델:{model} | Gemini:{gemini_used}")
+    log.info(f"처방 완료: {elapsed}초 | 모델:{model} | Gemini:{gemini_used} | DB:{bool(db_enrichment)}")
 
     response_data = {
         "resultCode": "00",
@@ -497,6 +639,7 @@ def create_formulation(req: FormulationRequest):
         "model": model,
         "complexity": complexity,
         "gemini_used": gemini_used,
+        "db_enriched": bool(db_enrichment),
         "from_cache": False,
         "resultData": prescription,
     }
@@ -675,6 +818,308 @@ def clear_cache():
 @app.post("/api/v1/research")
 def manual_research(query: str):
     return gemini_research(query)
+
+
+# ─── 가이드처방 엔드포인트 (v2.4) ────────────────────────────────────────────
+@app.post("/api/v1/guide-formulate")
+async def guide_formulation(req: GuideFormulationRequest):
+    """
+    제품유형만 입력하면 DB 원료를 자동 선택하여 가이드처방 생성
+    """
+    start = time.time()
+    from db import DB_AVAILABLE as _db_avail
+    log.info(f"가이드처방 요청: {req.product_type} / {req.skin_type}")
+
+    # ① 제품유형 매핑
+    type_config = PRODUCT_TYPE_MAP.get(req.product_type)
+    if not type_config:
+        available = list(PRODUCT_TYPE_MAP.keys())
+        raise HTTPException(
+            status_code=400,
+            detail=f"지원하지 않는 제품유형: '{req.product_type}'. "
+                   f"사용 가능: {', '.join(available)}")
+
+    all_types = type_config["required"] + type_config["optional"]
+    category = type_config["category"]
+    target_pH = req.target_pH or type_config["default_pH"]
+    target_viscosity = req.target_viscosity or type_config["default_viscosity"]
+
+    # ② DB에서 원료 후보 조회
+    ingredient_candidates = {}
+    regulation_info = []
+    kb_data = {}
+    reference_products = []
+
+    if _db_avail:
+        ingredient_candidates = await get_ingredients_by_types(all_types)
+        total_candidates = sum(len(v) for v in ingredient_candidates.values())
+        log.info(f"DB 원료 후보: {total_candidates}건 ({len(ingredient_candidates)}개 유형)")
+
+        # 규제 정보 조회
+        all_names = []
+        for items in ingredient_candidates.values():
+            all_names.extend(i["inci_name"] for i in items if i.get("inci_name"))
+        if all_names:
+            result = await get_regulation_data(all_names[:100])
+            if isinstance(result, tuple):
+                regulation_info, kb_data = result
+            else:
+                regulation_info = result
+
+        # 참조 제품 조회
+        reference_products = await get_reference_products(req.product_type)
+    else:
+        log.warning("DB 미연결 — SKILL 기반으로 가이드처방 생성")
+
+    # ③ Claude 프롬프트 구성
+    category_skill = SKILL_CAT.get(category, SKILL_CAT["basic"])
+    memory_snippet = MEMORY_MD[:2000] if MEMORY_MD else "(메모리 없음)"
+    system_content = (
+        f"{SYSTEM_PROMPT}\n\n"
+        f"--- CORE SKILLS ---\n{CORE_SKILLS}\n\n"
+        f"--- CATEGORY GUIDE ({category.upper()}) ---\n{category_skill}\n\n"
+        f"--- MEMORY ---\n{memory_snippet}"
+    )
+
+    # DB 원료 후보 → 프롬프트 텍스트
+    db_section = ""
+    if ingredient_candidates:
+        lines = ["\n[DB 원료 후보 — 유형별]"]
+        for itype, items in ingredient_candidates.items():
+            names = [f"{i['inci_name']} ({i.get('korean_name','')})" for i in items[:15]]
+            is_req = "필수" if itype in type_config["required"] else "선택"
+            lines.append(f"\n### {itype} ({is_req}) — {len(items)}종")
+            lines.append(", ".join(names))
+        db_section = "\n".join(lines)
+
+    # 규제 정보 텍스트
+    reg_section = ""
+    if regulation_info:
+        reg_lines = ["\n[규제 정보]"]
+        seen = set()
+        for r in regulation_info[:30]:
+            key = r.get("inci_name", r.get("ingredient", ""))
+            if key in seen:
+                continue
+            seen.add(key)
+            maxc = r.get("max_concentration", "")
+            src = r.get("source", "")
+            reg_lines.append(f"- {key}: {maxc} ({src})")
+        reg_section = "\n".join(reg_lines)
+
+    # 참조 제품 텍스트
+    ref_section = format_reference_products(reference_products)
+
+    # 사용자 메시지 조합
+    skin_desc = {
+        "건성": "건조한 피부, 보습력 강화 필요",
+        "지성": "피지 과다, 가벼운 텍스처 필요",
+        "복합성": "T존 유분 + U존 건조, 밸런싱 필요",
+        "민감성": "자극 최소화, 순한 성분 위주",
+        "all": "모든 피부 타입 적합",
+    }.get(req.skin_type, req.skin_type)
+
+    special = f"\n[특별 요구사항] {req.special_requirements}" if req.special_requirements else ""
+
+    user_message = f"""가이드처방 자동 생성 요청:
+
+[제품유형] {req.product_type}
+[대상 피부] {req.skin_type} — {skin_desc}
+[목표 pH] {target_pH}
+[목표 점도] {target_viscosity} cP{special}
+
+{db_section}
+{reg_section}
+{ref_section}
+
+위 DB 원료 후보에서 최적의 성분을 선택하여 완전한 가이드처방을 생성해줘.
+필수 유형({', '.join(type_config['required'])})에서 반드시 성분을 선택하고,
+선택 유형({', '.join(type_config['optional'])})에서 적절히 추가해.
+정제수(Water/Aqua)를 기제로 반드시 포함.
+
+PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.
+8개 필수 섹션 포함 처방전을 출력해줘. 불필요한 설명 최소화, 핵심만."""
+
+    # ④ Claude 호출 (가이드처방은 normal 이상)
+    model = get_model_for_task("normal")
+    max_tokens = 6000
+
+    try:
+        prescription = await asyncio.to_thread(
+            lambda: claude_client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=0.15,
+                system=[{
+                    "type": "text",
+                    "text": system_content,
+                    "cache_control": {"type": "ephemeral"}
+                }],
+                messages=[{"role": "user", "content": user_message}]
+            )
+        )
+        result_text = prescription.content[0].text
+
+        usage = prescription.usage
+        if hasattr(usage, "cache_read_input_tokens") and usage.cache_read_input_tokens:
+            log.info(f"Prompt Cache 히트: {usage.cache_read_input_tokens:,} tokens 절감")
+
+    except anthropic.APIError as e:
+        raise HTTPException(status_code=502, detail=f"Claude API 오류: {e}")
+
+    elapsed = round(time.time() - start, 2)
+    log.info(f"가이드처방 완료: {elapsed}초 | 모델:{model} | DB원료:{sum(len(v) for v in ingredient_candidates.values())}종")
+
+    response_data = {
+        "resultCode": "00",
+        "resultMessage": "SUCCESS",
+        "processing_time": elapsed,
+        "model": model,
+        "product_type": req.product_type,
+        "skin_type": req.skin_type,
+        "db_ingredients_count": sum(len(v) for v in ingredient_candidates.values()),
+        "regulation_count": len(regulation_info),
+        "reference_products_count": len(reference_products),
+        "resultData": result_text,
+    }
+
+    # ⑤ 가이드처방 이중 백업
+    save_formulation_backup(
+        req.product_type, req.skin_type, result_text,
+        {"model": model, "elapsed": elapsed,
+         "db_ingredients": sum(len(v) for v in ingredient_candidates.values()),
+         "regulations": len(regulation_info)})
+
+    return response_data
+
+
+@app.post("/api/v1/guide-formulate/stream")
+async def guide_formulation_stream(req: GuideFormulationRequest):
+    """가이드처방 스트리밍 (SSE)"""
+    from db import DB_AVAILABLE as _db_avail
+    start = time.time()
+
+    type_config = PRODUCT_TYPE_MAP.get(req.product_type)
+    if not type_config:
+        raise HTTPException(status_code=400,
+                            detail=f"지원하지 않는 제품유형: '{req.product_type}'")
+
+    all_types = type_config["required"] + type_config["optional"]
+    category = type_config["category"]
+    target_pH = req.target_pH or type_config["default_pH"]
+    target_viscosity = req.target_viscosity or type_config["default_viscosity"]
+
+    # DB 조회 (스트리밍 시작 전에 완료)
+    ingredient_candidates = {}
+    regulation_info = []
+    reference_products = []
+
+    if _db_avail:
+        ingredient_candidates = await get_ingredients_by_types(all_types)
+        all_names = []
+        for items in ingredient_candidates.values():
+            all_names.extend(i["inci_name"] for i in items if i.get("inci_name"))
+        if all_names:
+            result = await get_regulation_data(all_names[:100])
+            regulation_info = result[0] if isinstance(result, tuple) else result
+        reference_products = await get_reference_products(req.product_type)
+
+    # 프롬프트 구성
+    category_skill = SKILL_CAT.get(category, SKILL_CAT["basic"])
+    memory_snippet = MEMORY_MD[:2000] if MEMORY_MD else "(메모리 없음)"
+    system_content = (
+        f"{SYSTEM_PROMPT}\n\n"
+        f"--- CORE SKILLS ---\n{CORE_SKILLS}\n\n"
+        f"--- CATEGORY GUIDE ({category.upper()}) ---\n{category_skill}\n\n"
+        f"--- MEMORY ---\n{memory_snippet}"
+    )
+
+    db_section = ""
+    if ingredient_candidates:
+        lines = ["\n[DB 원료 후보 — 유형별]"]
+        for itype, items in ingredient_candidates.items():
+            names = [f"{i['inci_name']} ({i.get('korean_name','')})" for i in items[:15]]
+            is_req = "필수" if itype in type_config["required"] else "선택"
+            lines.append(f"\n### {itype} ({is_req}) — {len(items)}종")
+            lines.append(", ".join(names))
+        db_section = "\n".join(lines)
+
+    ref_section = format_reference_products(reference_products)
+
+    skin_desc = {"건성": "건조한 피부", "지성": "피지 과다", "복합성": "T존/U존",
+                 "민감성": "자극 최소화", "all": "모든 피부"}.get(req.skin_type, req.skin_type)
+    special = f"\n[특별 요구사항] {req.special_requirements}" if req.special_requirements else ""
+
+    user_message = (
+        f"가이드처방 자동 생성 요청:\n\n"
+        f"[제품유형] {req.product_type}\n[대상 피부] {req.skin_type} — {skin_desc}\n"
+        f"[목표 pH] {target_pH}\n[목표 점도] {target_viscosity} cP{special}\n"
+        f"{db_section}\n{ref_section}\n\n"
+        f"위 DB 원료 후보에서 최적 성분을 선택하여 완전한 가이드처방을 생성해줘.\n"
+        f"정제수(Water/Aqua) 기제 필수 포함.\n"
+        "PRECISION-ARITHMETIC 최우선 적용. 배합비 합계 100.00% 보장.\n"
+        "8개 필수 섹션 포함 처방전을 출력해줘."
+    )
+
+    model = get_model_for_task("normal")
+
+    def stream_generator():
+        meta = json.dumps({
+            "type": "meta", "model": model, "product_type": req.product_type,
+            "db_ingredients": sum(len(v) for v in ingredient_candidates.values()),
+        }, ensure_ascii=False)
+        yield f"data: {meta}\n\n"
+
+        full_text = []
+        try:
+            with claude_client.messages.stream(
+                model=model, max_tokens=6000, temperature=0.15,
+                system=[{"type": "text", "text": system_content,
+                         "cache_control": {"type": "ephemeral"}}],
+                messages=[{"role": "user", "content": user_message}],
+            ) as stream:
+                for text_chunk in stream.text_stream:
+                    full_text.append(text_chunk)
+                    yield f"data: {json.dumps({'type':'text','text':text_chunk}, ensure_ascii=False)}\n\n"
+        except anthropic.APIError as e:
+            yield f"data: {json.dumps({'type':'error','message':str(e)}, ensure_ascii=False)}\n\n"
+            return
+
+        elapsed = round(time.time() - start, 2)
+        yield f"data: {json.dumps({'type':'done','processing_time':elapsed}, ensure_ascii=False)}\n\n"
+        yield "data: [DONE]\n\n"
+        log.info(f"가이드처방 스트리밍 완료: {elapsed}초")
+
+    return StreamingResponse(stream_generator(), media_type="text/event-stream",
+                             headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
+
+
+# ─── 원료 검색 API (v2.4) ────────────────────────────────────────────────────
+@app.get("/api/v1/ingredients/search")
+async def search_ingredients_api(
+    q: str = Query(..., min_length=1, description="검색어 (INCI명/한글명)"),
+    type: Optional[str] = Query(None, description="원료 유형 필터 (HUMECTANT, EMULSIFIER 등)"),
+    limit: int = Query(20, ge=1, le=100),
+):
+    """DB 원료 검색"""
+    from db import DB_AVAILABLE as _db_avail
+    if not _db_avail:
+        raise HTTPException(status_code=503, detail="DB 미연결")
+    results = await db_search_ingredients(q, ingredient_type=type, limit=limit)
+    return {"count": len(results), "ingredients": results}
+
+
+@app.get("/api/v1/ingredients/types")
+async def list_ingredient_types():
+    """사용 가능한 제품유형 목록"""
+    return {
+        "product_types": list(PRODUCT_TYPE_MAP.keys()),
+        "product_type_details": {
+            k: {"required": v["required"], "optional": v["optional"],
+                "default_pH": v["default_pH"], "default_viscosity": v["default_viscosity"]}
+            for k, v in PRODUCT_TYPE_MAP.items()
+        }
+    }
 
 
 if __name__ == "__main__":
