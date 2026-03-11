@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "grid-layout-plus": "^1.1.1",
+    "pg": "^8.20.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0"
   },

@@ -6,8 +6,8 @@
         v-for="tab in regionTabs"
         :key="tab.value"
         class="region-tab"
-        :class="{ active: selectedRegion === tab.value }"
-        @click="selectedRegion = tab.value"
+        :class="{ active: selectedSource === tab.value }"
+        @click="selectedSource = tab.value"
       >
         {{ tab.label }}
       </button>
@@ -49,74 +49,74 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useIngredientStore } from '../../stores/ingredientStore.js'
 
-const selectedRegion = ref('ALL')
+const store = useIngredientStore()
+const selectedSource = ref('ALL')
+const regulations = ref([])
+const totalCount = ref(0)
+const sources = ref([])
 
-const regionTabs = [
-  { value: 'ALL', label: '전체' },
-  { value: 'KR', label: 'KR' },
-  { value: 'EU', label: 'EU' },
-  { value: 'US', label: 'US' },
-]
-
-const regulationData = [
-  {
-    id: 1,
-    region: 'KR',
-    ingredient: 'Zinc Pyrithione (ZPT)',
-    status: 'limit',
-    limit: '0.5% (샴푸)',
-    remark: '두발용 제품 한정',
-    updatedAt: '2025-01',
-  },
-  {
-    id: 2,
-    region: 'EU',
-    ingredient: 'Benzophenone-3',
-    status: 'limit',
-    limit: '6%',
-    remark: 'Annex VI No. 27',
-    updatedAt: '2024-12',
-  },
-  {
-    id: 3,
-    region: 'EU',
-    ingredient: 'Titanium Dioxide',
-    status: 'monitor',
-    limit: '-',
-    remark: '분말형 흡입 우려 검토',
-    updatedAt: '2025-02',
-  },
-  {
-    id: 4,
-    region: 'US',
-    ingredient: 'Vitamin A (Retinyl Palmitate)',
-    status: 'monitor',
-    limit: '-',
-    remark: 'FDA 재검토 중',
-    updatedAt: '2025-01',
-  },
-  {
-    id: 5,
-    region: 'KR',
-    ingredient: 'Hydroquinone',
-    status: 'ban',
-    limit: '사용 금지',
-    remark: '배합 금지 성분',
-    updatedAt: '2024-06',
-  },
-]
-
-const filteredData = computed(() => {
-  if (selectedRegion.value === 'ALL') return regulationData
-  return regulationData.filter(r => r.region === selectedRegion.value)
+const regionTabs = computed(() => {
+  const tabs = [{ value: 'ALL', label: '전체' }]
+  for (const s of sources.value) {
+    // 소스명에서 짧은 라벨 생성
+    const label = mapSource(s.source)
+    if (!tabs.find(t => t.label === label)) {
+      tabs.push({ value: s.source, label, count: s.count })
+    }
+  }
+  return tabs
 })
+
+const filteredData = computed(() => regulations.value)
+
+onMounted(async () => {
+  await store.init()
+  sources.value = store.regulationSources.value || []
+  await loadData()
+})
+
+async function loadData() {
+  const source = selectedSource.value === 'ALL' ? undefined : selectedSource.value
+  const data = await store.searchRegulations({ source, limit: 20 })
+  if (data) {
+    regulations.value = data.items
+      .filter(r => r.ingredient || r.inci_name)
+      .map((r, i) => ({
+        id: i,
+        region: mapSource(r.source),
+        ingredient: r.ingredient || r.inci_name,
+        status: getRegulationStatus(r),
+        limit: r.max_concentration || '-',
+        updatedAt: r.updated_at ? new Date(r.updated_at).toISOString().slice(0, 7) : '-',
+      }))
+    totalCount.value = data.total
+  }
+}
+
+function mapSource(src) {
+  const map = { MFDS_SEED: 'KR', GEMINI_KR: 'KR', GEMINI_EU: 'EU', gem2_kb: 'DB', gemini_kb: 'DB', UNKNOWN: '기타' }
+  return map[src] || src
+}
+
+// source 변경 시 재로드
+watch(selectedSource, loadData)
+
+function getRegulationStatus(r) {
+  const restriction = (r.restriction || '').toLowerCase()
+  const maxConc = (r.max_concentration || '').toLowerCase()
+  if (restriction.includes('금지') || restriction.includes('ban')) return 'ban'
+  if (maxConc && maxConc !== '-') return 'limit'
+  return 'monitor'
+}
 
 function getRegionClass(region) {
   if (region === 'KR') return 'region-kr'
   if (region === 'EU') return 'region-eu'
   if (region === 'US') return 'region-us'
+  if (region === 'DB') return 'region-db'
   return ''
 }
 

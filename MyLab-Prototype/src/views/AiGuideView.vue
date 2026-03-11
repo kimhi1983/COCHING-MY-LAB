@@ -66,14 +66,17 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMockAI } from '../composables/useMockAI.js'
+import { useIngredientStore } from '../stores/ingredientStore.js'
 import { useFormulaStore } from '../stores/formulaStore.js'
 import { productTypes } from '../tokens.js'
 import AiResultPanel from '../components/formula/AiResultPanel.vue'
 
 const router = useRouter()
-const { isGenerating, progress, generateGuideFormula } = useMockAI()
+const ingredientStore = useIngredientStore()
 const { addFormula } = useFormulaStore()
+
+const isGenerating = ref(false)
+const progress = ref('')
 
 const request = reactive({
   title: '',
@@ -89,12 +92,25 @@ async function onGenerate() {
     alert('처방명과 제품 유형을 입력하세요')
     return
   }
-  const res = await generateGuideFormula(request.productType, request.requirements)
-  result.value = res
 
-  const typeLabel = productTypes.find(t => t.value === request.productType)?.label || request.productType
-  const histEntry = { ...res, _title: request.title, _productLabel: typeLabel }
-  history.value.unshift(histEntry)
+  isGenerating.value = true
+  const steps = ['COCHING DB 원료 검색 중...', '규제 정보 확인 중...', '배합비 최적화 중...', '최종 처방 생성 중...']
+  for (const step of steps) {
+    progress.value = step
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 400))
+  }
+
+  const res = await ingredientStore.generateFormula(request.productType, request.requirements)
+  isGenerating.value = false
+  progress.value = ''
+
+  if (res) {
+    result.value = res
+    const typeLabel = productTypes.find(t => t.value === request.productType)?.label || request.productType
+    history.value.unshift({ ...res, _title: request.title, _productLabel: typeLabel })
+  } else {
+    alert('처방 생성 실패: API 서버 연결을 확인하세요 (localhost:3001)')
+  }
 }
 
 function onSave() {
@@ -104,12 +120,14 @@ function onSave() {
     title: request.title || 'MyLab 생성 처방',
     product_type: typeLabel,
     formula_data: {
-      ingredients: result.value.ingredients,
+      ingredients: result.value.ingredients.map(i => ({
+        name: i.name, inci: i.inci_name, percentage: i.percentage, function: i.function,
+      })),
       total_percentage: result.value.totalPercentage,
       notes: result.value.description,
     },
-    memo: `MyLab 생성 처방\n${result.value.description}`,
-    tags: ['MyLab생성'],
+    memo: `MyLab DB 기반 생성\n원료 ${result.value.totalDbIngredients}종 · 규제확인 ${result.value.regulationsChecked}건\n${result.value.description}`,
+    tags: ['MyLab생성', 'DB연동'],
   })
   router.push('/formulas/' + created.id)
 }

@@ -16,71 +16,63 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useFormulaStore } from '../../stores/formulaStore.js'
+import { useIngredientStore } from '../../stores/ingredientStore.js'
 
 const { draftCount, reviewCount, doneCount, formulas } = useFormulaStore()
+const store = useIngredientStore()
 
-// 이번 달 완료 처방 수
-const thisMonthDone = computed(() => {
-  const now = new Date()
-  return formulas.value.filter(f => {
-    if (f.status !== 'done') return false
-    const d = new Date(f.updated_at)
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-  }).length
-})
+onMounted(() => store.init())
 
 // 진행중 처방 (draft + review 합계)
 const activeCount = computed(() => draftCount.value + reviewCount.value)
 
-// 안정성 진행 배치 수 (mock: review 처방 기준)
-const stabilityCount = computed(() => reviewCount.value)
+// DB 원료 수
+const dbIngredients = computed(() => store.stats.value?.totalIngredients || 0)
 
-// 규제 체크 건수 (mock: 총 처방 × 원료 평균 수 기반 추정)
-const regulationCount = computed(() => {
-  const total = formulas.value.reduce((sum, f) => {
-    return sum + (f.formula_data?.ingredients?.length || 0)
-  }, 0)
-  return total
-})
+// DB 규제 수
+const dbRegulations = computed(() => store.stats.value?.totalRegulations || 0)
+
+// DB 지식 베이스 수
+const dbKnowledge = computed(() => store.stats.value?.totalKnowledge || 0)
 
 const kpis = computed(() => [
   {
-    label: '진행중 처방',
-    value: activeCount.value,
-    unit: '건',
+    label: 'DB 원료',
+    value: dbIngredients.value,
+    unit: '종',
     icon: '◎',
     iconColor: '#b8935a',
     iconBg: '#f0e8d8',
-    sub: `초안 ${draftCount.value} · 검토 ${reviewCount.value}`,
+    sub: `n8n 수집 원료 데이터`,
   },
   {
-    label: '이번 달 완료',
-    value: thisMonthDone.value,
-    unit: '건',
-    icon: '✓',
-    iconColor: '#3a9068',
-    iconBg: '#f0f8f4',
-    sub: `누적 완료 ${doneCount.value}건`,
-  },
-  {
-    label: '안정성 진행',
-    value: stabilityCount.value,
-    unit: '배치',
-    icon: '⏱',
-    iconColor: '#3a6fa8',
-    iconBg: '#f0f4fb',
-    sub: '50°C / RT 조건',
-  },
-  {
-    label: '규제 체크',
-    value: regulationCount.value,
+    label: '규제 정보',
+    value: dbRegulations.value,
     unit: '건',
     icon: '⚠',
     iconColor: '#7c5cbf',
     iconBg: '#f4f0fb',
-    sub: '성분 규제 스캔 완료',
+    sub: 'KR/EU 규제 스캔 완료',
+  },
+  {
+    label: '진행중 처방',
+    value: activeCount.value,
+    unit: '건',
+    icon: '✓',
+    iconColor: '#3a9068',
+    iconBg: '#f0f8f4',
+    sub: `초안 ${draftCount.value} · 검토 ${reviewCount.value}`,
+  },
+  {
+    label: '지식 베이스',
+    value: dbKnowledge.value,
+    unit: '건',
+    icon: '⏱',
+    iconColor: '#3a6fa8',
+    iconBg: '#f0f4fb',
+    sub: 'AI 분석 레퍼런스',
   },
 ])
 </script>
