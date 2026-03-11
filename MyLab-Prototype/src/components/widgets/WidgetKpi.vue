@@ -45,7 +45,7 @@ const kpis = computed(() => [
     icon: '◎',
     iconColor: '#b8935a',
     iconBg: '#f0e8d8',
-    sub: `n8n 수집 원료 데이터`,
+    sub: `수집 원료 데이터`,
   },
   {
     label: '규제 정보',
@@ -72,7 +72,7 @@ const kpis = computed(() => [
     icon: '⏱',
     iconColor: '#3a6fa8',
     iconBg: '#f0f4fb',
-    sub: 'AI 분석 레퍼런스',
+    sub: '성분 분석 레퍼런스',
   },
 ])
 </script>

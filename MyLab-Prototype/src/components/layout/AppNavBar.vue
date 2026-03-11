@@ -26,6 +26,9 @@ const navItems = [
   { to: '/journal', label: '일지', exact: true },
   { to: '/projects', label: '프로젝트', exact: true },
   { to: '/ai-guide', label: 'MyLab 가이드', exact: true },
+  { to: '/ingredients', label: '성분 DB', exact: true },
+  { to: '/notes', label: '연구 노트', exact: true },
+  { to: '/validation', label: '품질 검증', exact: true },
 ]
 </script>
 

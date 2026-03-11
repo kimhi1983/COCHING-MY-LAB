@@ -8,6 +8,9 @@ const routes = [
   { path: '/journal', name: 'journal', component: () => import('./views/JournalView.vue'), meta: { title: '처방 일지' } },
   { path: '/projects', name: 'projects', component: () => import('./views/ProjectListView.vue'), meta: { title: '프로젝트' } },
   { path: '/ai-guide', name: 'ai-guide', component: () => import('./views/AiGuideView.vue'), meta: { title: 'MyLab 가이드 처방' } },
+  { path: '/ingredients', name: 'ingredient-db', component: () => import('./views/IngredientDbView.vue'), meta: { title: '성분 DB' } },
+  { path: '/notes', name: 'notes', component: () => import('./views/NotesView.vue'), meta: { title: '연구 노트' } },
+  { path: '/validation', name: 'validation', component: () => import('./views/ValidationView.vue'), meta: { title: '품질 검증' } },
 ]
 
 const router = createRouter({

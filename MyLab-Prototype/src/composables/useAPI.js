@@ -86,6 +86,30 @@ export function useAPI() {
     })
   }
 
+  // ─── 처방 생성 (AI) ───
+  async function generateAiFormula(data) {
+    return fetchJSON('/api/ai-formula', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // ─── 카피 처방 생성 ───
+  async function copyFormula(data) {
+    return fetchJSON('/api/copy-formula', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // ─── 품질 검증 ───
+  async function validateFormula(ingredients) {
+    return fetchJSON('/api/validate-formula', {
+      method: 'POST',
+      body: JSON.stringify({ ingredients }),
+    })
+  }
+
   // ─── 수집 상태 ───
   async function getCollectionStatus() {
     return fetchJSON('/api/collection-status')
@@ -103,6 +127,9 @@ export function useAPI() {
     getRegulations, getRegulationSources,
     getKnowledge,
     generateGuideFormula,
+    generateAiFormula,
+    copyFormula,
+    validateFormula,
     getCollectionStatus,
     healthCheck,
   }

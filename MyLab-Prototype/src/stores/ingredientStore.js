@@ -58,6 +58,11 @@ export function useIngredientStore() {
     return api.generateGuideFormula(productType, requirements)
   }
 
+  // 처방 생성 (AI 처방 엔진)
+  async function generateAiFormula(data) {
+    return api.generateAiFormula(data)
+  }
+
   return {
     stats,
     ingredients,
@@ -73,5 +78,6 @@ export function useIngredientStore() {
     searchRegulations,
     searchKnowledge,
     generateFormula,
+    generateAiFormula,
   }
 }
