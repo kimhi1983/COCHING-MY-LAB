@@ -63,6 +63,26 @@ export function useIngredientStore() {
     return api.generateAiFormula(data)
   }
 
+  // 제품 검색 (product_master)
+  async function searchProducts({ q, category, limit = 50, offset = 0 } = {}) {
+    return api.getProducts({ q, category, limit, offset })
+  }
+
+  // 제품 상세
+  async function getProductDetail(id) {
+    return api.getProduct(id)
+  }
+
+  // 수집 상태
+  async function getCollectionStatus() {
+    return api.getCollectionStatus()
+  }
+
+  // 워크플로우 로그
+  async function getWorkflowLogs({ limit = 20 } = {}) {
+    return api.getWorkflowLogs({ limit })
+  }
+
   return {
     stats,
     ingredients,
@@ -77,6 +97,10 @@ export function useIngredientStore() {
     getIngredientDetail,
     searchRegulations,
     searchKnowledge,
+    searchProducts,
+    getProductDetail,
+    getCollectionStatus,
+    getWorkflowLogs,
     generateFormula,
     generateAiFormula,
   }

@@ -71,11 +71,33 @@ export function useAPI() {
   }
 
   // ─── 지식베이스 ───
-  async function getKnowledge({ q, limit } = {}) {
+  async function getKnowledge({ q, category, limit } = {}) {
     const params = new URLSearchParams()
     if (q) params.set('q', q)
+    if (category) params.set('category', category)
     if (limit) params.set('limit', limit)
     return fetchJSON(`/api/knowledge?${params}`)
+  }
+
+  // ─── 제품 (product_master) ───
+  async function getProducts({ q, category, limit, offset } = {}) {
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    if (category) params.set('category', category)
+    if (limit) params.set('limit', limit)
+    if (offset) params.set('offset', offset)
+    return fetchJSON(`/api/products?${params}`)
+  }
+
+  async function getProduct(id) {
+    return fetchJSON(`/api/products/${id}`)
+  }
+
+  // ─── 워크플로우 로그 ───
+  async function getWorkflowLogs({ limit } = {}) {
+    const params = new URLSearchParams()
+    if (limit) params.set('limit', limit)
+    return fetchJSON(`/api/workflow-logs?${params}`)
   }
 
   // ─── 가이드 처방 생성 ───
@@ -126,6 +148,8 @@ export function useAPI() {
     getIngredients, getIngredient, getIngredientTypes,
     getRegulations, getRegulationSources,
     getKnowledge,
+    getProducts, getProduct,
+    getWorkflowLogs,
     generateGuideFormula,
     generateAiFormula,
     copyFormula,

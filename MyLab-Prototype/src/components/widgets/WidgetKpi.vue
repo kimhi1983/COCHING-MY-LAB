@@ -28,7 +28,7 @@ onMounted(() => store.init())
 // 진행중 처방 (draft + review 합계)
 const activeCount = computed(() => draftCount.value + reviewCount.value)
 
-// DB 원료 수
+// DB 원료 수 (ingredient_master)
 const dbIngredients = computed(() => store.stats.value?.totalIngredients || 0)
 
 // DB 규제 수
@@ -36,6 +36,15 @@ const dbRegulations = computed(() => store.stats.value?.totalRegulations || 0)
 
 // DB 지식 베이스 수
 const dbKnowledge = computed(() => store.stats.value?.totalKnowledge || 0)
+
+// DB 제품 수
+const dbProducts = computed(() => store.stats.value?.totalProducts || 0)
+
+// 규제 소스 요약
+const regSources = computed(() => {
+  const sources = store.stats.value?.regulationsBySource || []
+  return sources.map(s => s.source).join('/')
+})
 
 const kpis = computed(() => [
   {
@@ -45,7 +54,7 @@ const kpis = computed(() => [
     icon: '◎',
     iconColor: '#b8935a',
     iconBg: '#f0e8d8',
-    sub: `수집 원료 데이터`,
+    sub: `n8n 수집 원료 마스터`,
   },
   {
     label: '규제 정보',
@@ -54,7 +63,7 @@ const kpis = computed(() => [
     icon: '⚠',
     iconColor: '#7c5cbf',
     iconBg: '#f4f0fb',
-    sub: 'KR/EU 규제 스캔 완료',
+    sub: regSources.value || 'KR/EU 규제 스캔',
   },
   {
     label: '진행중 처방',
@@ -66,13 +75,13 @@ const kpis = computed(() => [
     sub: `초안 ${draftCount.value} · 검토 ${reviewCount.value}`,
   },
   {
-    label: '지식 베이스',
-    value: dbKnowledge.value,
-    unit: '건',
-    icon: '⏱',
+    label: '참조 제품',
+    value: dbProducts.value,
+    unit: '종',
+    icon: '◈',
     iconColor: '#3a6fa8',
     iconBg: '#f0f4fb',
-    sub: '성분 분석 레퍼런스',
+    sub: `지식베이스 ${dbKnowledge.value}건`,
   },
 ])
 </script>

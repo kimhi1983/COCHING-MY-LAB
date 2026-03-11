@@ -20,44 +20,64 @@ app.get('/api/health', async (req, res) => {
 // ─── 통계 (KPI 위젯용) ───
 app.get('/api/stats', async (req, res) => {
   try {
-    const [kbAll, kbIngredients, regulations] = await Promise.all([
+    const [kbAll, kbIngredients, regulations, ingredients, products, companies] = await Promise.all([
       pool.query('SELECT count(*) as cnt FROM coching_knowledge_base'),
       pool.query("SELECT count(*) as cnt FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION'"),
       pool.query('SELECT count(*) as cnt FROM regulation_cache'),
+      pool.query('SELECT count(*) as cnt FROM ingredient_master'),
+      pool.query('SELECT count(*) as cnt FROM product_master'),
+      pool.query('SELECT count(*) as cnt FROM cosmetics_company'),
     ])
-    const sourceBreakdown = await pool.query(
-      'SELECT source, count(*) as cnt FROM regulation_cache GROUP BY source ORDER BY cnt DESC'
-    )
+    const [sourceBreakdown, typeBreakdown, collectionStatus] = await Promise.all([
+      pool.query('SELECT source, count(*) as cnt FROM regulation_cache GROUP BY source ORDER BY cnt DESC'),
+      pool.query('SELECT ingredient_type, count(*) as cnt FROM ingredient_master GROUP BY ingredient_type ORDER BY cnt DESC'),
+      pool.query('SELECT source, status, total_items, processed_items, updated_at FROM collection_progress ORDER BY updated_at DESC'),
+    ])
     res.json({
-      totalIngredients: parseInt(kbIngredients.rows[0].cnt),
+      totalIngredients: parseInt(ingredients.rows[0].cnt),
       totalRegulations: parseInt(regulations.rows[0].cnt),
       totalKnowledge: parseInt(kbAll.rows[0].cnt),
+      totalProducts: parseInt(products.rows[0].cnt),
+      totalCompanies: parseInt(companies.rows[0].cnt),
+      kbIngredients: parseInt(kbIngredients.rows[0].cnt),
       regulationsBySource: sourceBreakdown.rows.map(r => ({ source: r.source, count: parseInt(r.cnt) })),
+      ingredientsByType: typeBreakdown.rows.map(r => ({ type: r.ingredient_type, count: parseInt(r.cnt) })),
+      collectionStatus: collectionStatus.rows,
     })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// ─── 원료 목록 (knowledge_base INGREDIENT_REGULATION에서 추출) ───
+// ─── 원료 목록 (ingredient_master + knowledge_base 통합) ───
 app.get('/api/ingredients', async (req, res) => {
   try {
-    const { q, limit = 50, offset = 0 } = req.query
-    let where = ["category = 'INGREDIENT_REGULATION'"]
+    const { q, type, limit = 50, offset = 0 } = req.query
+    let where = []
     let params = []
     let idx = 1
 
     if (q) {
-      where.push(`(search_key ILIKE $${idx} OR data->>'inci_name' ILIKE $${idx})`)
+      where.push(`(im.inci_name ILIKE $${idx} OR im.korean_name ILIKE $${idx} OR im.cas_number ILIKE $${idx})`)
       params.push(`%${q}%`)
       idx++
     }
+    if (type && type !== 'ALL') {
+      where.push(`im.ingredient_type = $${idx}`)
+      params.push(type)
+      idx++
+    }
 
-    const whereClause = 'WHERE ' + where.join(' AND ')
-    const countQuery = `SELECT count(*) FROM coching_knowledge_base ${whereClause}`
-    const dataQuery = `SELECT id, search_key, data, updated_at
-      FROM coching_knowledge_base ${whereClause}
-      ORDER BY search_key
+    const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : ''
+    const countQuery = `SELECT count(*) FROM ingredient_master im ${whereClause}`
+    const dataQuery = `SELECT im.id, im.inci_name, im.korean_name, im.cas_number, im.ec_number,
+        im.ingredient_type, im.description, im.origin, im.source, im.updated_at,
+        kb.data as kb_data
+      FROM ingredient_master im
+      LEFT JOIN coching_knowledge_base kb
+        ON kb.category = 'INGREDIENT_REGULATION' AND lower(kb.search_key) = lower(im.korean_name)
+      ${whereClause}
+      ORDER BY im.inci_name
       LIMIT $${idx} OFFSET $${idx + 1}`
     params.push(parseInt(limit), parseInt(offset))
 
@@ -70,13 +90,19 @@ app.get('/api/ingredients', async (req, res) => {
       total: parseInt(countRes.rows[0].count),
       items: dataRes.rows.map(r => ({
         id: r.id,
-        inci_name: r.data?.inci_name || r.search_key,
-        korean_name: r.search_key,
-        ewg_score: r.data?.ewg_score,
-        kr_regulation: r.data?.kr_regulation,
-        eu_regulation: r.data?.eu_regulation,
-        max_concentration: r.data?.max_concentration,
-        safety_notes: r.data?.safety_notes,
+        inci_name: r.inci_name,
+        korean_name: r.korean_name,
+        cas_number: r.cas_number,
+        ec_number: r.ec_number,
+        ingredient_type: r.ingredient_type,
+        description: r.description,
+        origin: r.origin,
+        source: r.source,
+        ewg_score: r.kb_data?.ewg_score,
+        kr_regulation: r.kb_data?.kr_regulation,
+        eu_regulation: r.kb_data?.eu_regulation,
+        max_concentration: r.kb_data?.max_concentration,
+        safety_notes: r.kb_data?.safety_notes,
         updated_at: r.updated_at,
       })),
     })
@@ -85,28 +111,37 @@ app.get('/api/ingredients', async (req, res) => {
   }
 })
 
-// ─── 원료 상세 ───
+// ─── 원료 상세 (ingredient_master 기반 + properties + functions + regulations) ───
 app.get('/api/ingredients/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { rows } = await pool.query('SELECT * FROM coching_knowledge_base WHERE id = $1', [id])
+    const { rows } = await pool.query('SELECT * FROM ingredient_master WHERE id = $1', [id])
     if (!rows.length) return res.status(404).json({ error: 'Not found' })
 
     const row = rows[0]
-    const inciName = row.data?.inci_name || row.search_key
 
-    // 규제 정보 조회
-    const regs = await pool.query(
-      'SELECT * FROM regulation_cache WHERE inci_name ILIKE $1',
-      [inciName]
-    )
+    // 병렬 조회: 물성, 기능, 규제, 지식베이스
+    const [propsRes, funcsRes, regsRes, kbRes] = await Promise.all([
+      pool.query('SELECT * FROM ingredient_properties WHERE ingredient_id = $1', [id]),
+      pool.query('SELECT * FROM ingredient_functions WHERE ingredient_id = $1', [id]),
+      pool.query('SELECT * FROM regulation_cache WHERE inci_name ILIKE $1', [row.inci_name]),
+      pool.query("SELECT data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' AND lower(search_key) = lower($1)", [row.korean_name || row.inci_name]),
+    ])
 
     res.json({
       id: row.id,
-      inci_name: inciName,
-      korean_name: row.search_key,
-      data: row.data,
-      regulations: regs.rows,
+      inci_name: row.inci_name,
+      korean_name: row.korean_name,
+      cas_number: row.cas_number,
+      ec_number: row.ec_number,
+      ingredient_type: row.ingredient_type,
+      description: row.description,
+      origin: row.origin,
+      source: row.source,
+      properties: propsRes.rows[0] || null,
+      functions: funcsRes.rows,
+      regulations: regsRes.rows,
+      knowledgeBase: kbRes.rows[0]?.data || null,
       updated_at: row.updated_at,
     })
   } catch (err) {
@@ -167,89 +202,196 @@ app.get('/api/regulation-sources', async (req, res) => {
   }
 })
 
-// ─── 지식베이스 검색 ───
-app.get('/api/knowledge', async (req, res) => {
+// ─── 원료 타입 목록 (ingredient_master 기반) ───
+app.get('/api/ingredient-types', async (req, res) => {
   try {
-    const { q, limit = 20, offset = 0 } = req.query
-    let where = ["category = 'INGREDIENT_REGULATION'"]
+    const { rows } = await pool.query(
+      'SELECT ingredient_type, count(*) as cnt FROM ingredient_master GROUP BY ingredient_type ORDER BY cnt DESC'
+    )
+    res.json(rows.map(r => ({ type: r.ingredient_type, count: parseInt(r.cnt) })))
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── 제품 목록 (product_master) ───
+app.get('/api/products', async (req, res) => {
+  try {
+    const { q, category, limit = 50, offset = 0 } = req.query
+    let where = []
     let params = []
     let idx = 1
 
+    if (q) {
+      where.push(`(product_name ILIKE $${idx} OR brand_name ILIKE $${idx} OR full_ingredients ILIKE $${idx})`)
+      params.push(`%${q}%`)
+      idx++
+    }
+    if (category) {
+      where.push(`category = $${idx}`)
+      params.push(category)
+      idx++
+    }
+
+    const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : ''
+    const countQuery = `SELECT count(*) FROM product_master ${whereClause}`
+    const dataQuery = `SELECT id, brand_name, product_name, product_name_local, category, subcategory,
+        product_type, target_skin_type, ph_value, viscosity_cp, appearance, texture,
+        country_of_origin, notable_claims, source, data_quality_grade, updated_at
+      FROM product_master ${whereClause}
+      ORDER BY brand_name, product_name
+      LIMIT $${idx} OFFSET $${idx + 1}`
+    params.push(parseInt(limit), parseInt(offset))
+
+    const [countRes, dataRes] = await Promise.all([
+      pool.query(countQuery, params.slice(0, idx - 1)),
+      pool.query(dataQuery, params),
+    ])
+
+    res.json({
+      total: parseInt(countRes.rows[0].count),
+      items: dataRes.rows,
+    })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── 제품 상세 (전성분 포함) ───
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { rows } = await pool.query('SELECT * FROM product_master WHERE id = $1', [id])
+    if (!rows.length) return res.status(404).json({ error: 'Not found' })
+    res.json(rows[0])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── 수집 상태 (collection_progress) ───
+app.get('/api/collection-status', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT source, batch_id, total_items, processed_items, last_offset, status, error_message, started_at, completed_at, updated_at FROM collection_progress ORDER BY updated_at DESC'
+    )
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── 워크플로우 로그 ───
+app.get('/api/workflow-logs', async (req, res) => {
+  try {
+    const { limit = 20 } = req.query
+    const { rows } = await pool.query(
+      'SELECT * FROM workflow_log ORDER BY created_at DESC LIMIT $1',
+      [parseInt(limit)]
+    )
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ─── 지식베이스 검색 (전체 카테고리) ───
+app.get('/api/knowledge', async (req, res) => {
+  try {
+    const { q, category, limit = 20, offset = 0 } = req.query
+    let where = []
+    let params = []
+    let idx = 1
+
+    if (category) {
+      where.push(`category = $${idx}`)
+      params.push(category)
+      idx++
+    }
     if (q) {
       where.push(`search_key ILIKE $${idx}`)
       params.push(`%${q}%`)
       idx++
     }
 
-    const whereClause = 'WHERE ' + where.join(' AND ')
+    const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : ''
+    const countQuery = `SELECT count(*) FROM coching_knowledge_base ${whereClause}`
     const dataQuery = `SELECT id, category, search_key, version, updated_at, data
       FROM coching_knowledge_base ${whereClause}
       ORDER BY updated_at DESC
       LIMIT $${idx} OFFSET $${idx + 1}`
     params.push(parseInt(limit), parseInt(offset))
 
-    const { rows } = await pool.query(dataQuery, params)
-    res.json({ items: rows })
+    const [countRes, dataRes] = await Promise.all([
+      pool.query(countQuery, params.slice(0, idx - 1)),
+      pool.query(dataQuery, params),
+    ])
+
+    res.json({
+      total: parseInt(countRes.rows[0].count),
+      items: dataRes.rows,
+    })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
 })
 
-// ─── 가이드 처방 생성 (DB 원료 기반) ───
+// ─── 가이드 처방 생성 (ingredient_master 기반) ───
 app.post('/api/guide-formula', async (req, res) => {
   try {
     const { productType, requirements } = req.body
 
-    // DB에서 INGREDIENT_REGULATION 카테고리 원료 랜덤 선택
-    const { rows: kbRows } = await pool.query(
-      "SELECT id, search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' ORDER BY RANDOM() LIMIT 12"
+    // ingredient_master에서 원료 랜덤 선택
+    const { rows: imRows } = await pool.query(
+      "SELECT id, inci_name, korean_name, ingredient_type, description FROM ingredient_master ORDER BY RANDOM() LIMIT 12"
     )
 
-    // 선택된 원료들의 규제 정보 조회
-    const inciNames = kbRows.map(r => r.data?.inci_name || r.search_key)
-    const { rows: regulations } = await pool.query(
-      'SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)',
-      [inciNames]
-    )
+    // 규제 정보 조회
+    const inciNames = imRows.map(r => r.inci_name)
+    const [regRes, kbRes] = await Promise.all([
+      pool.query('SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)', [inciNames]),
+      pool.query("SELECT search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' AND (data->>'inci_name') = ANY($1)", [inciNames]),
+    ])
     const regMap = {}
-    for (const r of regulations) {
+    for (const r of regRes.rows) {
       if (!regMap[r.inci_name]) regMap[r.inci_name] = []
       regMap[r.inci_name].push(r)
+    }
+    const kbMap = {}
+    for (const r of kbRes.rows) {
+      if (r.data?.inci_name) kbMap[r.data.inci_name] = r.data
     }
 
     // 배합비 자동 생성
     const formulaIngredients = []
     let totalPct = 0
 
-    for (const row of kbRows) {
-      const data = row.data || {}
-      const inciName = data.inci_name || row.search_key
+    for (const row of imRows) {
+      const inciName = row.inci_name
+      const type = row.ingredient_type || guessType(inciName, {})
       const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
       totalPct += pct
+      const kbData = kbMap[inciName] || {}
 
-      // 복합원료 판별: INCI에 콤마/and 포함 또는 composition 데이터 존재
-      const isCompound = !!(
-        (inciName && (inciName.includes(',') || / and /i.test(inciName))) ||
-        data.composition || data.components
-      )
+      const isCompound = !!(inciName && (inciName.includes(',') || / and /i.test(inciName)))
 
       formulaIngredients.push({
         id: row.id,
-        name: row.search_key,
-        korean_name: data.korean_name || row.search_key,
+        name: row.korean_name || inciName,
+        korean_name: row.korean_name || inciName,
         inci_name: inciName,
         percentage: pct,
-        type: guessType(inciName, data),
-        function: guessFunction(inciName, data),
+        type,
+        function: guessFunction(inciName, { ...kbData, ingredient_type: type }),
         is_compound: isCompound,
-        compound_name: isCompound ? (data.trade_name || data.korean_name || row.search_key) : null,
+        compound_name: isCompound ? (row.korean_name || inciName) : null,
         regulations: regMap[inciName] || [],
-        safety: data.ewg_score ? {
-          ewg_score: data.ewg_score,
-          kr_regulation: data.kr_regulation,
-          eu_regulation: data.eu_regulation,
-          max_concentration: data.max_concentration,
-          safety_notes: data.safety_notes,
+        safety: kbData.ewg_score ? {
+          ewg_score: kbData.ewg_score,
+          kr_regulation: kbData.kr_regulation,
+          eu_regulation: kbData.eu_regulation,
+          max_concentration: kbData.max_concentration,
+          safety_notes: kbData.safety_notes,
         } : null,
       })
     }
@@ -271,8 +413,8 @@ app.post('/api/guide-formula', async (req, res) => {
       description: generateDescription(productType, requirements, formulaIngredients),
       ingredients: formulaIngredients,
       totalPercentage: 100,
-      totalDbIngredients: kbRows.length,
-      regulationsChecked: regulations.length,
+      totalDbIngredients: imRows.length,
+      regulationsChecked: regRes.rows.length,
       generatedAt: new Date().toISOString(),
     })
   } catch (err) {
@@ -393,55 +535,56 @@ function buildDefaultProcess(phases) {
   return steps
 }
 
-// DB 원료에서 Phase 포함 처방 생성 (폴백 공통 로직)
+// DB 원료에서 Phase 포함 처방 생성 (폴백 공통 로직) — ingredient_master 기반
 async function buildDbFormula(productType, requirements, targetMarket) {
-  const { rows: kbRows } = await pool.query(
-    "SELECT id, search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' ORDER BY RANDOM() LIMIT 12"
+  const { rows: imRows } = await pool.query(
+    "SELECT id, inci_name, korean_name, ingredient_type FROM ingredient_master ORDER BY RANDOM() LIMIT 12"
   )
-  const inciNames = kbRows.map(r => r.data?.inci_name || r.search_key)
-  const { rows: regulations } = await pool.query(
-    'SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)',
-    [inciNames]
-  )
+  const inciNames = imRows.map(r => r.inci_name)
+  const [regRes, kbRes] = await Promise.all([
+    pool.query('SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)', [inciNames]),
+    pool.query("SELECT search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' AND (data->>'inci_name') = ANY($1)", [inciNames]),
+  ])
   const regMap = {}
-  for (const r of regulations) {
+  for (const r of regRes.rows) {
     if (!regMap[r.inci_name]) regMap[r.inci_name] = []
     regMap[r.inci_name].push(r)
+  }
+  const kbMap = {}
+  for (const r of kbRes.rows) {
+    if (r.data?.inci_name) kbMap[r.data.inci_name] = r.data
   }
 
   const formulaIngredients = []
   let totalPct = 0
 
-  for (const row of kbRows) {
-    const data = row.data || {}
-    const inciName = data.inci_name || row.search_key
-    const type = guessType(inciName, data)
+  for (const row of imRows) {
+    const inciName = row.inci_name
+    const type = row.ingredient_type || guessType(inciName, {})
     const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
     totalPct += pct
+    const kbData = kbMap[inciName] || {}
 
-    const isCompound = !!(
-      (inciName && (inciName.includes(',') || / and /i.test(inciName))) ||
-      data.composition || data.components
-    )
+    const isCompound = !!(inciName && (inciName.includes(',') || / and /i.test(inciName)))
 
     formulaIngredients.push({
       id: row.id,
-      name: row.search_key,
+      name: row.korean_name || inciName,
       inci_name: inciName,
-      korean_name: data.korean_name || row.search_key,
+      korean_name: row.korean_name || inciName,
       percentage: pct,
       phase: assignPhase(inciName, type),
       type,
-      function: guessFunction(inciName, data),
+      function: guessFunction(inciName, { ...kbData, ingredient_type: type }),
       is_compound: isCompound,
-      compound_name: isCompound ? (data.trade_name || data.korean_name || row.search_key) : null,
+      compound_name: isCompound ? (row.korean_name || inciName) : null,
       regulations: regMap[inciName] || [],
-      safety: data.ewg_score ? {
-        ewg_score: data.ewg_score,
-        kr_regulation: data.kr_regulation,
-        eu_regulation: data.eu_regulation,
-        max_concentration: data.max_concentration,
-        safety_notes: data.safety_notes,
+      safety: kbData.ewg_score ? {
+        ewg_score: kbData.ewg_score,
+        kr_regulation: kbData.kr_regulation,
+        eu_regulation: kbData.eu_regulation,
+        max_concentration: kbData.max_concentration,
+        safety_notes: kbData.safety_notes,
       } : null,
     })
   }
@@ -470,8 +613,8 @@ async function buildDbFormula(productType, requirements, targetMarket) {
     process,
     cautions: ['처방은 참고용이며 실제 제조 전 안정성 테스트 필수', '규제 정보는 최신 공식 문서로 교차 확인 필요'],
     totalPercentage: 100,
-    totalDbIngredients: kbRows.length,
-    regulationsChecked: regulations.length,
+    totalDbIngredients: imRows.length,
+    regulationsChecked: regRes.rows.length,
     generatedAt: new Date().toISOString(),
     source: 'db-fallback',
   }
@@ -530,21 +673,20 @@ app.post('/api/ai-formula', async (req, res) => {
       return res.json({ success: true, data: formula })
     }
 
-    // DB 원료 후보 조회
-    const { rows: kbRows } = await pool.query(
-      "SELECT id, search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' ORDER BY RANDOM() LIMIT 30"
+    // ingredient_master에서 원료 후보 조회
+    const { rows: imRows } = await pool.query(
+      "SELECT id, inci_name, korean_name, ingredient_type FROM ingredient_master ORDER BY RANDOM() LIMIT 30"
     )
     // 규제 제약 조회
-    const inciNames = kbRows.map(r => r.data?.inci_name || r.search_key)
+    const inciNames = imRows.map(r => r.inci_name)
     const { rows: regRows } = await pool.query(
       'SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1) AND source ILIKE $2',
       [inciNames, `%${targetMarket}%`]
     )
 
-    const ingredientList = kbRows.map(r => {
-      const inci = r.data?.inci_name || r.search_key
-      const reg = regRows.find(rg => rg.inci_name === inci)
-      return `- ${inci} (한국명: ${r.search_key})${reg ? ` [최대 ${reg.max_concentration}, ${reg.source}]` : ''}`
+    const ingredientList = imRows.map(r => {
+      const reg = regRows.find(rg => rg.inci_name === r.inci_name)
+      return `- ${r.inci_name} (한국명: ${r.korean_name || '—'}, 유형: ${r.ingredient_type})${reg ? ` [최대 ${reg.max_concentration}, ${reg.source}]` : ''}`
     }).join('\n')
 
     const customList = customIngredients.length
