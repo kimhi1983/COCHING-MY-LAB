@@ -40,25 +40,33 @@ const dbKnowledge = computed(() => store.stats.value?.totalKnowledge || 0)
 // DB 제품 수
 const dbProducts = computed(() => store.stats.value?.totalProducts || 0)
 
+// DB 복합성분 수
+const dbCompounds = computed(() => store.stats.value?.totalCompounds || 0)
+
 // 규제 소스 요약
 const regSources = computed(() => {
   const sources = store.stats.value?.regulationsBySource || []
   return sources.map(s => s.source).join('/')
 })
 
+// 숫자 포맷 (천 단위 콤마)
+function fmtNum(n) {
+  return n >= 1000 ? n.toLocaleString('ko-KR') : String(n)
+}
+
 const kpis = computed(() => [
   {
     label: 'DB 원료',
-    value: dbIngredients.value,
+    value: fmtNum(dbIngredients.value),
     unit: '종',
     icon: '◎',
     iconColor: '#b8935a',
     iconBg: '#f0e8d8',
-    sub: `n8n 수집 원료 마스터`,
+    sub: `복합원료 ${dbCompounds.value}종 포함`,
   },
   {
     label: '규제 정보',
-    value: dbRegulations.value,
+    value: fmtNum(dbRegulations.value),
     unit: '건',
     icon: '⚠',
     iconColor: '#7c5cbf',
@@ -76,7 +84,7 @@ const kpis = computed(() => [
   },
   {
     label: '참조 제품',
-    value: dbProducts.value,
+    value: fmtNum(dbProducts.value),
     unit: '종',
     icon: '◈',
     iconColor: '#3a6fa8',
@@ -131,7 +139,7 @@ const kpis = computed(() => [
   flex-shrink: 0;
 }
 .kpi-value {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -142,26 +150,20 @@ const kpis = computed(() => [
   margin-left: 2px;
 }
 .kpi-sub {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 4px;
-  font-family: var(--font-mono);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none;
 }
 
 /* 좁은 위젯: 1열, 더 작은 폰트 */
 @container widget (max-width: 280px) {
   .kpi-grid { grid-template-columns: 1fr; gap: 6px; }
   .kpi-item { padding: 8px 10px; }
-  .kpi-value { font-size: 20px; }
+  .kpi-value { font-size: 11px; }
   .kpi-icon { width: 18px; height: 18px; font-size: 10px; }
 }
 /* 넓은 위젯: 4열 */
 @container widget (min-width: 600px) {
   .kpi-grid { grid-template-columns: repeat(4, 1fr); }
-  .kpi-value { font-size: 28px; }
+  .kpi-value { font-size: 14px; }
   .kpi-icon { width: 26px; height: 26px; font-size: 14px; }
 }
 </style>

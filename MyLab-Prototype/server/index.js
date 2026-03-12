@@ -20,13 +20,14 @@ app.get('/api/health', async (req, res) => {
 // ─── 통계 (KPI 위젯용) ───
 app.get('/api/stats', async (req, res) => {
   try {
-    const [kbAll, kbIngredients, regulations, ingredients, products, companies] = await Promise.all([
+    const [kbAll, kbIngredients, regulations, ingredients, products, companies, compounds] = await Promise.all([
       pool.query('SELECT count(*) as cnt FROM coching_knowledge_base'),
       pool.query("SELECT count(*) as cnt FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION'"),
       pool.query('SELECT count(*) as cnt FROM regulation_cache'),
       pool.query('SELECT count(*) as cnt FROM ingredient_master'),
       pool.query('SELECT count(*) as cnt FROM product_master'),
-      pool.query('SELECT count(*) as cnt FROM cosmetics_company'),
+      pool.query('SELECT count(*) as cnt FROM cosmetics_company').catch(() => ({ rows: [{ cnt: 0 }] })),
+      pool.query('SELECT count(*) as cnt FROM compound_master').catch(() => ({ rows: [{ cnt: 0 }] })),
     ])
     const [sourceBreakdown, typeBreakdown, collectionStatus] = await Promise.all([
       pool.query('SELECT source, count(*) as cnt FROM regulation_cache GROUP BY source ORDER BY cnt DESC'),
@@ -39,6 +40,7 @@ app.get('/api/stats', async (req, res) => {
       totalKnowledge: parseInt(kbAll.rows[0].cnt),
       totalProducts: parseInt(products.rows[0].cnt),
       totalCompanies: parseInt(companies.rows[0].cnt),
+      totalCompounds: parseInt(compounds.rows[0].cnt),
       kbIngredients: parseInt(kbIngredients.rows[0].cnt),
       regulationsBySource: sourceBreakdown.rows.map(r => ({ source: r.source, count: parseInt(r.cnt) })),
       ingredientsByType: typeBreakdown.rows.map(r => ({ type: r.ingredient_type, count: parseInt(r.cnt) })),
