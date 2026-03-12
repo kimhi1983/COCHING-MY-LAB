@@ -38,12 +38,7 @@
         <div class="grid-col" v-for="n in GRID_COL_NUM" :key="n"></div>
       </div>
 
-      <!-- 그리드 정보 표시 -->
-      <div v-if="editMode" class="grid-info">
-        <span class="grid-info-text">{{ GRID_COL_NUM }}컬럼 그리드</span>
-        <span class="grid-info-sep">·</span>
-        <span class="grid-info-text">{{ currentLayout.length }}개 위젯</span>
-      </div>
+      <!-- 그리드 정보 (숨김) -->
 
       <GridLayout
         :layout="currentLayout"
@@ -251,27 +246,6 @@ function getMinH(id) {
   min-height: 100%;
 }
 
-.grid-info {
-  position: absolute;
-  top: -28px;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 5;
-}
-
-.grid-info-text {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-  letter-spacing: 0.5px;
-}
-
-.grid-info-sep {
-  color: var(--border-mid);
-  font-size: 10px;
-}
 
 /* Widget Cards */
 .widget-item.editing {

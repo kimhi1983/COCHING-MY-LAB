@@ -20,20 +20,28 @@ export const WIDGET_CATALOG = [
   { id: 'hlb', label: 'HLB 계산기', icon: '⚖', description: '오일/유화제 HLB 빠른 계산 및 판정', minW: 3, minH: 4, defaultW: 4, defaultH: 5 },
 ]
 
-// 기본 레이아웃 (첫 방문 시) — 12컬럼 기준
+// 기본 레이아웃 (첫 방문 시) — 12컬럼, 11개 위젯 전체 표시
 const DEFAULT_LAYOUT = [
+  // Row 0: 핵심 지표
   { x: 0, y: 0,  w: 8,  h: 3,  i: 'kpi' },        // KPI 카드 (상단 넓게)
   { x: 8, y: 0,  w: 4,  h: 3,  i: 'chart' },       // 상태 차트 (우상단)
-  { x: 0, y: 3,  w: 6,  h: 5,  i: 'todaylog' },    // 오늘의 업무 (좌)
-  { x: 6, y: 3,  w: 6,  h: 5,  i: 'stability' },   // 안정성 현황 (우)
-  { x: 0, y: 8,  w: 8,  h: 5,  i: 'active' },      // 진행중 처방 (넓게)
-  { x: 8, y: 8,  w: 4,  h: 5,  i: 'quick' },       // 빠른 작업
-  { x: 0, y: 13, w: 6,  h: 5,  i: 'regulation' },  // 규제 모니터링
-  { x: 6, y: 13, w: 6,  h: 5,  i: 'projects' },    // 프로젝트 요약
+  // Row 3: 업무 + 진행현황 + 빠른작업
+  { x: 0, y: 3,  w: 5,  h: 5,  i: 'active' },      // 진행중 처방
+  { x: 5, y: 3,  w: 4,  h: 5,  i: 'todaylog' },    // 오늘의 업무
+  { x: 9, y: 3,  w: 3,  h: 5,  i: 'quick' },       // 빠른 작업
+  // Row 8: 안정성 + 규제
+  { x: 0, y: 8,  w: 6,  h: 5,  i: 'stability' },   // 안정성 현황
+  { x: 6, y: 8,  w: 6,  h: 5,  i: 'regulation' },  // 규제 모니터링
+  // Row 13: 최근처방 + 프로젝트 + HLB
+  { x: 0, y: 13, w: 4,  h: 5,  i: 'recent' },      // 최근 처방
+  { x: 4, y: 13, w: 4,  h: 5,  i: 'projects' },    // 프로젝트 요약
+  { x: 8, y: 13, w: 4,  h: 5,  i: 'hlb' },         // HLB 계산기
+  // Row 18: 메모
+  { x: 0, y: 18, w: 12, h: 3,  i: 'memo' },        // 메모장 (전체 폭)
 ]
 
-// v2: 12컬럼 그리드 (이전 6컬럼 layout은 무시)
-const savedLayout = useLocalStorage('mylab:dashboard-layout-v2', null)
+// v3: 11개 위젯 전체 표시 레이아웃 (이전 v2는 8개만 표시)
+const savedLayout = useLocalStorage('mylab:dashboard-layout-v3', null)
 
 export function useWidgetStore() {
   // 현재 레이아웃
