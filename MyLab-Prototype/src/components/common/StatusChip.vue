@@ -13,12 +13,12 @@ const props = defineProps({
 })
 defineEmits(['click'])
 
-const style = computed(() => statusStyles[props.status] || statusStyles.draft)
-const statusLabel = computed(() => style.value.label)
+const styleObj = computed(() => statusStyles[props.status] || statusStyles.draft)
+const statusLabel = computed(() => styleObj.value.label)
 const chipStyle = computed(() => ({
-  color: style.value.color,
-  background: style.value.bg,
-  border: `1px solid ${style.value.border}`,
+  color: styleObj.value.color,
+  background: styleObj.value.bg,
+  border: `1px solid ${styleObj.value.border}`,
 }))
 </script>
 

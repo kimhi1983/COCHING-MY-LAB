@@ -148,7 +148,7 @@ async function runValidation() {
 
   // 선택된 처방의 원료 목록을 서버에 전달
   const formula = formulas.value.find(f => f.id === selectedFormulaId.value)
-  const ingredients = (formula?.ingredients || []).map(i => ({
+  const ingredients = (formula?.formula_data?.ingredients || formula?.ingredients || []).map(i => ({
     inci_name: i.inci_name || i.name,
     percentage: i.percentage,
     phase: i.phase || '',

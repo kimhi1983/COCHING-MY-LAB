@@ -261,11 +261,6 @@ const physicalPropsFields = [
   { key: 'storage', label: '보관조건', placeholder: '직사광선 차단, 상온(15~25℃)' },
 ]
 
-// 제품 유형 변경 시 물성 기본값 자동 채움
-watch(() => form.product_type, (newType) => {
-  if (newType) generatePhysicalProps(newType)
-})
-
 // 버전 관련 computed
 const currentVersion = computed(() => formula.value.version || 1)
 const versionHistory = computed(() => formula.value.version_history || [])
@@ -285,6 +280,11 @@ const statuses = [
   { value: 'review', label: '검토중', ...statusStyles.review },
   { value: 'done', label: '완료', ...statusStyles.done },
 ]
+
+// 제품 유형 변경 시 물성 기본값 자동 채움
+watch(() => form.product_type, (newType) => {
+  if (newType) generatePhysicalProps(newType)
+})
 
 onMounted(() => {
   if (!isNew.value && route.params.id) {

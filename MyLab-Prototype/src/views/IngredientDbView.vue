@@ -309,9 +309,14 @@ async function selectItem(item) {
   selectedItem.value = item
   detailData.value = null
   detailLoading.value = true
-  const data = await store.getIngredientDetail(item.id)
-  detailData.value = data
-  detailLoading.value = false
+  try {
+    const data = await store.getIngredientDetail(item.id)
+    detailData.value = data
+  } catch (e) {
+    console.error('[IngredientDb] detail load failed:', e)
+  } finally {
+    detailLoading.value = false
+  }
 }
 
 function closeDetail() {

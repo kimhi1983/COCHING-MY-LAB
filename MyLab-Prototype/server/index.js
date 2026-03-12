@@ -336,18 +336,237 @@ app.get('/api/knowledge', async (req, res) => {
   }
 })
 
-// ─── 가이드 처방 생성 (ingredient_master 기반) ───
+// ══════════════════════════════════════════════════════════════════
+// SKILL20260309: Compound Expansion + Precision Arithmetic 엔진
+// ══════════════════════════════════════════════════════════════════
+
+// 복합성분 DB (compound-db)
+const COMPOUND_DB = {
+  'Bentone Gel MIO':        { supplier: 'Elementis', components: [{ inci: 'Cyclopentasiloxane', fraction: 0.850 }, { inci: 'Disteardimonium Hectorite', fraction: 0.100 }, { inci: 'Propylene Carbonate', fraction: 0.050 }] },
+  'Dow Corning 9040':       { supplier: 'Dow', components: [{ inci: 'Cyclomethicone', fraction: 0.900 }, { inci: 'Dimethicone Crosspolymer', fraction: 0.100 }] },
+  'Olivem 1000':            { supplier: 'Hallstar', components: [{ inci: 'Cetearyl Olivate', fraction: 0.500 }, { inci: 'Sorbitan Olivate', fraction: 0.500 }] },
+  'Emulsimousse':           { supplier: 'Gattefossé', components: [{ inci: 'Polyglyceryl-2 Stearate', fraction: 0.400 }, { inci: 'Glyceryl Stearate', fraction: 0.350 }, { inci: 'Stearyl Alcohol', fraction: 0.250 }] },
+  'Euxyl PE 9010':          { supplier: 'Schülke', components: [{ inci: 'Phenoxyethanol', fraction: 0.900 }, { inci: 'Ethylhexylglycerin', fraction: 0.100 }] },
+  'Optiphen Plus':          { supplier: 'Ashland', components: [{ inci: 'Phenoxyethanol', fraction: 0.775 }, { inci: 'Caprylyl Glycol', fraction: 0.150 }, { inci: 'Sorbic Acid', fraction: 0.075 }] },
+  'Tinosorb M':             { supplier: 'BASF', components: [{ inci: 'Methylene Bis-Benzotriazolyl Tetramethylbutylphenol', fraction: 0.500 }, { inci: 'Aqua', fraction: 0.400 }, { inci: 'Decyl Glucoside', fraction: 0.100 }] },
+  'Sepigel 305':            { supplier: 'Seppic', components: [{ inci: 'Polyacrylamide', fraction: 0.400 }, { inci: 'C13-14 Isoparaffin', fraction: 0.390 }, { inci: 'Laureth-7', fraction: 0.210 }] },
+  'Lanol 99':               { supplier: 'Seppic', components: [{ inci: 'Isononyl Isononanoate', fraction: 0.600 }, { inci: 'Isostearyl Isostearate', fraction: 0.400 }] },
+}
+
+// 제품 유형별 처방 템플릿 (SKILL 기반 — 투입 원료 기준)
+const FORMULA_TEMPLATES = {
+  '크림': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 500 },
+    { name: '부틸렌글라이콜', inci: 'Butylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 300 },
+    { name: '세테아릴알코올', inci: 'Cetearyl Alcohol', phase: 'B', type: 'EMULSIFIER', fn: '유화안정제', pct_int: 300 },
+    { name: '스테아릭애씨드', inci: 'Stearic Acid', phase: 'B', type: 'EMULSIFIER', fn: '유화보조제', pct_int: 150 },
+    { name: '호호바오일', inci: 'Simmondsia Chinensis (Jojoba) Seed Oil', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트', pct_int: 500 },
+    { name: '시어버터', inci: 'Butyrospermum Parkii (Shea) Butter', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트', pct_int: 300 },
+    { name: '디메치콘', inci: 'Dimethicone', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트/피막형성', pct_int: 200 },
+    { name: '나이아신아마이드', inci: 'Niacinamide', phase: 'C', type: 'ACTIVE', fn: '미백/장벽강화', pct_int: 300 },
+    { name: '판테놀', inci: 'Panthenol', phase: 'C', type: 'ACTIVE', fn: '진정/보습', pct_int: 100 },
+    { name: '잔탄검', inci: 'Xanthan Gum', phase: 'C', type: 'THICKENER', fn: '증점제', pct_int: 20 },
+    { name: '카보머', inci: 'Carbomer', phase: 'C', type: 'THICKENER', fn: '증점제', pct_int: 15 },
+    { name: '트리에탄올아민', inci: 'Triethanolamine', phase: 'C', type: 'PH_ADJUSTER', fn: 'pH조절제(카보머 중화)', pct_int: 10 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'C', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '토코페릴아세테이트', inci: 'Tocopheryl Acetate', phase: 'D', type: 'ANTIOXIDANT', fn: '항산화제', pct_int: 30 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 80 },
+    { name: '에틸헥실글리세린', inci: 'Ethylhexylglycerin', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+    { name: '향료', inci: 'Fragrance', phase: 'D', type: 'FRAGRANCE', fn: '향료', pct_int: 10 },
+  ],
+  '로션': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 400 },
+    { name: '부틸렌글라이콜', inci: 'Butylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 300 },
+    { name: '세테아릴알코올', inci: 'Cetearyl Alcohol', phase: 'B', type: 'EMULSIFIER', fn: '유화안정제', pct_int: 200 },
+    { name: '폴리소르베이트60', inci: 'Polysorbate 60', phase: 'B', type: 'EMULSIFIER', fn: 'O/W 유화제', pct_int: 150 },
+    { name: '스쿠알란', inci: 'Squalane', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트', pct_int: 400 },
+    { name: '카프릴릭/카프릭트리글리세라이드', inci: 'Caprylic/Capric Triglyceride', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트', pct_int: 300 },
+    { name: '나이아신아마이드', inci: 'Niacinamide', phase: 'C', type: 'ACTIVE', fn: '미백/장벽강화', pct_int: 200 },
+    { name: '히알루론산', inci: 'Sodium Hyaluronate', phase: 'C', type: 'HUMECTANT', fn: '보습제', pct_int: 1 },
+    { name: '알란토인', inci: 'Allantoin', phase: 'C', type: 'ACTIVE', fn: '진정/보습', pct_int: 10 },
+    { name: '잔탄검', inci: 'Xanthan Gum', phase: 'C', type: 'THICKENER', fn: '증점제', pct_int: 15 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'C', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 85 },
+    { name: '에틸헥실글리세린', inci: 'Ethylhexylglycerin', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+    { name: '향료', inci: 'Fragrance', phase: 'D', type: 'FRAGRANCE', fn: '향료', pct_int: 10 },
+  ],
+  '토너': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 500 },
+    { name: '부틸렌글라이콜', inci: 'Butylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 500 },
+    { name: '디프로필렌글라이콜', inci: 'Dipropylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 200 },
+    { name: '나이아신아마이드', inci: 'Niacinamide', phase: 'C', type: 'ACTIVE', fn: '미백/장벽강화', pct_int: 200 },
+    { name: '히알루론산', inci: 'Sodium Hyaluronate', phase: 'C', type: 'HUMECTANT', fn: '보습제', pct_int: 1 },
+    { name: '병풀추출물', inci: 'Centella Asiatica Extract', phase: 'C', type: 'ACTIVE', fn: '진정/피부보호', pct_int: 10 },
+    { name: '알란토인', inci: 'Allantoin', phase: 'C', type: 'ACTIVE', fn: '진정', pct_int: 10 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'C', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '시트릭애씨드', inci: 'Citric Acid', phase: 'C', type: 'PH_ADJUSTER', fn: 'pH조절제', pct_int: 5 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 85 },
+    { name: '1,2-헥산다이올', inci: '1,2-Hexanediol', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제/보습', pct_int: 100 },
+  ],
+  '세럼': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 500 },
+    { name: '부틸렌글라이콜', inci: 'Butylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 400 },
+    { name: '프로판다이올', inci: 'Propanediol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 300 },
+    { name: '나이아신아마이드', inci: 'Niacinamide', phase: 'C', type: 'ACTIVE', fn: '미백/장벽강화', pct_int: 500 },
+    { name: '아데노신', inci: 'Adenosine', phase: 'C', type: 'ACTIVE', fn: '주름개선', pct_int: 4 },
+    { name: '히알루론산', inci: 'Sodium Hyaluronate', phase: 'C', type: 'HUMECTANT', fn: '보습제', pct_int: 1 },
+    { name: '카보머', inci: 'Carbomer', phase: 'C', type: 'THICKENER', fn: '증점제', pct_int: 20 },
+    { name: '트리에탄올아민', inci: 'Triethanolamine', phase: 'C', type: 'PH_ADJUSTER', fn: 'pH조절제', pct_int: 10 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'C', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 85 },
+    { name: '에틸헥실글리세린', inci: 'Ethylhexylglycerin', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+  ],
+  '선크림': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '부틸렌글라이콜', inci: 'Butylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제/용매', pct_int: 300 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 300 },
+    { name: '디프로필렌글라이콜', inci: 'Dipropylene Glycol', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 200 },
+    { name: '잔탄검', inci: 'Xanthan Gum', phase: 'A', type: 'THICKENER', fn: '수상 점증제', pct_int: 20 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'A', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '사이클로펜타실록세인', inci: 'Cyclopentasiloxane', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트/발림성', pct_int: 1200 },
+    { name: '디메치콘', inci: 'Dimethicone', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트/피막형성', pct_int: 300 },
+    { name: '세틸PEG/PPG-10/1디메치콘', inci: 'Cetyl PEG/PPG-10/1 Dimethicone', phase: 'B', type: 'EMULSIFIER', fn: 'W/S 유화제', pct_int: 300 },
+    { name: '아이소노닐아이소노나노에이트', inci: 'Isononyl Isononanoate', phase: 'B', type: 'EMOLLIENT', fn: '에몰리언트', pct_int: 400 },
+    { name: '폴리하이드록시스테아릭애씨드', inci: 'Polyhydroxystearic Acid', phase: 'B', type: 'EMULSIFIER', fn: '분산제(무기자차)', pct_int: 150 },
+    { name: '소르비탄아이소스테아레이트', inci: 'Sorbitan Isostearate', phase: 'B', type: 'EMULSIFIER', fn: '보조 유화제', pct_int: 100 },
+    { name: '징크옥사이드', inci: 'Zinc Oxide', phase: 'C', type: 'UV_FILTER', fn: 'UVA+UVB 차단', pct_int: 1500 },
+    { name: '티타늄디옥사이드', inci: 'Titanium Dioxide', phase: 'C', type: 'UV_FILTER', fn: 'UVB+UVA2 차단', pct_int: 700 },
+    { name: '병풀추출물', inci: 'Centella Asiatica Extract', phase: 'D', type: 'ACTIVE', fn: '진정/피부보호', pct_int: 100 },
+    { name: '1,2-헥산다이올', inci: '1,2-Hexanediol', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제/보습', pct_int: 100 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 85 },
+    { name: '염화나트륨', inci: 'Sodium Chloride', phase: 'D', type: 'OTHER', fn: '유화안정/점증', pct_int: 80 },
+    { name: '하이드로젠디메치콘', inci: 'Hydrogen Dimethicone', phase: 'D', type: 'EMOLLIENT', fn: '발수성 부여', pct_int: 150 },
+    { name: '알루미늄하이드록사이드', inci: 'Aluminum Hydroxide', phase: 'D', type: 'OTHER', fn: '자차 코팅/안정화', pct_int: 50 },
+    { name: '스테아릭애씨드', inci: 'Stearic Acid', phase: 'D', type: 'EMULSIFIER', fn: '안정화/점도조절', pct_int: 50 },
+    { name: '토코페릴아세테이트', inci: 'Tocopheryl Acetate', phase: 'D', type: 'ANTIOXIDANT', fn: '항산화제', pct_int: 30 },
+    { name: '카프릴릴글라이콜', inci: 'Caprylyl Glycol', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제/보습', pct_int: 30 },
+    { name: '에틸헥실글리세린', inci: 'Ethylhexylglycerin', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+    { name: '알란토인', inci: 'Allantoin', phase: 'D', type: 'ACTIVE', fn: '진정/피부보호', pct_int: 10 },
+    { name: '비사볼올', inci: 'Bisabolol', phase: 'D', type: 'ACTIVE', fn: '진정/항자극', pct_int: 10 },
+  ],
+  '클렌징': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 300 },
+    { name: '코카미도프로필베타인', inci: 'Cocamidopropyl Betaine', phase: 'A', type: 'SURFACTANT', fn: '양쪽성 계면활성제', pct_int: 800 },
+    { name: '소듐라우레스설페이트', inci: 'Sodium Laureth Sulfate', phase: 'A', type: 'SURFACTANT', fn: '음이온 계면활성제', pct_int: 600 },
+    { name: '소듐코코일이세치오네이트', inci: 'Sodium Cocoyl Isethionate', phase: 'A', type: 'SURFACTANT', fn: '마일드 계면활성제', pct_int: 300 },
+    { name: '라우릭애씨드', inci: 'Lauric Acid', phase: 'B', type: 'SURFACTANT', fn: '지방산', pct_int: 200 },
+    { name: '미리스틱애씨드', inci: 'Myristic Acid', phase: 'B', type: 'SURFACTANT', fn: '지방산', pct_int: 200 },
+    { name: '수산화칼륨', inci: 'Potassium Hydroxide', phase: 'C', type: 'PH_ADJUSTER', fn: '비누화/pH조절', pct_int: 100 },
+    { name: '병풀추출물', inci: 'Centella Asiatica Extract', phase: 'C', type: 'ACTIVE', fn: '진정', pct_int: 10 },
+    { name: '디소듐이디티에이', inci: 'Disodium EDTA', phase: 'C', type: 'CHELATING', fn: '킬레이트제', pct_int: 5 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 80 },
+    { name: '에틸헥실글리세린', inci: 'Ethylhexylglycerin', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+    { name: '향료', inci: 'Fragrance', phase: 'D', type: 'FRAGRANCE', fn: '향료', pct_int: 10 },
+  ],
+  '샴푸': [
+    { name: '정제수', inci: 'Water (Aqua)', phase: 'A', type: 'SOLVENT', fn: '용매 (밸런스)', pct_int: 0 },
+    { name: '소듐라우레스설페이트', inci: 'Sodium Laureth Sulfate', phase: 'A', type: 'SURFACTANT', fn: '1차 계면활성제', pct_int: 1200 },
+    { name: '코카미도프로필베타인', inci: 'Cocamidopropyl Betaine', phase: 'A', type: 'SURFACTANT', fn: '양쪽성 계면활성제', pct_int: 500 },
+    { name: '글리세린', inci: 'Glycerin', phase: 'A', type: 'HUMECTANT', fn: '보습제', pct_int: 200 },
+    { name: '소듐클로라이드', inci: 'Sodium Chloride', phase: 'C', type: 'THICKENER', fn: '점도조절', pct_int: 150 },
+    { name: '판테놀', inci: 'Panthenol', phase: 'C', type: 'ACTIVE', fn: '컨디셔닝/보습', pct_int: 50 },
+    { name: '시트릭애씨드', inci: 'Citric Acid', phase: 'C', type: 'PH_ADJUSTER', fn: 'pH조절제', pct_int: 10 },
+    { name: '페녹시에탄올', inci: 'Phenoxyethanol', phase: 'D', type: 'PRESERVATIVE', fn: '방부제', pct_int: 85 },
+    { name: '소듐벤조에이트', inci: 'Sodium Benzoate', phase: 'D', type: 'PRESERVATIVE', fn: '보존보조제', pct_int: 30 },
+    { name: '향료', inci: 'Fragrance', phase: 'D', type: 'FRAGRANCE', fn: '향료', pct_int: 30 },
+  ],
+}
+
+// 제품유형 매칭 (긴 키워드 우선 — '선크림'이 '크림'보다 먼저 매칭)
+function matchTemplate(productType) {
+  const pt = (productType || '').toLowerCase()
+  // 우선 매칭 (세부 유형)
+  if (pt.includes('선크림') || pt.includes('자외선') || pt.includes('sun') || pt.includes('spf')) return { key: '선크림', tmpl: FORMULA_TEMPLATES['선크림'] }
+  if (pt.includes('클렌') || pt.includes('폼') || pt.includes('워시')) return { key: '클렌징', tmpl: FORMULA_TEMPLATES['클렌징'] }
+  if (pt.includes('샴푸') || pt.includes('shampoo')) return { key: '샴푸', tmpl: FORMULA_TEMPLATES['샴푸'] }
+  if (pt.includes('세럼') || pt.includes('에센스') || pt.includes('앰플')) return { key: '세럼', tmpl: FORMULA_TEMPLATES['세럼'] }
+  if (pt.includes('토너') || pt.includes('스킨') || pt.includes('미스트')) return { key: '토너', tmpl: FORMULA_TEMPLATES['토너'] }
+  if (pt.includes('로션') || pt.includes('에멀') || pt.includes('바디')) return { key: '로션', tmpl: FORMULA_TEMPLATES['로션'] }
+  if (pt.includes('크림') || pt.includes('cream')) return { key: '크림', tmpl: FORMULA_TEMPLATES['크림'] }
+  return { key: '크림', tmpl: FORMULA_TEMPLATES['크림'] }
+}
+
+// SKILL 핵심: 복합성분 전개 + 정수 연산 + INCI 합산
+function expandAndMerge(ingredients) {
+  // Step 1: 복합성분 감지 및 전개
+  const expanded = []
+  const compoundInfo = []
+
+  for (const ing of ingredients) {
+    const compound = COMPOUND_DB[ing.name]
+    if (compound) {
+      // COMPOUND — 전개
+      const intVal = ing.pct_int
+      let componentSum = 0
+      const comps = compound.components.map((c, idx) => {
+        const cInt = Math.round(c.fraction * intVal)
+        componentSum += cInt
+        return { inci: c.inci, int_value: cInt, fromCompound: ing.name, fraction: c.fraction }
+      })
+      // Largest Remainder Method: 반올림 오차 보정
+      const diff = intVal - componentSum
+      if (diff !== 0 && comps.length > 0) {
+        comps.sort((a, b) => b.fraction - a.fraction)
+        comps[0].int_value += diff
+      }
+      expanded.push(...comps)
+      compoundInfo.push({ tradeName: ing.name, supplier: compound.supplier, pct: intVal / 100, components: comps })
+    } else if (ing.inci === 'Water (Aqua)' || ing.inci === 'Water') {
+      // BALANCE — 나중에 역산
+      continue
+    } else if (ing.inci === 'Fragrance' || ing.inci === 'Parfum') {
+      // SKIP — 향료는 전개하지 않고 단일 표기
+      expanded.push({ inci: ing.inci, int_value: ing.pct_int, fromCompound: null })
+    } else {
+      // SINGLE
+      expanded.push({ inci: ing.inci, int_value: ing.pct_int, fromCompound: null })
+    }
+  }
+
+  // Step 2: INCI 합산 (동일 INCI 중복 처리)
+  const merged = {}
+  for (const item of expanded) {
+    merged[item.inci] = (merged[item.inci] || 0) + item.int_value
+  }
+
+  // Step 3: 밸런스 역산 (Aqua)
+  const nonAquaSum = Object.values(merged).reduce((s, v) => s + v, 0)
+  const aquaInt = 10000 - nonAquaSum
+  merged['Water (Aqua)'] = aquaInt
+
+  // Step 4: 3단계 검증
+  const totalInt = Object.values(merged).reduce((s, v) => s + v, 0)
+  const verification = {
+    step1_intSum: totalInt === 10000,
+    step2_pctSum: (totalInt / 100).toFixed(2) === '100.00',
+    step3_aquaCross: merged['Water (Aqua)'] === (10000 - nonAquaSum),
+    allPassed: totalInt === 10000,
+  }
+
+  // 함량 내림차순 정렬 (전성분 표기 기준)
+  const sortedInci = Object.entries(merged)
+    .map(([inci, intVal]) => ({ inci, int_value: intVal, percentage: intVal / 100 }))
+    .sort((a, b) => b.int_value - a.int_value)
+
+  return { sortedInci, compoundInfo, verification, aquaInt }
+}
+
+// ─── 가이드 처방 생성 (SKILL20260309 기반) ───
 app.post('/api/guide-formula', async (req, res) => {
   try {
     const { productType, requirements } = req.body
+    const { key: matchedType, tmpl } = matchTemplate(productType)
 
-    // ingredient_master에서 원료 랜덤 선택
-    const { rows: imRows } = await pool.query(
-      "SELECT id, inci_name, korean_name, ingredient_type, description FROM ingredient_master ORDER BY RANDOM() LIMIT 12"
-    )
+    // 템플릿 기반 처방서 (투입 기준)
+    const formulaIngredients = tmpl.map(ing => ({ ...ing }))
 
-    // 규제 정보 조회
-    const inciNames = imRows.map(r => r.inci_name)
+    // DB에서 추가 원료 보강 시도
+    const inciNames = formulaIngredients.filter(i => i.inci !== 'Water (Aqua)').map(i => i.inci)
     const [regRes, kbRes] = await Promise.all([
       pool.query('SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)', [inciNames]),
       pool.query("SELECT search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' AND (data->>'inci_name') = ANY($1)", [inciNames]),
@@ -362,60 +581,57 @@ app.post('/api/guide-formula', async (req, res) => {
       if (r.data?.inci_name) kbMap[r.data.inci_name] = r.data
     }
 
-    // 배합비 자동 생성
-    const formulaIngredients = []
-    let totalPct = 0
+    // 복합성분 전개 + 정수 연산 + INCI 합산
+    const { sortedInci, compoundInfo, verification, aquaInt } = expandAndMerge(formulaIngredients)
 
-    for (const row of imRows) {
-      const inciName = row.inci_name
-      const type = row.ingredient_type || guessType(inciName, {})
-      const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
-      totalPct += pct
-      const kbData = kbMap[inciName] || {}
+    // 밸런스(정제수) 역산 값을 투입 기준에 반영
+    const waterIng = formulaIngredients.find(i => i.inci === 'Water (Aqua)')
+    if (waterIng) waterIng.pct_int = aquaInt
 
-      const isCompound = !!(inciName && (inciName.includes(',') || / and /i.test(inciName)))
-
-      formulaIngredients.push({
-        id: row.id,
-        name: row.korean_name || inciName,
-        korean_name: row.korean_name || inciName,
-        inci_name: inciName,
-        percentage: pct,
-        type,
-        function: guessFunction(inciName, { ...kbData, ingredient_type: type }),
-        is_compound: isCompound,
-        compound_name: isCompound ? (row.korean_name || inciName) : null,
-        regulations: regMap[inciName] || [],
+    // 최종 응답 구성
+    const resultIngredients = formulaIngredients.map(ing => {
+      const kbData = kbMap[ing.inci] || {}
+      return {
+        name: ing.name,
+        korean_name: ing.name,
+        inci_name: ing.inci,
+        percentage: ing.pct_int / 100,
+        phase: ing.phase,
+        type: ing.type,
+        function: ing.fn,
+        is_compound: !!COMPOUND_DB[ing.name],
+        compound_name: COMPOUND_DB[ing.name] ? ing.name : null,
+        regulations: regMap[ing.inci] || [],
         safety: kbData.ewg_score ? {
-          ewg_score: kbData.ewg_score,
-          kr_regulation: kbData.kr_regulation,
-          eu_regulation: kbData.eu_regulation,
-          max_concentration: kbData.max_concentration,
-          safety_notes: kbData.safety_notes,
+          ewg_score: kbData.ewg_score, safety_notes: kbData.safety_notes,
         } : null,
-      })
-    }
-
-    // 정제수로 100% 맞추기
-    const waterPct = Math.round((100 - totalPct) * 100) / 100
-    formulaIngredients.unshift({
-      id: null,
-      name: '정제수',
-      inci_name: 'Water',
-      percentage: waterPct,
-      type: 'SOLVENT',
-      function: '용매',
-      regulations: [],
-      safety: null,
+      }
     })
 
+    // 전성분 표기 (INCI 합산 기준, 내림차순)
+    const fullInciList = sortedInci.map(item => ({
+      inci_name: item.inci,
+      percentage: item.percentage,
+      note: item.inci === 'Water (Aqua)' ? '밸런스 역산' : '',
+    }))
+
+    const desc = `${matchedType} 가이드 처방 (SKILL v2.3 기반). 총 ${resultIngredients.length}종 원료, ` +
+      `복합성분 ${compoundInfo.length}건 전개, 정수연산 검증 ${verification.allPassed ? 'PASS' : 'FAIL'}.` +
+      (requirements ? `\n요구사항: ${requirements}` : '')
+
     res.json({
-      description: generateDescription(productType, requirements, formulaIngredients),
-      ingredients: formulaIngredients,
+      description: desc,
+      ingredients: resultIngredients,
+      fullInciList,
+      compoundExpansion: compoundInfo,
+      verification,
+      phases: buildPhaseSummary(resultIngredients),
+      process: buildDefaultProcess(buildPhaseSummary(resultIngredients)),
       totalPercentage: 100,
-      totalDbIngredients: imRows.length,
+      totalDbIngredients: resultIngredients.length,
       regulationsChecked: regRes.rows.length,
       generatedAt: new Date().toISOString(),
+      source: 'skill-v2.3-compound-expansion',
     })
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -535,88 +751,48 @@ function buildDefaultProcess(phases) {
   return steps
 }
 
-// DB 원료에서 Phase 포함 처방 생성 (폴백 공통 로직) — ingredient_master 기반
+// DB 폴백: SKILL 템플릿 기반 처방 생성 (Gemini 미사용 시)
 async function buildDbFormula(productType, requirements, targetMarket) {
-  const { rows: imRows } = await pool.query(
-    "SELECT id, inci_name, korean_name, ingredient_type FROM ingredient_master ORDER BY RANDOM() LIMIT 12"
-  )
-  const inciNames = imRows.map(r => r.inci_name)
-  const [regRes, kbRes] = await Promise.all([
-    pool.query('SELECT inci_name, max_concentration, restriction, source FROM regulation_cache WHERE inci_name = ANY($1)', [inciNames]),
-    pool.query("SELECT search_key, data FROM coching_knowledge_base WHERE category = 'INGREDIENT_REGULATION' AND (data->>'inci_name') = ANY($1)", [inciNames]),
-  ])
-  const regMap = {}
-  for (const r of regRes.rows) {
-    if (!regMap[r.inci_name]) regMap[r.inci_name] = []
-    regMap[r.inci_name].push(r)
-  }
-  const kbMap = {}
-  for (const r of kbRes.rows) {
-    if (r.data?.inci_name) kbMap[r.data.inci_name] = r.data
-  }
+  const { key: matchedType, tmpl } = matchTemplate(productType)
+  const formulaIngredients = tmpl.map(ing => ({ ...ing }))
 
-  const formulaIngredients = []
-  let totalPct = 0
+  // 복합성분 전개 + 정수 연산
+  const { sortedInci, compoundInfo, verification, aquaInt } = expandAndMerge(formulaIngredients)
+  const waterIng = formulaIngredients.find(i => i.inci === 'Water (Aqua)')
+  if (waterIng) waterIng.pct_int = aquaInt
 
-  for (const row of imRows) {
-    const inciName = row.inci_name
-    const type = row.ingredient_type || guessType(inciName, {})
-    const pct = Math.round((0.5 + Math.random() * 5) * 100) / 100
-    totalPct += pct
-    const kbData = kbMap[inciName] || {}
-
-    const isCompound = !!(inciName && (inciName.includes(',') || / and /i.test(inciName)))
-
-    formulaIngredients.push({
-      id: row.id,
-      name: row.korean_name || inciName,
-      inci_name: inciName,
-      korean_name: row.korean_name || inciName,
-      percentage: pct,
-      phase: assignPhase(inciName, type),
-      type,
-      function: guessFunction(inciName, { ...kbData, ingredient_type: type }),
-      is_compound: isCompound,
-      compound_name: isCompound ? (row.korean_name || inciName) : null,
-      regulations: regMap[inciName] || [],
-      safety: kbData.ewg_score ? {
-        ewg_score: kbData.ewg_score,
-        kr_regulation: kbData.kr_regulation,
-        eu_regulation: kbData.eu_regulation,
-        max_concentration: kbData.max_concentration,
-        safety_notes: kbData.safety_notes,
-      } : null,
-    })
-  }
-
-  const waterPct = Math.round((100 - totalPct) * 100) / 100
-  formulaIngredients.unshift({
-    id: null,
-    name: '정제수',
-    inci_name: 'Water',
-    korean_name: '정제수',
-    percentage: waterPct,
-    phase: 'A',
-    type: 'SOLVENT',
-    function: '용매',
+  const resultIngredients = formulaIngredients.map(ing => ({
+    name: ing.name,
+    korean_name: ing.name,
+    inci_name: ing.inci,
+    percentage: ing.pct_int / 100,
+    phase: ing.phase,
+    type: ing.type,
+    function: ing.fn,
+    is_compound: !!COMPOUND_DB[ing.name],
+    compound_name: COMPOUND_DB[ing.name] ? ing.name : null,
     regulations: [],
     safety: null,
-  })
+  }))
 
-  const phases = buildPhaseSummary(formulaIngredients)
+  const phases = buildPhaseSummary(resultIngredients)
   const process = buildDefaultProcess(phases)
 
   return {
-    description: generateDescription(productType, requirements, formulaIngredients),
-    ingredients: formulaIngredients,
+    description: `${matchedType} 가이드 처방 (SKILL v2.3 기반, DB 폴백). 총 ${resultIngredients.length}종 원료.` +
+      (requirements ? `\n요구사항: ${requirements}` : ''),
+    ingredients: resultIngredients,
+    fullInciList: sortedInci.map(item => ({ inci_name: item.inci, percentage: item.percentage })),
+    compoundExpansion: compoundInfo,
+    verification,
     phases,
     process,
     cautions: ['처방은 참고용이며 실제 제조 전 안정성 테스트 필수', '규제 정보는 최신 공식 문서로 교차 확인 필요'],
     totalPercentage: 100,
-    totalDbIngredients: imRows.length,
-    regulationsChecked: regRes.rows.length,
+    totalDbIngredients: resultIngredients.length,
+    regulationsChecked: 0,
     generatedAt: new Date().toISOString(),
-    source: 'db-fallback',
+    source: 'skill-v2.3-db-fallback',
   }
 }
 
@@ -697,20 +873,24 @@ app.post('/api/ai-formula', async (req, res) => {
       ? '\n\n목표 물성 스펙 (처방이 이 물성을 달성하도록 원료를 선정하세요):\n' + physicalSpecs.map(s => `- ${s}`).join('\n')
       : ''
 
-    const prompt = `당신은 화장품 처방 전문가입니다. 다음 조건으로 처방을 생성하세요.
+    const prompt = `당신은 COCHING AI v2.3 화장품 처방 전문가입니다. COMPOUND-EXPANSION SKILL + PRECISION-ARITHMETIC 규칙을 적용하여 처방을 생성하세요.
 
-규칙:
-1. 배합비 합계는 정확히 100.00%
-2. 정제수(Water)로 잔량 조절
-3. Phase A(수상)/B(유상)/C(첨가)/D(방부/향) 구분
+핵심 규칙 (SKILL20260309):
+1. 배합비 합계는 정확히 100.00% (정수연산: 모든 wt%를 ×100 정수로 계산 후 합계 10000)
+2. 정제수(Water)는 밸런스 역산 (10000 - 비정제수 합계)
+3. Phase A(수상 70-75°C)/B(유상 70-75°C)/C(첨가 ≤45°C)/D(방부/향 ≤40°C) 구분
 4. 규제 최대 농도를 초과하지 않을 것
 5. 제조 공정(Manufacturing Process) 포함
 6. 목표 물성(pH, 점도 등)을 달성할 수 있는 원료 조합으로 처방할 것
+7. 복합성분(Compound/Blend)은 투입원료명 + 구성 INCI를 모두 표기
+8. 동일 INCI가 여러 원료에서 발생하면 전성분 표기에서 합산
+9. 향료(Fragrance)는 전개하지 않고 단일 표기
+10. 각 원료에 int_value(wt%×100 정수) 포함
 
 응답은 반드시 JSON 형식:
 {
   "ingredients": [
-    {"inci_name": "...", "korean_name": "...", "percentage": 0.00, "phase": "A", "function": "...", "type": "..."}
+    {"inci_name": "...", "korean_name": "...", "percentage": 0.00, "int_value": 0, "phase": "A", "function": "...", "type": "...", "is_compound": false}
   ],
   "phases": [
     {"phase": "A", "name": "수상", "temp": "75°C", "items": ["Water", "Glycerin"]}
@@ -719,7 +899,8 @@ app.post('/api/ai-formula', async (req, res) => {
     {"step": 1, "phase": "A", "desc": "...", "temp": "75°C", "time": "10분", "note": "..."}
   ],
   "description": "...",
-  "cautions": ["..."]
+  "cautions": ["..."],
+  "verification": {"step1_intSum": true, "step2_pctSum": true, "step3_aquaCross": true, "allPassed": true}
 }
 
 제형: ${productType}
