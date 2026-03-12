@@ -53,13 +53,12 @@
                   </td>
                   <td class="cell-reg">
                     <div class="reg-badges">
-                      <span v-if="item.kr_regulation" class="reg-badge kr" :class="regBadgeClass(item.kr_regulation)">
-                        KR
+                      <span v-if="item.regulation_status" class="reg-status-chip" :class="regStatusClass(item.regulation_status)">
+                        {{ regStatusLabel(item.regulation_status) }}
                       </span>
-                      <span v-if="item.eu_regulation" class="reg-badge eu" :class="regBadgeClass(item.eu_regulation)">
-                        EU
-                      </span>
-                      <span v-if="!item.kr_regulation && !item.eu_regulation" class="cell-empty">-</span>
+                      <span v-if="item.kr_regulation" class="reg-badge" :class="regBadgeClass(item.kr_regulation)">KR</span>
+                      <span v-if="item.eu_regulation" class="reg-badge" :class="regBadgeClass(item.eu_regulation)">EU</span>
+                      <span v-if="!item.regulation_status && !item.kr_regulation && !item.eu_regulation" class="cell-empty">-</span>
                     </div>
                   </td>
                   <td class="cell-conc">
@@ -89,14 +88,20 @@
             </table>
           </div>
 
-          <!-- 더보기 버튼 -->
-          <div v-if="hasMore && !loading" class="load-more-wrap">
-            <button class="btn-ghost load-more-btn" @click="loadMore" :disabled="loadingMore">
-              {{ loadingMore ? '불러오는 중...' : `더 보기 (${totalCount - items.length}건 더)` }}
-            </button>
-          </div>
-          <div v-if="loadingMore" class="load-more-wrap">
-            <div class="loading-dots"><span></span><span></span><span></span></div>
+          <!-- 페이지네이션 -->
+          <div v-if="totalPages > 1" class="pagination-wrap">
+            <button class="page-btn" :disabled="currentPage <= 1" @click="goToPage(1)" title="첫 페이지">«</button>
+            <button class="page-btn" :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">‹</button>
+            <button
+              v-for="p in visiblePages"
+              :key="p"
+              class="page-btn"
+              :class="{ active: p === currentPage }"
+              @click="goToPage(p)"
+            >{{ p }}</button>
+            <button class="page-btn" :disabled="currentPage >= totalPages" @click="goToPage(currentPage + 1)">›</button>
+            <button class="page-btn" :disabled="currentPage >= totalPages" @click="goToPage(totalPages)" title="마지막 페이지">»</button>
+            <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
           </div>
         </div>
       </div>
@@ -240,14 +245,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useIngredientStore } from '../stores/ingredientStore.js'
 
 const store = useIngredientStore()
-const { loading, error } = store
+const { loading } = store
 
 const searchQuery = ref('')
 const items = ref([])
 const totalCount = ref(0)
-const currentOffset = ref(0)
-const LIMIT = 50
-const loadingMore = ref(false)
+const currentPage = ref(1)
+const PAGE_SIZE = 50
 
 const selectedItem = ref(null)
 const detailData = ref(null)
@@ -255,38 +259,49 @@ const detailLoading = ref(false)
 
 let debounceTimer = null
 
-const hasMore = computed(() => items.value.length < totalCount.value)
+const totalPages = computed(() => Math.ceil(totalCount.value / PAGE_SIZE))
+
+// 표시할 페이지 번호 목록 (최대 7개)
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  if (current <= 4) return [1, 2, 3, 4, 5, 6, 7]
+  if (current >= total - 3) return Array.from({ length: 7 }, (_, i) => total - 6 + i)
+  return [current - 3, current - 2, current - 1, current, current + 1, current + 2, current + 3]
+})
 
 // 초기 로드
 onMounted(async () => {
-  await loadIngredients(true)
+  await loadIngredients()
 })
 
-async function loadIngredients(reset = false) {
-  if (reset) {
-    currentOffset.value = 0
-    items.value = []
-  }
+async function loadIngredients() {
+  const offset = (currentPage.value - 1) * PAGE_SIZE
   const data = await store.searchIngredients({
     q: searchQuery.value || undefined,
-    limit: LIMIT,
-    offset: currentOffset.value,
+    limit: PAGE_SIZE,
+    offset,
   })
   if (data) {
-    if (reset) {
-      items.value = data.items || []
-    } else {
-      items.value = [...items.value, ...(data.items || [])]
-    }
+    items.value = data.items || []
     totalCount.value = data.total || 0
-    currentOffset.value = items.value.length
   }
+}
+
+function goToPage(page) {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) return
+  currentPage.value = page
+  loadIngredients()
+  // 스크롤 최상단
+  document.querySelector('.table-wrap')?.scrollTo(0, 0)
 }
 
 function onSearchInput() {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
-    loadIngredients(true)
+    currentPage.value = 1
+    loadIngredients()
     selectedItem.value = null
     detailData.value = null
   }, 300)
@@ -294,15 +309,10 @@ function onSearchInput() {
 
 function clearSearch() {
   searchQuery.value = ''
-  loadIngredients(true)
+  currentPage.value = 1
+  loadIngredients()
   selectedItem.value = null
   detailData.value = null
-}
-
-async function loadMore() {
-  loadingMore.value = true
-  await loadIngredients(false)
-  loadingMore.value = false
 }
 
 async function selectItem(item) {
@@ -347,6 +357,21 @@ function regBadgeClass(val) {
   if (lower.includes('금지') || lower.includes('prohibited') || lower.includes('banned')) return 'badge-red'
   if (lower.includes('제한') || lower.includes('restricted') || lower.includes('limit')) return 'badge-amber'
   return 'badge-green'
+}
+
+// 규제 상태 칩
+function regStatusClass(status) {
+  if (status === 'banned') return 'status-banned'
+  if (status === 'restricted') return 'status-restricted'
+  if (status === 'allowed') return 'status-allowed'
+  return ''
+}
+
+function regStatusLabel(status) {
+  if (status === 'banned') return '금지'
+  if (status === 'restricted') return '제한'
+  if (status === 'allowed') return '허용'
+  return status
 }
 
 function formatDate(iso) {
@@ -587,50 +612,66 @@ function formatDate(iso) {
 .empty-title { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
 .empty-sub { font-size: 12px; color: var(--text-dim); }
 
-/* ─── 더보기 ─── */
-.load-more-wrap {
-  padding: 14px 20px;
+/* ─── 페이지네이션 ─── */
+.pagination-wrap {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
 }
-.btn-ghost {
-  padding: 8px 20px;
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 4px;
   background: transparent;
   color: var(--text-sub);
   font-size: 12px;
-  cursor: pointer;
   font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-ghost:hover:not(:disabled) {
+.page-btn:hover:not(:disabled):not(.active) {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-light);
 }
-.btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
-.load-more-btn { width: 100%; max-width: 320px; }
-
-.loading-dots {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.loading-dots span {
-  width: 6px;
-  height: 6px;
+.page-btn.active {
   background: var(--accent);
-  border-radius: 50%;
-  animation: bounce 1s infinite;
+  border-color: var(--accent);
+  color: #fff;
 }
-.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
-@keyframes bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
+.page-info {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  margin-left: 8px;
+}
+
+/* ─── 규제 상태 칩 ─── */
+.reg-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.status-banned { background: var(--red-bg); color: var(--red); }
+.status-restricted { background: var(--amber-bg); color: var(--amber); }
+.status-allowed { background: var(--green-bg); color: var(--green); }
 
 /* ─── 상세 패널 트랜지션 ─── */
 .slide-panel-enter-active,

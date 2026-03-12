@@ -55,7 +55,11 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/ingredients', async (req, res) => {
   try {
     const { q, type, limit = 50, offset = 0 } = req.query
-    let where = []
+    let where = [
+      // #REF! 데이터 필터링
+      `im.inci_name NOT LIKE '%#REF%'`,
+      `(im.korean_name IS NULL OR im.korean_name NOT LIKE '%#REF%')`,
+    ]
     let params = []
     let idx = 1
 
@@ -70,23 +74,57 @@ app.get('/api/ingredients', async (req, res) => {
       idx++
     }
 
-    const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : ''
-    const countQuery = `SELECT count(*) FROM ingredient_master im ${whereClause}`
-    const dataQuery = `SELECT im.id, im.inci_name, im.korean_name, im.cas_number, im.ec_number,
+    const whereClause = 'WHERE ' + where.join(' AND ')
+
+    // regulation_cache에서 KR/EU 규제 서브쿼리 (coching_legacy 제외)
+    const dataQuery = `
+      SELECT im.id, im.inci_name, im.korean_name, im.cas_number, im.ec_number,
         im.ingredient_type, im.description, im.origin, im.source, im.updated_at,
-        kb.data as kb_data
+        kr.restriction AS kr_restriction, kr.max_concentration AS kr_max_conc,
+        eu.restriction AS eu_restriction, eu.max_concentration AS eu_max_conc,
+        (CASE WHEN im.korean_name IS NOT NULL AND im.korean_name != '' THEN 1 ELSE 0 END
+         + CASE WHEN im.cas_number IS NOT NULL AND im.cas_number != '' THEN 1 ELSE 0 END
+         + CASE WHEN im.description IS NOT NULL AND im.description != '' THEN 1 ELSE 0 END
+         + CASE WHEN kr.inci_name IS NOT NULL THEN 2 ELSE 0 END
+         + CASE WHEN eu.inci_name IS NOT NULL THEN 2 ELSE 0 END
+        ) AS info_score
       FROM ingredient_master im
-      LEFT JOIN coching_knowledge_base kb
-        ON kb.category = 'INGREDIENT_REGULATION' AND lower(kb.search_key) = lower(im.korean_name)
+      LEFT JOIN LATERAL (
+        SELECT rc.inci_name, rc.restriction, rc.max_concentration
+        FROM regulation_cache rc
+        WHERE lower(rc.inci_name) = lower(im.inci_name)
+          AND rc.source IN ('GEMINI_KR','MFDS_SEED')
+        LIMIT 1
+      ) kr ON true
+      LEFT JOIN LATERAL (
+        SELECT rc.inci_name, rc.restriction, rc.max_concentration
+        FROM regulation_cache rc
+        WHERE lower(rc.inci_name) = lower(im.inci_name)
+          AND rc.source = 'GEMINI_EU'
+        LIMIT 1
+      ) eu ON true
       ${whereClause}
-      ORDER BY im.inci_name
+      ORDER BY info_score DESC, im.inci_name
       LIMIT $${idx} OFFSET $${idx + 1}`
+
+    const countQuery = `SELECT count(*) FROM ingredient_master im ${whereClause}`
+
     params.push(parseInt(limit), parseInt(offset))
 
     const [countRes, dataRes] = await Promise.all([
       pool.query(countQuery, params.slice(0, idx - 1)),
       pool.query(dataQuery, params),
     ])
+
+    // 규제 상태 판단
+    function deriveRegStatus(kr, eu) {
+      const krR = (kr || '').toLowerCase()
+      const euR = (eu || '').toLowerCase()
+      if (krR.includes('금지') || euR.includes('ban') || euR.includes('prohibit')) return 'banned'
+      if (krR.includes('한도') || krR.includes('제한') || euR.includes('restrict') || euR.includes('annex')) return 'restricted'
+      if (kr || eu) return 'allowed'
+      return null
+    }
 
     res.json({
       total: parseInt(countRes.rows[0].count),
@@ -100,11 +138,10 @@ app.get('/api/ingredients', async (req, res) => {
         description: r.description,
         origin: r.origin,
         source: r.source,
-        ewg_score: r.kb_data?.ewg_score,
-        kr_regulation: r.kb_data?.kr_regulation,
-        eu_regulation: r.kb_data?.eu_regulation,
-        max_concentration: r.kb_data?.max_concentration,
-        safety_notes: r.kb_data?.safety_notes,
+        regulation_status: deriveRegStatus(r.kr_restriction, r.eu_restriction),
+        kr_regulation: r.kr_restriction || null,
+        eu_regulation: r.eu_restriction || null,
+        max_concentration: r.kr_max_conc || r.eu_max_conc || null,
         updated_at: r.updated_at,
       })),
     })
