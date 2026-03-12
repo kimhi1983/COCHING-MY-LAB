@@ -13,34 +13,19 @@
       </button>
     </div>
 
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>지역</th>
-          <th>성분명</th>
-          <th>상태</th>
-          <th>한도</th>
-          <th>업데이트</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in filteredData" :key="row.id">
-          <td>
-            <span class="region-chip" :class="getRegionClass(row.region)">
-              {{ row.region }}
-            </span>
-          </td>
-          <td class="cell-name">{{ row.ingredient }}</td>
-          <td>
-            <span class="status-chip" :class="getStatusClass(row.status)">
-              {{ getStatusLabel(row.status) }}
-            </span>
-          </td>
-          <td class="cell-limit">{{ row.limit || '-' }}</td>
-          <td class="cell-date">{{ row.updatedAt }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- 규제 리스트 -->
+    <div class="reg-list">
+      <div v-for="row in filteredData" :key="row.id" class="reg-row">
+        <span class="region-chip" :class="getRegionClass(row.region)">{{ row.region }}</span>
+        <div class="reg-info">
+          <span class="reg-name">{{ row.ingredient }}</span>
+          <span class="reg-limit">{{ row.limit || '-' }}</span>
+        </div>
+        <span class="status-chip" :class="getStatusClass(row.status)">
+          {{ getStatusLabel(row.status) }}
+        </span>
+      </div>
+    </div>
 
     <div v-if="!filteredData.length" class="empty">
       해당 지역의 규제 데이터가 없습니다
@@ -58,10 +43,13 @@ const regulations = ref([])
 const totalCount = ref(0)
 const sources = ref([])
 
+// 숨길 소스: coching_legacy, gem2_kb, gemini_kb, UNKNOWN
+const HIDDEN_SOURCES = ['coching_legacy', 'gem2_kb', 'gemini_kb', 'UNKNOWN']
+
 const regionTabs = computed(() => {
   const tabs = [{ value: 'ALL', label: '전체' }]
   for (const s of sources.value) {
-    // 소스명에서 짧은 라벨 생성
+    if (HIDDEN_SOURCES.includes(s.source)) continue
     const label = mapSource(s.source)
     if (!tabs.find(t => t.label === label)) {
       tabs.push({ value: s.source, label, count: s.count })
@@ -80,10 +68,11 @@ onMounted(async () => {
 
 async function loadData() {
   const source = selectedSource.value === 'ALL' ? undefined : selectedSource.value
-  const data = await store.searchRegulations({ source, limit: 20 })
+  const data = await store.searchRegulations({ source, limit: 50 })
   if (data) {
     regulations.value = data.items
-      .filter(r => r.ingredient || r.inci_name)
+      .filter(r => (r.ingredient || r.inci_name) && !HIDDEN_SOURCES.includes(r.source))
+      .slice(0, 20)
       .map((r, i) => ({
         id: i,
         region: mapSource(r.source),
@@ -97,11 +86,17 @@ async function loadData() {
 }
 
 function mapSource(src) {
-  const map = { MFDS_SEED: 'KR', GEMINI_KR: 'KR', GEMINI_EU: 'EU', gem2_kb: 'DB', gemini_kb: 'DB', UNKNOWN: '기타' }
+  const map = {
+    MFDS_SEED: 'KR', GEMINI_KR: 'KR',
+    GEMINI_EU: 'EU',
+    GEMINI_US: 'US', FDA_SEED: 'US',
+    GEMINI_JP: 'JP',
+    GEMINI_CN: 'CN',
+    GEMINI_ASEAN: 'ASEAN',
+  }
   return map[src] || src
 }
 
-// source 변경 시 재로드
 watch(selectedSource, loadData)
 
 function getRegulationStatus(r) {
@@ -116,7 +111,9 @@ function getRegionClass(region) {
   if (region === 'KR') return 'region-kr'
   if (region === 'EU') return 'region-eu'
   if (region === 'US') return 'region-us'
-  if (region === 'DB') return 'region-db'
+  if (region === 'JP') return 'region-jp'
+  if (region === 'CN') return 'region-cn'
+  if (region === 'ASEAN') return 'region-asean'
   return ''
 }
 
@@ -147,16 +144,17 @@ function getStatusLabel(status) {
 .region-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .region-tab {
-  padding: clamp(2px, 0.8cqi, 3px) clamp(6px, 2cqi, 10px);
+  padding: 2px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: transparent;
-  font-size: clamp(9px, 2.5cqi, 11px);
+  font-size: 10px;
   font-family: var(--font-mono);
   font-weight: 600;
   color: var(--text-dim);
@@ -175,67 +173,41 @@ function getStatusLabel(status) {
   color: #fff;
 }
 
-/* 테이블 */
-.mini-table {
-  width: 100%;
-  border-collapse: collapse;
+/* 규제 리스트 */
+.reg-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.mini-table th {
+.reg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.reg-row:hover {
   background: var(--bg);
-  font-size: clamp(9px, 2.5cqi, 11px);
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--text-dim);
-  padding: clamp(3px, 1cqi, 6px) clamp(4px, 1.5cqi, 8px);
-  text-align: left;
-  position: sticky;
-  top: 0;
-  white-space: nowrap;
-}
-
-.mini-table td {
-  padding: clamp(4px, 1.2cqi, 7px) clamp(4px, 1.5cqi, 8px);
-  font-size: clamp(10px, 2.5cqi, 12px);
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.mini-table tbody tr:hover {
-  background: var(--bg);
-}
-
-.cell-name {
-  font-weight: 500;
-  max-width: clamp(80px, 25cqi, 130px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cell-limit {
-  font-family: var(--font-mono);
-  font-size: clamp(9px, 2.2cqi, 11px);
-  color: var(--text-sub);
-  white-space: nowrap;
-}
-
-.cell-date {
-  font-family: var(--font-mono);
-  font-size: clamp(9px, 2.2cqi, 11px);
-  color: var(--text-dim);
-  white-space: nowrap;
 }
 
 /* 지역 칩 */
 .region-chip {
-  display: inline-block;
-  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.2cqi, 6px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 20px;
   border-radius: 3px;
-  font-size: clamp(9px, 2.2cqi, 11px);
+  font-size: 9px;
   font-weight: 700;
   font-family: var(--font-mono);
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
 }
 
 .region-kr {
@@ -253,13 +225,58 @@ function getStatusLabel(status) {
   color: var(--green);
 }
 
+.region-jp {
+  background: rgba(196, 78, 78, 0.12);
+  color: #c44e4e;
+}
+
+.region-cn {
+  background: rgba(196, 130, 50, 0.15);
+  color: #c48232;
+}
+
+.region-asean {
+  background: rgba(58, 144, 104, 0.15);
+  color: var(--green);
+}
+
+/* 성분 정보 */
+.reg-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.reg-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reg-limit {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* 상태 칩 */
 .status-chip {
-  display: inline-block;
-  padding: clamp(1px, 0.5cqi, 2px) clamp(4px, 1.5cqi, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
   border-radius: 3px;
-  font-size: clamp(9px, 2.2cqi, 11px);
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
 }
 
 .chip-amber {
@@ -280,7 +297,7 @@ function getStatusLabel(status) {
 .empty {
   text-align: center;
   color: var(--text-dim);
-  font-size: clamp(10px, 2.8cqi, 12px);
-  padding: clamp(12px, 5cqi, 24px);
+  font-size: 11px;
+  padding: 16px;
 }
 </style>
