@@ -133,11 +133,59 @@
         </tr>
       </tfoot>
     </table>
+    <!-- 실시간 경고 패널 -->
+    <div v-if="editable && (alerts.length || recommendations.length || regViolations.length)" class="alert-panel">
+      <div class="alert-panel-header">
+        <span class="section-label">SAFETY CHECK</span>
+        <span class="section-title">실시간 검증</span>
+        <span v-if="isChecking" class="checking-badge">검사 중...</span>
+      </div>
+      <!-- 규제 위반 -->
+      <div v-for="v in regViolations" :key="'reg-' + v.inci_name" class="alert-item alert-forbidden">
+        <span class="alert-icon">⛔</span>
+        <div class="alert-body">
+          <div class="alert-title">규제 한도 초과: {{ v.inci_name }}</div>
+          <div class="alert-desc">{{ v.message }}</div>
+        </div>
+      </div>
+      <!-- 규제 경고 (90% 근접) -->
+      <div v-for="w in regWarnings" :key="'regw-' + w.inci_name" class="alert-item alert-caution">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-body">
+          <div class="alert-title">규제 한도 근접: {{ w.inci_name }}</div>
+          <div class="alert-desc">{{ w.message }}</div>
+        </div>
+      </div>
+      <!-- 호환성 금지 -->
+      <div v-for="(a, i) in forbiddenAlerts" :key="'f-' + i" class="alert-item alert-forbidden">
+        <span class="alert-icon">⛔</span>
+        <div class="alert-body">
+          <div class="alert-title">{{ a.ingredientA }} + {{ a.ingredientB }}</div>
+          <div class="alert-desc">{{ a.reason }}</div>
+        </div>
+      </div>
+      <!-- 호환성 주의 -->
+      <div v-for="(a, i) in cautionAlerts" :key="'c-' + i" class="alert-item alert-caution">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-body">
+          <div class="alert-title">{{ a.ingredientA }} + {{ a.ingredientB }}</div>
+          <div class="alert-desc">{{ a.reason }}</div>
+        </div>
+      </div>
+      <!-- 추천 조합 -->
+      <div v-for="(r, i) in recommendations" :key="'r-' + i" class="alert-item alert-recommended">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">
+          <div class="alert-title">{{ r.ingredientA }} + {{ r.ingredientB }}</div>
+          <div class="alert-desc">{{ r.reason }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch, ref } from 'vue'
 import { useAPI } from '../../composables/useAPI.js'
 
 const api = useAPI()
@@ -213,6 +261,59 @@ function ewgClass(score) {
   if (score <= 2) return 'ewg-low'
   if (score <= 6) return 'ewg-mid'
   return 'ewg-high'
+}
+
+// ─── 실시간 호환성 + 규제 검사 ───
+const alerts = ref([])
+const recommendations = ref([])
+const regViolations = ref([])
+const regWarnings = ref([])
+const isChecking = ref(false)
+let checkTimer = null
+
+const forbiddenAlerts = computed(() => alerts.value.filter(a => a.severity === 'forbidden'))
+const cautionAlerts = computed(() => alerts.value.filter(a => a.severity === 'caution'))
+
+watch(() => props.ingredients, (ings) => {
+  if (!props.editable || ings.length < 2) {
+    alerts.value = []
+    recommendations.value = []
+    regViolations.value = []
+    regWarnings.value = []
+    return
+  }
+  clearTimeout(checkTimer)
+  checkTimer = setTimeout(() => runSafetyCheck(ings), 800)
+}, { deep: true })
+
+async function runSafetyCheck(ings) {
+  const names = ings
+    .map(i => i.inci_name || i.name || '')
+    .filter(n => n.length > 1)
+  if (names.length < 2) return
+
+  isChecking.value = true
+  try {
+    const [compatRes, regRes] = await Promise.all([
+      api.checkCompatibility(names),
+      api.checkRegulationLimits(
+        ings.filter(i => (i.inci_name || i.name) && i.percentage > 0)
+          .map(i => ({ inci_name: i.inci_name || i.name, percentage: i.percentage }))
+      ),
+    ])
+    if (compatRes?.data) {
+      alerts.value = compatRes.data.alerts || []
+      recommendations.value = compatRes.data.recommendations || []
+    }
+    if (regRes?.data) {
+      regViolations.value = regRes.data.violations || []
+      regWarnings.value = regRes.data.warnings || []
+    }
+  } catch (e) {
+    // 실패해도 조용히 무시
+  } finally {
+    isChecking.value = false
+  }
 }
 
 const totalPct = computed(() =>
@@ -457,4 +558,65 @@ function onPhaseChange() {
 .ewg-low { background: rgba(58,144,104,0.12); color: var(--green, #3a9068); }
 .ewg-mid { background: rgba(184,147,90,0.12); color: var(--amber, #b8935a); }
 .ewg-high { background: rgba(196,78,78,0.12); color: var(--red, #c44e4e); }
+
+/* 실시간 경고 패널 */
+.alert-panel {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+}
+.alert-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.checking-badge {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  animation: pulse-check 1.2s ease-in-out infinite;
+}
+@keyframes pulse-check { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.alert-item:last-child { margin-bottom: 0; }
+.alert-forbidden {
+  background: var(--red-bg, #fdf2f2);
+  border: 1px solid rgba(196,78,78,0.2);
+}
+.alert-caution {
+  background: var(--amber-bg, #fdf8f0);
+  border: 1px solid rgba(176,120,32,0.2);
+}
+.alert-recommended {
+  background: var(--green-bg, #f0f8f4);
+  border: 1px solid rgba(58,144,104,0.2);
+}
+.alert-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+.alert-forbidden .alert-icon { color: var(--red, #c44e4e); }
+.alert-caution .alert-icon { color: var(--amber, #b07820); }
+.alert-recommended .alert-icon { color: var(--green, #3a9068); }
+.alert-body { flex: 1; min-width: 0; }
+.alert-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.alert-desc {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 2px;
+  line-height: 1.4;
+}
 </style>

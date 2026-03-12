@@ -29,6 +29,7 @@ const navItems = [
   { to: '/ingredients', label: '성분 DB', exact: true },
   { to: '/notes', label: '연구 노트', exact: true },
   { to: '/validation', label: '품질 검증', exact: true },
+  { to: '/hlb-calc', label: 'HLB 계산기', exact: true },
 ]
 </script>
 

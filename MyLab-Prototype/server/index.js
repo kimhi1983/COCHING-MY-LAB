@@ -1144,7 +1144,363 @@ app.post('/api/validate-formula', async (req, res) => {
   }
 })
 
-const PORT = process.env.API_PORT || 3001
-app.listen(PORT, () => {
-  console.log(`[MyLab API] Running on http://localhost:${PORT}`)
+// ─── 호환성 검사: DB 초기화 (테이블 + 시드) ────────────────────────────────
+async function initCompatibilityDB() {
+  // 1. 테이블 + 인덱스 생성
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS compatibility_rules (
+      id SERIAL PRIMARY KEY,
+      ingredient_a TEXT NOT NULL,
+      ingredient_b TEXT NOT NULL,
+      severity TEXT NOT NULL CHECK (severity IN ('forbidden', 'caution', 'recommended')),
+      reason TEXT NOT NULL,
+      ph_condition TEXT,
+      source TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `)
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_compat_a ON compatibility_rules(lower(ingredient_a))`)
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_compat_b ON compatibility_rules(lower(ingredient_b))`)
+
+  // 2. 시드 데이터 (0건일 때만 INSERT)
+  const { rows } = await pool.query('SELECT count(*) as cnt FROM compatibility_rules')
+  if (parseInt(rows[0].cnt) > 0) {
+    console.log('[Compatibility] 시드 데이터 이미 존재, 건너뜀')
+    return
+  }
+
+  const seeds = [
+    // ── forbidden ──────────────────────────────────────────────────────────
+    ['Retinol', 'Benzoyl Peroxide', 'forbidden',
+      '레티놀이 벤조일퍼옥사이드에 의해 산화 분해됨', null, 'Dermatology consensus'],
+    ['Vitamin C (Ascorbic Acid)', 'Niacinamide', 'forbidden',
+      '고농도 혼합 시 니코틴산(Nicotinic Acid) 생성 — 자극 및 홍조 유발. 저농도는 허용되나 고농도 직접 혼합 금지', null, 'Journal of Cosmetic Science'],
+    ['AHA (Glycolic Acid)', 'Retinol', 'forbidden',
+      '산성 pH에서 레티놀 불안정 + 과도한 자극', null, 'PCPC guideline'],
+    ['BHA (Salicylic Acid)', 'Retinol', 'forbidden',
+      '과도한 각질 제거와 자극 시너지', null, 'PCPC guideline'],
+    ['Vitamin C (Ascorbic Acid)', 'AHA (Glycolic Acid)', 'forbidden',
+      'pH 충돌로 두 성분 모두 효과 감소 및 피부 자극 증가', null, 'Cosmetic formulation review'],
+    ['Vitamin C (Ascorbic Acid)', 'BHA (Salicylic Acid)', 'forbidden',
+      'pH 충돌, 산성 시너지로 자극 증가', null, 'Cosmetic formulation review'],
+    ['Benzoyl Peroxide', 'Hydroquinone', 'forbidden',
+      '즉각 산화 변색(갈변) 발생', null, 'Formulation incompatibility data'],
+    // ── caution ────────────────────────────────────────────────────────────
+    ['Niacinamide', 'AHA (Glycolic Acid)', 'caution',
+      'pH 차이로 나이아신으로 전환 가능, 효과 감소 우려', 'pH < 3.5', 'IJCS 2021'],
+    ['Niacinamide', 'BHA (Salicylic Acid)', 'caution',
+      '낮은 pH 환경에서 니코틴산으로 전환 가능성', 'pH < 3.5', 'IJCS 2021'],
+    ['Retinol', 'AHA (Glycolic Acid)', 'caution',
+      '교대 사용 권장 — 같은 처방 내 혼합 시 자극 위험', null, 'Dermatologist recommendation'],
+    ['Retinol', 'Vitamin C (Ascorbic Acid)', 'caution',
+      'pH 차이로 안정성 저하, 교대 사용(아침/저녁) 권장', null, 'Skincare formulation guide'],
+    ['Copper Peptide', 'Vitamin C (Ascorbic Acid)', 'caution',
+      '구리 이온이 비타민 C 산화를 촉진하여 효능 저하', null, 'Peptide stability study'],
+    ['Copper Peptide', 'AHA (Glycolic Acid)', 'caution',
+      '산성 pH에서 펩타이드 구조 안정성 저하', null, 'Peptide stability study'],
+    ['Zinc Oxide', 'AHA (Glycolic Acid)', 'caution',
+      '산성 pH에서 아연 이온 용출 위험, 배합 안정성 저하', 'pH < 4', 'Sunscreen formulation review'],
+    ['Iron Oxides', 'Ascorbic Acid', 'caution',
+      '철 이온이 아스코르빈산 산화를 촉진 — 변색 및 효능 저하', null, 'Color cosmetics formulation'],
+    ['Carbomer', 'Sodium Chloride', 'caution',
+      '고농도 전해질 존재 시 카보머 겔 점도 급락', null, 'Rheology formulation note'],
+    ['Cetrimonium Chloride', 'Sodium Lauryl Sulfate', 'caution',
+      '양이온 + 음이온 계면활성제 조합 — 침전 및 효능 상쇄', null, 'Surfactant chemistry'],
+    ['EDTA', 'Metal Ions', 'caution',
+      '킬레이트 포화 시 안정성 저하, 방부 보조 기능 소실', null, 'Preservative system guideline'],
+    ['Phenoxyethanol', 'Alkaline Base', 'caution',
+      'pH 8 이상에서 방부력 급격 저하', 'pH > 8', 'Preservative efficacy data'],
+    ['Methylisothiazolinone', 'Ascorbic Acid', 'caution',
+      '아스코르빈산이 이소티아졸리논 계열 방부제 분해', null, 'Preservative compatibility'],
+    ['Tocopherol', 'Benzoyl Peroxide', 'caution',
+      '항산화제(토코페롤)가 벤조일퍼옥사이드에 의해 소진됨', null, 'Antioxidant formulation'],
+    ['Hyaluronic Acid', 'Strong Acid', 'caution',
+      'pH 2 미만 강산 환경에서 히알루론산 가수분해 분해', 'pH < 2', 'Biopolymer stability'],
+    ['Alcohol Denat.', 'Retinol', 'caution',
+      '알코올 건조 + 레티놀 자극이 시너지로 피부 장벽 손상 가중', null, 'Skincare formulation guide'],
+    ['Allantoin', 'Strong Acid', 'caution',
+      'pH 3 미만 강산 환경에서 알란토인 침전 및 분해', 'pH < 3', 'Cosmetic ingredient review'],
+    // ── recommended ────────────────────────────────────────────────────────
+    ['Vitamin C (Ascorbic Acid)', 'Vitamin E (Tocopherol)', 'recommended',
+      '항산화 시너지 — 비타민 C가 산화된 비타민 E를 재생시켜 효과 극대화', null, 'Antioxidant synergy research'],
+    ['Niacinamide', 'Hyaluronic Acid', 'recommended',
+      '보습 + 피부 장벽 강화 시너지, 자극 없이 함께 사용 가능', null, 'Skincare formulation'],
+    ['Retinol', 'Ceramide', 'recommended',
+      '레티놀 자극 완화 + 피부 장벽 보호, 같은 처방 내 보완 조합', null, 'Clinical skincare study'],
+    ['AHA (Glycolic Acid)', 'Panthenol', 'recommended',
+      '각질 제거 후 진정 및 보습 보완 — 자극 최소화', null, 'Exfoliant formulation'],
+    ['Centella Asiatica Extract', 'Madecassoside', 'recommended',
+      '센텔라 추출물과 마데카소사이드 진정 시너지, 피부 회복 가속', null, 'Wound healing research'],
+    ['Zinc Oxide', 'Titanium Dioxide', 'recommended',
+      '물리적 자외선 차단제 시너지 — ZnO(UVA) + TiO2(UVB) 전대역 커버', null, 'Sunscreen formulation'],
+    ['Tea Tree Oil', 'Salicylic Acid', 'recommended',
+      '항균(티트리) + 각질 제거(살리실산) 시너지, 트러블 케어에 효과적', null, 'Acne treatment review'],
+    ['Squalane', 'Ceramide', 'recommended',
+      '스쿠알란 + 세라마이드 피부 장벽 강화 시너지, 보습막 형성', null, 'Barrier repair formulation'],
+  ]
+
+  for (const [a, b, severity, reason, ph_condition, source] of seeds) {
+    await pool.query(
+      `INSERT INTO compatibility_rules (ingredient_a, ingredient_b, severity, reason, ph_condition, source)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [a, b, severity, reason, ph_condition ?? null, source ?? null]
+    )
+  }
+  console.log(`[Compatibility] 시드 데이터 ${seeds.length}건 삽입 완료`)
+}
+
+// ─── GET /api/compatibility-rules — 전체 규칙 목록 (관리용) ──────────────
+app.get('/api/compatibility-rules', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, ingredient_a, ingredient_b, severity, reason, ph_condition, source, created_at
+       FROM compatibility_rules
+       ORDER BY severity, ingredient_a`
+    )
+    res.json({ success: true, data: rows, total: rows.length })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
 })
+
+// ─── POST /api/check-compatibility — 입력 원료 배열 호환성 검사 ───────────
+app.post('/api/check-compatibility', async (req, res) => {
+  try {
+    const { ingredients } = req.body
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      return res.status(400).json({ success: false, error: 'ingredients 배열이 필요합니다.' })
+    }
+
+    // 규칙 전체 로드 후 메모리 매칭 (규칙 수 ~32개, 부하 무시)
+    const { rows: rules } = await pool.query(
+      `SELECT ingredient_a, ingredient_b, severity, reason, ph_condition, source FROM compatibility_rules`
+    )
+
+    const alerts = []
+    const recommendations = []
+
+    for (const rule of rules) {
+      const ruleA = rule.ingredient_a.toLowerCase()
+      const ruleB = rule.ingredient_b.toLowerCase()
+
+      // 입력 원료 중 rule_a, rule_b를 각각 포함하는 원료 찾기 (ILIKE 부분 매칭)
+      const matchedA = ingredients.find(ing => {
+        const ingLower = ing.toLowerCase()
+        return ruleA.includes(ingLower) || ingLower.includes(ruleA.replace(/\s*\(.*?\)/g, '').trim())
+      })
+      const matchedB = ingredients.find(ing => {
+        const ingLower = ing.toLowerCase()
+        return ruleB.includes(ingLower) || ingLower.includes(ruleB.replace(/\s*\(.*?\)/g, '').trim())
+      })
+
+      if (!matchedA || !matchedB) continue
+
+      const entry = {
+        severity: rule.severity,
+        ingredientA: matchedA,
+        ingredientB: matchedB,
+        reason: rule.reason,
+        phCondition: rule.ph_condition ?? null,
+        source: rule.source ?? null,
+        matchedA: rule.ingredient_a,
+        matchedB: rule.ingredient_b,
+      }
+
+      if (rule.severity === 'recommended') {
+        recommendations.push(entry)
+      } else {
+        alerts.push(entry)
+      }
+    }
+
+    // forbidden → caution 순으로 정렬
+    alerts.sort((a, b) => (a.severity === 'forbidden' ? -1 : 1))
+
+    res.json({
+      success: true,
+      data: {
+        alerts,
+        recommendations,
+        scannedCount: ingredients.length,
+        checkedRules: rules.length,
+        checkedAt: new Date().toISOString(),
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// ─── POST /api/check-regulation-limits — 배합 농도 규정 초과 검사 ─────────
+app.post('/api/check-regulation-limits', async (req, res) => {
+  try {
+    const { ingredients } = req.body
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      return res.status(400).json({ success: false, error: 'ingredients 배열이 필요합니다.' })
+    }
+
+    // ingredients: [{ inci_name: string, percentage: number }, ...]
+    const inciNames = ingredients.map(i => i.inci_name)
+
+    // regulation_cache 에서 INCI 매칭 (ILIKE 부분 포함)
+    const placeholders = inciNames.map((_, idx) => `$${idx + 1}`).join(', ')
+    const { rows: regs } = await pool.query(
+      `SELECT inci_name, max_concentration, unit, regulation_type, source, country
+       FROM regulation_cache
+       WHERE inci_name ILIKE ANY (ARRAY[${placeholders}])`,
+      inciNames.map(n => `%${n}%`)
+    )
+
+    const violations = []
+    const warnings = []
+
+    for (const item of ingredients) {
+      if (item.percentage == null) continue
+      const pct = parseFloat(item.percentage)
+      if (isNaN(pct)) continue
+
+      // 해당 INCI에 매칭되는 규정 검색 (대소문자 무시 포함 매칭)
+      const matchingRegs = regs.filter(r =>
+        r.inci_name.toLowerCase().includes(item.inci_name.toLowerCase()) ||
+        item.inci_name.toLowerCase().includes(r.inci_name.toLowerCase())
+      )
+
+      for (const reg of matchingRegs) {
+        const maxAllowed = parseFloat(reg.max_concentration)
+        if (isNaN(maxAllowed)) continue
+
+        const entry = {
+          inci_name: item.inci_name,
+          percentage: pct,
+          max_allowed: maxAllowed,
+          unit: reg.unit ?? '%',
+          regulation_type: reg.regulation_type ?? null,
+          source: reg.source ?? null,
+          country: reg.country ?? null,
+        }
+
+        if (pct > maxAllowed) {
+          violations.push({
+            ...entry,
+            message: `${item.inci_name} 최대 허용 농도 ${maxAllowed}${reg.unit ?? '%'}를 초과합니다 (현재 ${pct}%)`,
+          })
+        } else if (pct > maxAllowed * 0.9) {
+          // 최대치의 90% 이상이면 경고
+          warnings.push({
+            ...entry,
+            message: `${item.inci_name} 최대 허용 농도(${maxAllowed}${reg.unit ?? '%'})에 근접합니다 (현재 ${pct}%)`,
+          })
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        violations,
+        warnings,
+        checkedCount: ingredients.length,
+        checkedAt: new Date().toISOString(),
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// ─── 유사 처방 검색 (product_master INCI 기반) ────────────────────────────
+app.post('/api/similar-products', async (req, res) => {
+  try {
+    const { ingredients = [], limit = 10 } = req.body
+    if (!ingredients.length) return res.json({ success: true, data: { products: [], total: 0 } })
+
+    // 입력 원료 INCI 목록
+    const inciList = ingredients
+      .map(i => (i.inci_name || i.name || '').trim().toLowerCase())
+      .filter(n => n.length > 1)
+    if (!inciList.length) return res.json({ success: true, data: { products: [], total: 0 } })
+
+    // product_master에서 전성분(inci_list) 컬럼을 검색
+    // 매칭 원료 수가 많은 순으로 정렬
+    const matchCases = inciList.map((_, i) => `CASE WHEN lower(pm.inci_list) LIKE $${i + 1} THEN 1 ELSE 0 END`).join(' + ')
+    const params = inciList.map(n => `%${n}%`)
+    params.push(parseInt(limit))
+
+    const query = `
+      SELECT pm.id, pm.product_name, pm.brand, pm.category, pm.inci_list,
+             (${matchCases}) as match_count
+      FROM product_master pm
+      WHERE (${inciList.map((_, i) => `lower(pm.inci_list) LIKE $${i + 1}`).join(' OR ')})
+      ORDER BY match_count DESC, pm.product_name
+      LIMIT $${params.length}
+    `
+    const { rows } = await pool.query(query, params)
+
+    res.json({
+      success: true,
+      data: {
+        products: rows.map(r => ({
+          id: r.id,
+          productName: r.product_name,
+          brand: r.brand,
+          category: r.category,
+          matchCount: parseInt(r.match_count),
+          totalIngredients: inciList.length,
+          matchRate: Math.round((parseInt(r.match_count) / inciList.length) * 100),
+        })),
+        total: rows.length,
+        searchedIngredients: inciList.length,
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// ─── 배치 스케일러 계산 ────────────────────────────────────────────────────
+app.post('/api/batch-scale', async (req, res) => {
+  try {
+    const { ingredients = [], currentBatchG = 1000, targetBatchG = 5000 } = req.body
+    if (!ingredients.length) return res.json({ success: true, data: { scaled: [], ratio: 1 } })
+
+    const ratio = targetBatchG / currentBatchG
+    const scaled = ingredients.map(ing => ({
+      name: ing.name || '',
+      inci_name: ing.inci_name || '',
+      percentage: ing.percentage || 0,
+      phase: ing.phase || '',
+      function: ing.function || '',
+      currentG: ((ing.percentage || 0) / 100 * currentBatchG).toFixed(2),
+      targetG: ((ing.percentage || 0) / 100 * targetBatchG).toFixed(2),
+    }))
+
+    res.json({
+      success: true,
+      data: {
+        scaled,
+        ratio: ratio.toFixed(2),
+        currentBatchG,
+        targetBatchG,
+        totalCurrentG: currentBatchG.toFixed(2),
+        totalTargetG: targetBatchG.toFixed(2),
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+})
+
+// ─── 서버 시작 ────────────────────────────────────────────────────────────
+const PORT = process.env.API_PORT || 3001
+
+;(async () => {
+  try {
+    await initCompatibilityDB()
+    console.log('[Compatibility] DB 초기화 완료')
+  } catch (err) {
+    console.error('[Compatibility] DB 초기화 실패:', err.message)
+  }
+  app.listen(PORT, () => {
+    console.log(`[MyLab API] Running on http://localhost:${PORT}`)
+  })
+})()

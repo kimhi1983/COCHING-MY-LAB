@@ -17,6 +17,7 @@ export const WIDGET_CATALOG = [
   { id: 'stability', label: '안정성 현황', icon: '⏱', description: '처방별 안정성 테스트 현황', minW: 4, minH: 4, defaultW: 6, defaultH: 5 },
   { id: 'regulation', label: '규제 모니터링', icon: '⚠', description: '지역별 성분 규제 현황', minW: 4, minH: 4, defaultW: 6, defaultH: 5 },
   { id: 'todaylog', label: '오늘의 업무', icon: '◉', description: '오늘 진행한 업무 타임라인', minW: 4, minH: 4, defaultW: 6, defaultH: 5 },
+  { id: 'hlb', label: 'HLB 계산기', icon: '⚖', description: '오일/유화제 HLB 빠른 계산 및 판정', minW: 3, minH: 4, defaultW: 4, defaultH: 5 },
 ]
 
 // 기본 레이아웃 (첫 방문 시) — 12컬럼 기준

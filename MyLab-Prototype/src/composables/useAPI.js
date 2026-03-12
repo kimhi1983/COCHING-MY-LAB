@@ -132,6 +132,38 @@ export function useAPI() {
     })
   }
 
+  // ─── 호환성 검사 ───
+  async function checkCompatibility(ingredientNames) {
+    return fetchJSON('/api/check-compatibility', {
+      method: 'POST',
+      body: JSON.stringify({ ingredients: ingredientNames }),
+    })
+  }
+
+  // ─── 규제 한도 검사 ───
+  async function checkRegulationLimits(ingredients) {
+    return fetchJSON('/api/check-regulation-limits', {
+      method: 'POST',
+      body: JSON.stringify({ ingredients }),
+    })
+  }
+
+  // ─── 유사 제품 검색 ───
+  async function searchSimilarProducts(ingredients, limit = 10) {
+    return fetchJSON('/api/similar-products', {
+      method: 'POST',
+      body: JSON.stringify({ ingredients, limit }),
+    })
+  }
+
+  // ─── 배치 스케일 계산 ───
+  async function calcBatchScale(ingredients, currentBatchG, targetBatchG) {
+    return fetchJSON('/api/batch-scale', {
+      method: 'POST',
+      body: JSON.stringify({ ingredients, currentBatchG, targetBatchG }),
+    })
+  }
+
   // ─── 수집 상태 ───
   async function getCollectionStatus() {
     return fetchJSON('/api/collection-status')
@@ -154,6 +186,10 @@ export function useAPI() {
     generateAiFormula,
     copyFormula,
     validateFormula,
+    checkCompatibility,
+    checkRegulationLimits,
+    searchSimilarProducts,
+    calcBatchScale,
     getCollectionStatus,
     healthCheck,
   }

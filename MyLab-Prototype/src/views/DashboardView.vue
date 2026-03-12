@@ -99,6 +99,7 @@ import WidgetMemo from '../components/widgets/WidgetMemo.vue'
 import WidgetStability from '../components/widgets/WidgetStability.vue'
 import WidgetRegulation from '../components/widgets/WidgetRegulation.vue'
 import WidgetTodayLog from '../components/widgets/WidgetTodayLog.vue'
+import WidgetHlb from '../components/widgets/WidgetHlb.vue'
 
 const widgetComponents = {
   kpi: markRaw(WidgetKpi),
@@ -111,6 +112,7 @@ const widgetComponents = {
   stability: markRaw(WidgetStability),
   regulation: markRaw(WidgetRegulation),
   todaylog: markRaw(WidgetTodayLog),
+  hlb: markRaw(WidgetHlb),
 }
 
 const { layout, availableWidgets, saveLayout, addWidget, removeWidget, resetLayout } = useWidgetStore()
