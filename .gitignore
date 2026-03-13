@@ -69,3 +69,6 @@ backup/excel/
 backup/logs/
 *.sql.gz
 *.sql.gz.sha256
+
+# Claude Code 내부 폴더
+.claire/
